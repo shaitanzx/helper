@@ -1,7 +1,7 @@
 import os
 import gradio as gr
 ####import modules
-import scripts
+from civitai_help import scripts
 ###from modules import shared
 ###from modules import script_callbacks
 from civitai_help import model
