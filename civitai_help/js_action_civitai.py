@@ -4,11 +4,11 @@ handle msg between js and python side
 import os
 from pathlib import Path
 import webbrowser
-import util
-import model
-import civitai
-import msg_handler
-import downloader
+from . import util
+from . import model
+from . import civitai
+from . import msg_handler
+from . import downloader
 
 
 def open_model_url(msg):
