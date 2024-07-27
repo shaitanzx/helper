@@ -9,18 +9,15 @@ import urllib.parse
 from PIL import Image
 import piexif
 import piexif.helper
-###from modules import shared
-###from modules import paths_internal
+from modules import shared
+from modules import paths_internal
 from . import civitai
 from . import downloader
 from . import util
 
 
 # this is the default root path
-###ROOT_PATH = paths_internal.data_path
-data_path = os.getcwd()
-ROOT_PATH = data_path
-
+ROOT_PATH = paths_internal.data_path
 
 EXTS = (".bin", ".pt", ".safetensors", ".ckpt")
 CIVITAI_EXT = ".info"
@@ -103,7 +100,7 @@ def get_custom_model_folder():
     Update extra network directories with user-specified values.
     """
     util.printD("Get Custom Model Folder")
-    """
+
     if shared.cmd_opts.embeddings_dir and os.path.isdir(shared.cmd_opts.embeddings_dir):
         folders["ti"] = shared.cmd_opts.embeddings_dir
 
@@ -121,43 +118,22 @@ def get_custom_model_folder():
 
     if util.get_opts("ch_dl_lyco_to_lora"):
         folders["lycoris"] = folders["lora"]
-    """
-    
-    folders["ti"] = os.getcwd()
 
-    folders["hyper"] = os.getcwd()
+    try:
+        # pre-1.5.0
+        if os.path.isdir(shared.cmd_opts.lyco_dir):
+            folders["lycoris"] = shared.cmd_opts.lyco_dir
 
-    folders["ckp"] = os.getcwd()
+    except AttributeError:
+        try:
+            # sd-webui v1.5.1 added a backcompat option for lyco.
+            if os.path.isdir(shared.cmd_opts.lyco_dir_backcompat):
+                folders["lycoris"] = shared.cmd_opts.lyco_dir_backcompat
 
-    folders["lora"] = os.getcwd()
-
-    vae_folder = os.getcwd()
-
- ###   if util.get_opts("ch_dl_lyco_to_lora"):
- ###       folders["lycoris"] = folders["lora"]
-
-
-
-
-
-
-
-###    try:
-###        # pre-1.5.0
-###        if os.path.isdir(shared.cmd_opts.lyco_dir):
-###            folders["lycoris"] = shared.cmd_opts.lyco_dir
-###
-###    except AttributeError:
-###        try:
-###            # sd-webui v1.5.1 added a backcompat option for lyco.
-###            if os.path.isdir(shared.cmd_opts.lyco_dir_backcompat):
-###                folders["lycoris"] = shared.cmd_opts.lyco_dir_backcompat
-###
-###        except AttributeError:
-###            # v1.5.0 has no options for the Lyco dir:
-###            # it is hardcoded as 'os.path.join(paths.models_path, "LyCORIS")'
-###            return
-    return
+        except AttributeError:
+            # v1.5.0 has no options for the Lyco dir:
+            # it is hardcoded as 'os.path.join(paths.models_path, "LyCORIS")'
+            return
 
 
 def locate_model_from_partial(root, model_name):

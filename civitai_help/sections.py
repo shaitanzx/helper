@@ -146,8 +146,7 @@ def get_model_info_by_url_section():
 
 def filter_previews(previews):
     images = []
-###    nsfw_preview_threshold = nsfw_civitai
-    nsfw_preview_threshold = "XXX"
+    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
     for preview in previews:
         try:
             nsfw_level = preview["nsfwLevel"]
@@ -167,7 +166,7 @@ def filter_previews(previews):
 
 def download_section():
     """ Download Models Section """
-    
+
     model_filetypes = civitai.FILE_TYPES
     file_elems = {}
 
@@ -197,9 +196,7 @@ def download_section():
 
     def get_model_info_by_url(url, subfolder):
         model_id = civitai.get_model_id_from_url(url)
-
         data = model_action_civitai.get_model_info_by_id(model_id)
-
 
         if not data:
             return None
@@ -253,26 +250,22 @@ def download_section():
 
             state["files_count"][version] = files_count
 
-        return [state,data["model_name"], data["model_type"],gr.update(choices=subfolders,value=subfolder),
-                gr.update(choices=version_strs,value=version_strs[0]),gr.update(visible=True)]
-    
-##        return [
-##            state, data["model_name"], data["model_type"],
-##            dl_subfolder_drop(
-##                choices=subfolders,
-##                value=subfolder
-##            ),
-##            dl_version_drop(
-##                choices=version_strs,
-##                value=version_strs[0]
-##            ),
-##            files_row.update(
-##                visible=True
-##            )
-
+        return [
+            state, data["model_name"], data["model_type"],
+            dl_subfolder_drop.update(
+                choices=subfolders,
+                value=subfolder
+            ),
+            dl_version_drop.update(
+                choices=version_strs,
+                value=version_strs[0]
+            ),
+            files_row.update(
+                visible=True
+            )
+        ]
 
     def update_dl_inputs(state, dl_version, dl_preview_index):
-
         filename = state["filenames"][dl_version]
 
         if not filename:
@@ -368,16 +361,14 @@ def download_section():
         with gr.Column(scale=2, elem_id="ch_dl_model_inputs"):
 
             gr.Markdown(value="**1. Add URL and retrieve Model Info**")
-            with gr.Row(elem_classes="ch_box"):
-                nsfw_civitai=gr.Dropdown(choices=list(civitai.NSFW_LEVELS.keys()),label="NSFW_LEVELS",value=list(civitai.NSFW_LEVELS.keys())[0],
-                                     multiselect=False,interactive=True,elem_classes="ch_vpadding")
+
             with gr.Row():
                 with gr.Column(scale=2, elem_classes="justify-bottom"):
                     dl_model_url_or_id_txtbox = gr.Textbox(
                         label="Civitai URL",
                         lines=1,
                         max_lines=1,
-                        value="https://civitai.com/models/545118/agxl",
+                        value="",
                         placeholder="Model URL or Model ID",
                         elem_id="ch_dl_url"
                     )
@@ -554,9 +545,17 @@ def download_section():
         )
 
     # ====events====
-    dl_model_info_btn.click(get_model_info_by_url,inputs=[dl_model_url_or_id_txtbox, dl_subfolder_drop],
-                            outputs=[dl_state,dl_model_name_txtbox,dl_model_type_txtbox, dl_subfolder_drop,dl_version_drop,files_row])
-
+    dl_model_info_btn.click(
+        get_model_info_by_url,
+        inputs=[
+            dl_model_url_or_id_txtbox, dl_subfolder_drop
+        ],
+        outputs=[
+            dl_state, dl_model_name_txtbox,
+            dl_model_type_txtbox, dl_subfolder_drop,
+            dl_version_drop, files_row
+        ]
+    )
 
     dl_inputs = [
             dl_state, dl_model_type_txtbox,
