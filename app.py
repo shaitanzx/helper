@@ -30,9 +30,7 @@ This extension can help you manage your models from civitai.
 repo: https://github.com/butaixianran/
 """
 
-import os
-import gradio as gr
-import modules
+###import modules
 ##from modules import scripts
 ###from modules import shared
 ###from modules import script_callbacks
