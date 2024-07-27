@@ -1,15 +1,36 @@
-import os
 import gradio as gr
-####import modules
-from civitai_help import scripts
-###from modules import shared
-###from modules import script_callbacks
+import random
+import os
+import json
+import time
+import shared
+import modules.config
+import fooocus_version
+import modules.html
+###import modules.async_worker as worker
+import modules.constants as constants
+import modules.flags as flags
+import modules.gradio_hijack as grh
+import modules.style_sorter as style_sorter
+import modules.meta_parser
+import args_manager
+import copy
+import launch
+###from extras.inpaint_mask import SAMOptions
+
+from modules.sdxl_styles import legal_style_names
+from modules.private_logger import get_current_html_path
+from modules.ui_gradio_extensions import reload_javascript
+from modules.auth import auth_enabled, check_auth
+from modules.util import is_json
+
 from civitai_help import model
 from civitai_help import js_action_civitai
 from civitai_help import civitai
 from civitai_help import util
 from civitai_help import sections
 from civitai_help import browser
+from civitai_help import scripts
 
 
 # init
@@ -45,7 +66,9 @@ def change_nsfw(nsfw_drop):
     nsfw_civitai=nsfw_drop
     return nsfw_civitai
 
-with gr.Blocks(analytics_enabled=False) as dm2:
+shared.gradio_root = gr.Blocks(title="helper").queue()
+
+with shared.gradio_root:
         # init
         with gr.Row(elem_classes="ch_box"):
             nsfw_drop=gr.Dropdown(choices=list(civitai.NSFW_LEVELS.keys()),label="NSFW_LEVELS",value=list(civitai.NSFW_LEVELS.keys())[0],multiselect=False,interactive=True,elem_classes="ch_vpadding")
@@ -72,4 +95,14 @@ with gr.Blocks(analytics_enabled=False) as dm2:
 
         nsfw_drop.change(change_nsfw, inputs=nsfw_drop, outputs=None)
 
-dm2.launch(share=True)
+# dump_default_english_config()
+
+shared.gradio_root.launch(
+    inbrowser=args_manager.args.in_browser,
+    server_name=args_manager.args.listen,
+    server_port=args_manager.args.port,
+    share=True,
+    auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
+    allowed_paths=[modules.config.path_outputs],
+    blocked_paths=[constants.AUTH_FILENAME]
+)
