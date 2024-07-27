@@ -11,9 +11,9 @@ import piexif
 import piexif.helper
 ###from modules import shared
 ###from modules import paths_internal
-import civitai
-import downloader
-import util
+from . import civitai
+from . import downloader
+from . import util
 
 
 # this is the default root path
