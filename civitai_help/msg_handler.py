@@ -2,7 +2,7 @@
 handle msg between js and python side
 """
 import json
-import util
+from . import util
 
 # action list
 JS_ACTIONS = (
