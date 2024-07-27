@@ -295,9 +295,9 @@ def dl_file(
 
     yields: tuple(success:bool, filepath or failure message:str) or progress:str
     """
-
     if not headers:
         headers = {}
+    
 
     success, response_or_error = request_get(url, headers=headers)
 

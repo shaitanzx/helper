@@ -5,7 +5,7 @@ import os
 import time
 import re
 import gradio as gr
-from modules import sd_models
+##from modules import sd_models
 from . import util
 from . import model
 from . import civitai
@@ -270,11 +270,14 @@ def get_model_info_by_input(
     """
     output = ""
 
-    max_size_preview = util.get_opts("ch_max_size_preview")
-    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+###    max_size_preview = util.get_opts("ch_max_size_preview")
+    max_size_preview = True
+##    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+    nsfw_preview_threshold = 'XXX'
 
     # parse model id
     model_id = civitai.get_model_id_from_url(model_url_or_id)
+    
     if not model_id:
         output = f"failed to parse model id from url: {model_url_or_id}"
         util.printD(output)
@@ -451,10 +454,10 @@ def get_model_info_by_id(model_id:str) -> dict:
 
     # get folder by model type
     folder = model.folders[model_type]
+    
 
     # get subfolders
     subfolders = ["/"] + util.get_subfolders(folder)
-
     # msg = util.indented_msg(f"""
     #     Got following info for downloading:
     #     {model_name=}
@@ -613,6 +616,8 @@ def download_files(filename, model_folder, ver_info, headers, filetypes, dl_all,
 
     # check if this model already exists
     result = civitai.search_local_model_info_by_version_id(model_folder, model_ids)
+
+
     if result:
         output = f"This model version already exists at `{result}`"
         util.printD(output)
@@ -720,6 +725,9 @@ def download_one(filename, model_folder, ver_info, headers, duplicate):
 
 
 def dl_model_by_input(
+    ch_dl_webui_metadata:bool,
+    ch_download_examples:bool,
+    api_key:str,
     ch_state:dict,
     model_type:str,
     subfolder_str:str,
@@ -736,8 +744,10 @@ def dl_model_by_input(
     """
 
     model_info = ch_state["model_info"]
-    max_size_preview = util.get_opts("ch_max_size_preview")
-    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+###    max_size_preview = util.get_opts("ch_max_size_preview")
+    max_size_preview = True
+###    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+    nsfw_preview_threshold = 'XXX'
 
     if not (model_info and model_type and subfolder_str and version_str):
         output = util.indented_msg(f"""
@@ -815,7 +825,7 @@ def dl_model_by_input(
     headers = {
         "content-type": "application/json"
     }
-    api_key = util.get_opts("ch_civiai_api_key")
+###    api_key = util.get_opts("ch_civiai_api_key")
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
 
@@ -837,7 +847,7 @@ def dl_model_by_input(
 
     # get version info
     version_info = civitai.get_version_info_by_version_id(ver_info["id"])
-    model.process_model_info(output, version_info, model_type)
+    model.process_model_info(ch_dl_webui_metadata,ch_download_examples,output, version_info, model_type)
 
     # then, get preview image + webui-visible progress
     for result in civitai.get_preview_image_by_model_path(

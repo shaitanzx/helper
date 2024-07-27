@@ -146,7 +146,8 @@ def get_model_info_by_url_section():
 
 def filter_previews(previews):
     images = []
-    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+#    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+    nsfw_preview_threshold = 'XXX'
     for preview in previews:
         try:
             nsfw_level = preview["nsfwLevel"]
@@ -368,7 +369,7 @@ def download_section():
                         label="Civitai URL",
                         lines=1,
                         max_lines=1,
-                        value="",
+                        value="https://civitai.com/models/212532/all-disney-princess-xl-lora-model-from-ralph-breaks-the-internet?modelVersionId=244808",
                         placeholder="Model URL or Model ID",
                         elem_id="ch_dl_url"
                     )
@@ -532,6 +533,21 @@ def download_section():
             )
 
         with gr.Column(elem_classes="justify-bottom"):
+          with gr.Row ():
+            dl_api_key = gr.Textbox(
+                label="Civitai API Key",
+                value="85787ad46c0ac8782754057a18dd757a",
+                lines=1,
+                max_lines=1,
+                elem_id="ch_dl_filename_txtbox",
+                elem_classes="ch_vpadding")
+          with gr.Row ():
+            ch_download_examples=gr.Checkbox(label="Download Example Images Locally",
+                interactive=True, value=False, container=False)
+            ch_dl_webui_metadata=gr.Checkbox(label="Also add data for WebUI metadata editor",
+                interactive=True, value=True, container=False)
+
+          with gr.Row():
             dl_civitai_model_by_id_btn = gr.Button(
                 value="3. Download Model",
                 elem_classes="ch_vmargin",
@@ -564,10 +580,11 @@ def download_section():
             dl_all_ckb,
             dl_duplicate_drop, dl_preview_url
         ] + ch_dl_model_types
+    dl_inputs_api=[ch_dl_webui_metadata] + [ch_download_examples]+[dl_api_key]+ dl_inputs
 
     dl_civitai_model_by_id_btn.click(
         model_action_civitai.dl_model_by_input,
-        inputs=dl_inputs,
+        inputs=dl_inputs_api,
         outputs=dl_log_md
     )
 
@@ -671,8 +688,8 @@ def download_multiple_section():
         entries = entries_txt.split("\n")
         dls = []
 
-        nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
-
+##        nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+        nsfw_preview_threshold = 'XXX'
         for entry in entries:
             url = None
             params = None

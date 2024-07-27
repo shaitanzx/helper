@@ -9,15 +9,16 @@ import urllib.parse
 from PIL import Image
 import piexif
 import piexif.helper
-from modules import shared
-from modules import paths_internal
+##from modules import shared
+##from modules import paths_internal
 from . import civitai
 from . import downloader
 from . import util
-
+from modules import config
 
 # this is the default root path
-ROOT_PATH = paths_internal.data_path
+##ROOT_PATH = paths_internal.data_path
+ROOT_PATH = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
 
 EXTS = (".bin", ".pt", ".safetensors", ".ckpt")
 CIVITAI_EXT = ".info"
@@ -30,11 +31,11 @@ so to make extension work with those absolute model folder paths, model
 folder also need to be in absolute path
 """
 folders = {
-    "ti": os.path.join(ROOT_PATH, "embeddings"),
-    "hyper": os.path.join(ROOT_PATH, "models", "hypernetworks"),
-    "ckp": os.path.join(ROOT_PATH, "models", "Stable-diffusion"),
-    "lora": os.path.join(ROOT_PATH, "models", "Lora"),
-    "lycoris": os.path.join(ROOT_PATH, "models", "LyCORIS"),
+    "ti": '/content/helper/models/embeddings',
+    "hyper": '/content/helper/models/hypernetworks',
+    "ckp": '/content/helper/models/checkpoints',
+    "lora": '/content/helper/models/loras',
+    "lycoris": '/content/helper/models/loras',
 }
 
 # Separate because the above is used for detecting supported models
@@ -100,40 +101,47 @@ def get_custom_model_folder():
     Update extra network directories with user-specified values.
     """
     util.printD("Get Custom Model Folder")
+    
 
-    if shared.cmd_opts.embeddings_dir and os.path.isdir(shared.cmd_opts.embeddings_dir):
-        folders["ti"] = shared.cmd_opts.embeddings_dir
+##    if shared.cmd_opts.embeddings_dir and os.path.isdir(shared.cmd_opts.embeddings_dir):
+##        folders["ti"] = shared.cmd_opts.embeddings_dir
+    folders["ti"] = '/content/helper/models/embeddings'
 
-    if shared.cmd_opts.hypernetwork_dir and os.path.isdir(shared.cmd_opts.hypernetwork_dir):
-        folders["hyper"] = shared.cmd_opts.hypernetwork_dir
+##    if shared.cmd_opts.hypernetwork_dir and os.path.isdir(shared.cmd_opts.hypernetwork_dir):
+##        folders["hyper"] = shared.cmd_opts.hypernetwork_dir
+    folders["hyper"] = '/content/helper/models/hypernetworks'
 
-    if shared.cmd_opts.ckpt_dir and os.path.isdir(shared.cmd_opts.ckpt_dir):
-        folders["ckp"] = shared.cmd_opts.ckpt_dir
+##    if shared.cmd_opts.ckpt_dir and os.path.isdir(shared.cmd_opts.ckpt_dir):
+##        folders["ckp"] = shared.cmd_opts.ckpt_dir
+    folders["ckpt"] = '/content/helper/models/checkpoints'
 
-    if shared.cmd_opts.lora_dir and os.path.isdir(shared.cmd_opts.lora_dir):
-        folders["lora"] = shared.cmd_opts.lora_dir
+##    if shared.cmd_opts.lora_dir and os.path.isdir(shared.cmd_opts.lora_dir):
+##        folders["lora"] = shared.cmd_opts.lora_dir
+    folders["lora"] = '/content/helper/models/loras'
 
-    if shared.cmd_opts.vae_dir and os.path.isdir(shared.cmd_opts.vae_dir):
-        vae_folder = shared.cmd_opts.vae_dir
+##    if shared.cmd_opts.vae_dir and os.path.isdir(shared.cmd_opts.vae_dir):
+##        vae_folder = shared.cmd_opts.vae_dir
+    vae_folder = '/content/helper/models/vae'
+    folders["lycoris"] =  '/content/helper/models/loras'
 
-    if util.get_opts("ch_dl_lyco_to_lora"):
-        folders["lycoris"] = folders["lora"]
+##    if util.get_opts("ch_dl_lyco_to_lora"):
+##        folders["lycoris"] = folders["lora"]
 
-    try:
+##    try:
         # pre-1.5.0
-        if os.path.isdir(shared.cmd_opts.lyco_dir):
-            folders["lycoris"] = shared.cmd_opts.lyco_dir
+##       if os.path.isdir(shared.cmd_opts.lyco_dir):
+##            folders["lycoris"] = shared.cmd_opts.lyco_dir
 
-    except AttributeError:
-        try:
+##    except AttributeError:
+##        try:
             # sd-webui v1.5.1 added a backcompat option for lyco.
-            if os.path.isdir(shared.cmd_opts.lyco_dir_backcompat):
-                folders["lycoris"] = shared.cmd_opts.lyco_dir_backcompat
-
-        except AttributeError:
-            # v1.5.0 has no options for the Lyco dir:
-            # it is hardcoded as 'os.path.join(paths.models_path, "LyCORIS")'
-            return
+##            if os.path.isdir(shared.cmd_opts.lyco_dir_backcompat):
+##                folders["lycoris"] = shared.cmd_opts.lyco_dir_backcompat
+##
+##        except AttributeError:
+##            # v1.5.0 has no options for the Lyco dir:
+##            # it is hardcoded as 'os.path.join(paths.models_path, "LyCORIS")'
+##            return
 
 
 def locate_model_from_partial(root, model_name):
@@ -162,11 +170,11 @@ def metadata_needed(info_file, sd15_file, refetch_old):
     return need_civitai or need_sdwebui
 
 
-def metadata_needed_for_type(path, meta_type, refetch_old):
+def metadata_needed_for_type(path, meta_type, refetch_old,ch_dl_webui_metadata):
     """ return True if metadata is needed for path
     """
 
-    if meta_type == "sdwebui" and not util.get_opts("ch_dl_webui_metadata"):
+    if meta_type == "sdwebui" and not ch_dl_webui_metadata:
         return False
 
     if not os.path.isfile(path):
@@ -231,7 +239,7 @@ def write_info(data, path, info_type):
         info_file.write(json.dumps(data, indent=4))
 
 
-def process_model_info(model_path, model_info, model_type="ckp", refetch_old=False):
+def process_model_info(ch_dl_webui_metadata,ch_download_examples,model_path, model_info, model_type="ckp", refetch_old=False):
     """
     Write model info to file
 
@@ -280,14 +288,15 @@ def process_model_info(model_path, model_info, model_type="ckp", refetch_old=Fal
     # Download preview images locally, for other extensions to display without
     # depending on civitai being up, or an internet connection at all.
     updated = False
-    if util.get_opts("ch_download_examples"):
+    if ch_download_examples:
         images = model_info.get("images", [])
 
         for img in images:
             url = img.get("url", None)
 
 
-            nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+##            nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+            nsfw_preview_threshold = 'XXX'
             rating = img.get("nsfwLevel", 32)
             if rating > 1:
                 if civitai.NSFW_LEVELS[nsfw_preview_threshold] < rating:
@@ -321,7 +330,7 @@ def process_model_info(model_path, model_info, model_type="ckp", refetch_old=Fal
                     updated = True
 
     # civitai model info file
-    if metadata_needed_for_type(info_file, "civitai", refetch_old) or updated:
+    if metadata_needed_for_type(info_file, "civitai", refetch_old,ch_dl_webui_metadata) or updated:
         if refetch_old:
             try:
                 if verify_overwrite_eligibility(info_file, model_info):
@@ -334,12 +343,12 @@ def process_model_info(model_path, model_info, model_type="ckp", refetch_old=Fal
         else:
             write_info(model_info, info_file, "civitai")
 
-    if not util.get_opts("ch_dl_webui_metadata"):
+    if not ch_dl_webui_metadata:
         return
 
     # Do not overwrite user-created files!
     # TODO: maybe populate empty fields in existing files?
-    if not metadata_needed_for_type(sd15_file, "sdwebui", refetch_old):
+    if not metadata_needed_for_type(sd15_file, "sdwebui", refetch_old,ch_dl_webui_metadata):
         util.printD(f"Metadata not needed for: {sd15_file}.")
         return
 
