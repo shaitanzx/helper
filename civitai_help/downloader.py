@@ -10,7 +10,7 @@ from typing import cast, Literal
 from tqdm import tqdm
 import requests
 import urllib3
-import from . util
+from . import util
 
 
 DL_EXT = ".downloading"
