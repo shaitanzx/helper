@@ -4,12 +4,12 @@ import gradio as gr
 import scripts
 ###from modules import shared
 ###from modules import script_callbacks
-import model
-import js_action_civitai
-import civitai
-import util
-import sections
-import browser
+from civitai_help import model
+from civitai_help import js_action_civitai
+from civitai_help import civitai
+from civitai_help import util
+from civitai_help import sections
+from civitai_help import browser
 
 
 # init
@@ -72,4 +72,4 @@ with gr.Blocks(analytics_enabled=False) as dm2:
 
         nsfw_drop.change(change_nsfw, inputs=nsfw_drop, outputs=None)
 
-dm2.launch()
+dm2.launch(share=True)
