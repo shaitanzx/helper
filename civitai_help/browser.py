@@ -5,7 +5,7 @@ browser.py - Civitai Browser for Civitai Helper
 import os
 from string import Template
 import gradio as gr
-import util
+from . import util
 from . import civitai
 
 def civitai_search():
