@@ -6,7 +6,7 @@ import os
 from string import Template
 import gradio as gr
 import util
-import civitai
+from . import civitai
 
 def civitai_search():
     """
