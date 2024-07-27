@@ -6,11 +6,11 @@ import time
 import re
 import gradio as gr
 ####from modules import sd_models
-import util
-import model
-import civitai
-import downloader
-import templates
+from . import util
+from . import model
+from . import civitai
+from . import downloader
+from . import templates
 
 
 def get_metadata_skeleton():
