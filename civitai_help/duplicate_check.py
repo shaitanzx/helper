@@ -7,10 +7,10 @@ import html
 import json
 import traceback
 import gradio as gr
-import util
-import model
-import civitai
-import templates
+from . import util
+from . import model
+from . import civitai
+from . import templates
 
 
 def scan_for_dups(scan_model_types, cached_hash, progress=gr.Progress()):
