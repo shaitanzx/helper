@@ -4,9 +4,9 @@ handle msg between js and python side
 
 import os
 import re
-import util
-import model
-import downloader
+from . import util
+from . import model
+from . import downloader
 
 SUFFIX = ".civitai"
 
