@@ -3,7 +3,7 @@ HTML templates
 """
 
 from string import Template
-import util
+from . import util
 
 article = Template(util.dedent("""
     <article style="margin: 5px; clear: both;">
