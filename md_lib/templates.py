@@ -4,6 +4,7 @@ HTML templates
 
 from string import Template
 from . import util
+from . import md_config
 
 article = Template(util.dedent("""
     <article style="margin: 5px; clear: both;">
