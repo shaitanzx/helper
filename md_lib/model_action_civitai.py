@@ -5,12 +5,13 @@ import os
 import time
 import re
 import gradio as gr
-from modules import sd_models
+##from modules import sd_models
 from . import util
 from . import model
 from . import civitai
 from . import downloader
 from . import templates
+from . import md_config
 
 
 def get_metadata_skeleton():
