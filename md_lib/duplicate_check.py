@@ -11,6 +11,7 @@ from . import util
 from . import model
 from . import civitai
 from . import templates
+from . import md_config
 
 
 def scan_for_dups(scan_model_types, cached_hash, progress=gr.Progress()):
