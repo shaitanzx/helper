@@ -24,15 +24,31 @@ from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 from modules.util import is_json
 
-from md_lib.config import md_config
+from md_lib import md_config
+from md_lib import model
+from md_lib import js_action_civitai
+from md_lib import civitai
+from md_lib import util
+from md_lib import sections
 
-
+txt2img_prompt = 'txt2img_prompt'
+txt2img_neg_prompt = 'txt2img_neg_prompt'
+img2img_prompt = 'img2img_prompt'
+img2img_neg_prompt = 'img2img_neg_prompt'
+# Used by some elements to pass messages to python
+js_msg_txtbox = gr.Textbox(
+        label="Request Msg From Js",
+        visible=False,
+        lines=1,
+        value="",
+        elem_id="ch_js_msg_txtbox"
+    )
 
     # ====UI====
 shared.gradio_root = gr.Blocks(title="helper").queue()
 
 with shared.gradio_root:
-    with gr.Box(elem_classes="ch_box"):
+        with gr.Box(elem_classes="ch_box"):
             sections.scan_models_section()
 
         with gr.Box(elem_classes="ch_box"):
@@ -89,7 +105,7 @@ with shared.gradio_root:
             visible=False,
             elem_id="ch_js_remove_card_btn"
         )
-
+"""
         # ====events====
         # js action
         js_open_url_btn.click(
@@ -122,6 +138,8 @@ with shared.gradio_root:
             inputs=[js_msg_txtbox],
             outputs=py_msg_txtbox
         )
+"""
+
 shared.gradio_root.launch(
     inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
