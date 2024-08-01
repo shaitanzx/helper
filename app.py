@@ -24,6 +24,8 @@ from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 from modules.util import is_json
 
+from md_lib.config import md_config
+
 
 
     # ====UI====
