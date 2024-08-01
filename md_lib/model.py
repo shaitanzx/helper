@@ -9,11 +9,12 @@ import urllib.parse
 from PIL import Image
 import piexif
 import piexif.helper
-from modules import shared
-from modules import paths_internal
+##from modules import shared
+##from modules import paths_internal
 from . import civitai
 from . import downloader
 from . import util
+from . import md_config
 
 
 # this is the default root path
