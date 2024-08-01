@@ -18,7 +18,8 @@ from . import md_config
 
 
 # this is the default root path
-ROOT_PATH = paths_internal.data_path
+##ROOT_PATH = paths_internal.data_path
+ROOT_PATH = '/content/helper'
 
 EXTS = (".bin", ".pt", ".safetensors", ".ckpt")
 CIVITAI_EXT = ".info"
@@ -32,10 +33,10 @@ folder also need to be in absolute path
 """
 folders = {
     "ti": os.path.join(ROOT_PATH, "embeddings"),
-    "hyper": os.path.join(ROOT_PATH, "models", "hypernetworks"),
-    "ckp": os.path.join(ROOT_PATH, "models", "Stable-diffusion"),
-    "lora": os.path.join(ROOT_PATH, "models", "Lora"),
-    "lycoris": os.path.join(ROOT_PATH, "models", "LyCORIS"),
+##    "hyper": os.path.join(ROOT_PATH, "models", "hypernetworks"),
+    "ckp": os.path.join(ROOT_PATH, "models", "checkpoints"),
+    "lora": os.path.join(ROOT_PATH, "models", "loras"),
+##    "lycoris": os.path.join(ROOT_PATH, "models", "LyCORIS"),
 }
 
 # Separate because the above is used for detecting supported models
@@ -167,7 +168,7 @@ def metadata_needed_for_type(path, meta_type, refetch_old):
     """ return True if metadata is needed for path
     """
 
-    if meta_type == "sdwebui" and not util.get_opts("ch_dl_webui_metadata"):
+    if meta_type == "sdwebui" and not md_config.ch_dl_webui_metadata:
         return False
 
     if not os.path.isfile(path):
@@ -281,14 +282,19 @@ def process_model_info(model_path, model_info, model_type="ckp", refetch_old=Fal
     # Download preview images locally, for other extensions to display without
     # depending on civitai being up, or an internet connection at all.
     updated = False
-    if util.get_opts("ch_download_examples"):
+##    if util.get_opts("ch_download_examples"):
+    if md_config.ch_download_examples:
+
         images = model_info.get("images", [])
 
         for img in images:
             url = img.get("url", None)
 
-
-            nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+            if md_config.ch_nsfw_threshold:
+                nsfw_preview_threshold="PG"
+            else:
+                nsfw_preview_threshold="XXX"
+###            nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
             rating = img.get("nsfwLevel", 32)
             if rating > 1:
                 if civitai.NSFW_LEVELS[nsfw_preview_threshold] < rating:
@@ -335,7 +341,7 @@ def process_model_info(model_path, model_info, model_type="ckp", refetch_old=Fal
         else:
             write_info(model_info, info_file, "civitai")
 
-    if not util.get_opts("ch_dl_webui_metadata"):
+    if not md_config.ch_dl_webui_metadata:
         return
 
     # Do not overwrite user-created files!

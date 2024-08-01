@@ -12,6 +12,7 @@ from . import util
 from . import md_config
 
 model_types = list(model.folders.keys())
+print ('---------------', md_config.ch_download_examples)
 
 def scan_models_section():
     """ Scan Models Section """
@@ -147,7 +148,10 @@ def get_model_info_by_url_section():
 
 def filter_previews(previews):
     images = []
-    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+    if md_config.ch_nsfw_threshold:
+      nsfw_preview_threshold="PG"
+    else:
+      nsfw_preview_threshold="XXX"
     for preview in previews:
         try:
             nsfw_level = preview["nsfwLevel"]
@@ -374,6 +378,14 @@ def download_section():
                         elem_id="ch_dl_url"
                     )
                 with gr.Column(elem_classes="justify-bottom"):
+                    dl_civitai_apikey = gr.Textbox(
+                        label="Civitai API key",
+                        lines=1,
+                        max_lines=1,
+                        value=md_config.ch_civiai_api_key,
+                        placeholder="Civitai API key",
+                        elem_id="ch_dl_url"
+                    )
                     dl_model_info_btn = gr.Button(
                         value="Get Model Info by Civitai Url",
                         variant="primary",
@@ -533,6 +545,10 @@ def download_section():
             )
 
         with gr.Column(elem_classes="justify-bottom"):
+            dl_civital_model_example_image_local=gr.Checkbox(
+              label="Download Example Images Locally",
+              value=md_config.ch_download_examples,
+              interactive=True)
             dl_civitai_model_by_id_btn = gr.Button(
                 value="3. Download Model",
                 elem_classes="ch_vmargin",
@@ -546,6 +562,13 @@ def download_section():
         )
 
     # ====events====
+    def inverse_key(keyz):
+        md_config.ch_download_examples=keyz
+        return md_config.ch_download_examples
+    def prepere_dl(api_key,example):
+        md_config.ch_civiai_api_key=api_key
+        md_config.ch_download_examples=example
+        return md_config.ch_civiai_api_key, md_config.ch_download_examples    
     dl_model_info_btn.click(
         get_model_info_by_url,
         inputs=[
@@ -566,7 +589,8 @@ def download_section():
             dl_duplicate_drop, dl_preview_url
         ] + ch_dl_model_types
 
-    dl_civitai_model_by_id_btn.click(
+    dl_civitai_model_by_id_btn.click(prepere_dl, inputs=[dl_civitai_apikey, dl_civital_model_example_image_local]) \
+        .then(
         model_action_civitai.dl_model_by_input,
         inputs=dl_inputs,
         outputs=dl_log_md

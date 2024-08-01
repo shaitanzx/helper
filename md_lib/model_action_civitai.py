@@ -737,8 +737,11 @@ def dl_model_by_input(
     """
 
     model_info = ch_state["model_info"]
-    max_size_preview = util.get_opts("ch_max_size_preview")
-    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+##    max_size_preview = util.get_opts("ch_max_size_preview")
+    max_size_preview = md_config.ch_max_size_preview
+
+##    nsfw_preview_threshold = util.get_opts("ch_nsfw_threshold")
+    nsfw_preview_threshold = md_config.ch_nsfw_threshold
 
     if not (model_info and model_type and subfolder_str and version_str):
         output = util.indented_msg(f"""
@@ -816,7 +819,8 @@ def dl_model_by_input(
     headers = {
         "content-type": "application/json"
     }
-    api_key = util.get_opts("ch_civiai_api_key")
+##    api_key = util.get_opts("ch_civiai_api_key")
+    api_key = md_config.ch_civiai_api_key
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
 

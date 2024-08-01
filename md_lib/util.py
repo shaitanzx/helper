@@ -15,18 +15,18 @@ import gradio as gr
 from packaging.version import parse as parse_version
 from . import md_config
 
-try:
+##try:
     # Automatic1111 SD WebUI
-    import modules.cache as sha256_cache
-except ModuleNotFoundError:
+##    import modules.cache as sha256_cache
+##except ModuleNotFoundError:
     # Vladmandic "SD.Next"
-    import modules.hashes as sha256_cache
+##    import modules.hashes as sha256_cache
 
 # used to append extension information to JSON/INFO files
 SHORT_NAME = "sd_civitai_helper"
 
 # current version of the exension
-VERSION = "1.8.10"
+VERSION = ""
 
 # Civitai INFO files below this version will regenerated
 COMPAT_VERSION_CIVITAI = "1.7.2"
@@ -58,7 +58,7 @@ script_dir = None
 # print for debugging
 def printD(msg:any) -> str:
     """ Print a message to stderr """
-    print(f"CHv{VERSION}: {msg}")
+    print(f"Model Downloader: {msg}")
 
 
 def append_default_headers(headers:dict) -> dict:
