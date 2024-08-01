@@ -7,6 +7,7 @@ import re
 from . import util
 from . import model
 from . import downloader
+from . import md_config
 
 SUFFIX = ".civitai"
 
