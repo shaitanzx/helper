@@ -3,6 +3,7 @@ handle msg between js and python side
 """
 import json
 from . import util
+from . import md_config
 
 # action list
 JS_ACTIONS = (
