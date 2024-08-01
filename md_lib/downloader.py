@@ -11,6 +11,7 @@ from tqdm import tqdm
 import requests
 import urllib3
 from . import util
+from . import md_config
 
 
 DL_EXT = ".downloading"
