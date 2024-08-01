@@ -9,6 +9,7 @@ from . import model
 from . import civitai
 from . import msg_handler
 from . import downloader
+from . import md_config
 
 
 def open_model_url(msg):
