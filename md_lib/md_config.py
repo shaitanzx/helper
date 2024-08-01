@@ -1,0 +1,10 @@
+ch_civiai_api_key=""
+ch_dl_lyco_to_lora=False
+ch_open_url_with_js=True
+ch_hide_buttons=[x for x, y in BUTTONS.items() if y]
+ch_always_display=False
+ch_max_size_preview=True
+ch_download_examples=False
+ch_nsfw_threshold=list(civitai.NSFW_LEVELS.keys())[0]
+ch_dl_webui_metadata=True
+ch_proxy=""
