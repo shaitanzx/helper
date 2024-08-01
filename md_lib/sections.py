@@ -9,6 +9,7 @@ from . import model_action_civitai
 from . import civitai
 from . import duplicate_check
 from . import util
+from . import md_config
 
 model_types = list(model.folders.keys())
 
