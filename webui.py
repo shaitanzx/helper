@@ -153,6 +153,7 @@ def queue_new_prompt(*args):
   global finished_batch
   finished_batch=False
   args = list(args)
+  seed_random = args.pop()
   batch_args = args.pop()
   print ('input', args)
   print ('batch', batch_args)
@@ -167,6 +168,8 @@ def queue_new_prompt(*args):
       currentTask=get_task_batch(args)
       yield from generate_clicked(currentTask)
       args=copy[:]
+      if seed_random:
+	 argrs[10]=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
       passed+=1
   return 
 def prompt_clearer(batch_prompt):
@@ -1389,6 +1392,7 @@ with shared.gradio_root:
         batch_stop.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
         ctrls_prompt = ctrls[:]
         ctrls_prompt.append(batch_prompt)
+	ctrls_prompt.append(seed_random)
 
 
 
