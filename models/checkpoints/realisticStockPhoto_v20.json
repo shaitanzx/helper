@@ -1,0 +1,12 @@
+{
+    "description": "<!--\nif you like the models, please consider supporting me on, i will continue to upload more cool stuffs in the future\n\n\nhttp://patreon.com/PromptSharingSamaritan\n\nhttps://ko-fi.com/promptsharingsamaritan\n-->",
+    "notes": "<!--\nI have trained a model and merge it a little bit with the version 1. I was trying to create a model with realistic skin texture that isn't glossy\n-->",
+    "sd version": "SDXL",
+    "extensions": {
+        "sd_civitai_helper for fooocus": {
+            "version": "1.8.10",
+            "last_update": 1724618777,
+            "skeleton_file": false
+        }
+    }
+}
