@@ -46,7 +46,73 @@ reload_javascript()
 shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
+    with Row():
+        py_msg_txtbox = gr.Textbox(
+            label="Response Msg From Python",
+            visible=False,
+            lines=1,
+            value="",
+            elem_id="ch_py_msg_txtbox"
+        )
 
+        js_open_url_btn = gr.Button(
+            value="Open Model Url",
+            visible=False,
+            elem_id="ch_js_open_url_btn"
+        )
+        js_add_trigger_words_btn = gr.Button(
+            value="Add Trigger Words",
+            visible=False,
+            elem_id="ch_js_add_trigger_words_btn"
+        )
+        js_use_preview_prompt_btn = gr.Button(
+            value="Use Prompt from Preview Image",
+            visible=False,
+            elem_id="ch_js_use_preview_prompt_btn"
+        )
+        js_rename_card_btn = gr.Button(
+            value="Rename Card",
+            visible=False,
+            elem_id="ch_js_rename_card_btn"
+        )
+        js_remove_card_btn = gr.Button(
+            value="Remove Card",
+            visible=False,
+            elem_id="ch_js_remove_card_btn"
+        )
+
+        # ====events====
+        # js action
+        js_open_url_btn.click(
+            js_action_civitai.open_model_url,
+            inputs=[js_msg_txtbox],
+            outputs=py_msg_txtbox
+        )
+        js_add_trigger_words_btn.click(
+            js_action_civitai.add_trigger_words,
+            inputs=[js_msg_txtbox],
+            outputs=[
+                txt2img_prompt, img2img_prompt
+            ]
+        )
+        js_use_preview_prompt_btn.click(
+            js_action_civitai.use_preview_image_prompt,
+            inputs=[js_msg_txtbox],
+            outputs=[
+                txt2img_prompt, txt2img_neg_prompt,
+                img2img_prompt, img2img_neg_prompt
+            ]
+        )
+        js_rename_card_btn.click(
+            js_action_civitai.rename_model_by_path,
+            inputs=[js_msg_txtbox],
+            outputs=py_msg_txtbox
+        )
+        js_remove_card_btn.click(
+            js_action_civitai.remove_model_by_path,
+            inputs=[js_msg_txtbox],
+            outputs=py_msg_txtbox
+        )
 
 
 shared.gradio_root.launch(
