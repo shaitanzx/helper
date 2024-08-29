@@ -39,8 +39,7 @@ from modules.util import is_json
 
 from md_lib import civitai_helper
 from md_lib import md_config
-
-#import pandas
+import wildcards as wildcards
 
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
@@ -362,6 +361,17 @@ with shared.gradio_root:
 
                     stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
                     skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
+
+		with gr.Accordion(label='Wildcards & Batch Prompts', visible=False, open=True) as prompt_wildcards:
+                    wildcards_list = gr.Dataset(components=[prompt], label='Wildcards: [__color__:L3:4], take 3 phrases starting from the 4th in color in order. [__color__:3], take 3 randomly. [__color__], take 1 randomly.', samples=wildcards.get_wildcards_samples(), visible=False, samples_per_page=14 if args_manager.args.language=='cn' else 20)
+                    with gr.Accordion(label='Words/phrases of wildcard', visible=False, open=False) as words_in_wildcard:
+                        wildcard_tag_name_selection = gr.Dataset(components=[prompt], label='Words:', samples=wildcards.get_words_of_wildcard_samples(), visible=False, samples_per_page=30, type='index')
+                    wildcards_list.click(wildcards.add_wildcards_and_array_to_prompt, inputs=[wildcards_list, prompt, state_topbar], outputs=[prompt, wildcard_tag_name_selection, words_in_wildcard], show_progress=False, queue=False)
+                    wildcard_tag_name_selection.click(wildcards.add_word_to_prompt, inputs=[wildcards_list, wildcard_tag_name_selection, prompt], outputs=prompt, show_progress=False, queue=False)
+                    wildcards_array = [prompt_wildcards, words_in_wildcard, wildcards_list, wildcard_tag_name_selection]
+                    wildcards_array_show =lambda x: [gr.update(visible=True)] * 2 + [gr.Dataset.update(visible=True, samples=wildcards.get_wildcards_samples()), gr.Dataset.update(visible=True, samples=wildcards.get_words_of_wildcard_samples(x["wildcard_in_wildcards"]))]
+                    wildcards_array_hidden = [gr.update(visible=False)] * 2 + [gr.Dataset.update(visible=False, samples=wildcards.get_wildcards_samples()), gr.Dataset.update(visible=False, samples=wildcards.get_words_of_wildcard_samples())]
+
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=modules.config.default_image_prompt_checkbox, container=False, elem_classes='min_check')
                 enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False, elem_classes='min_check')
@@ -1319,19 +1329,45 @@ with shared.gradio_root:
         ctrls += enhance_ctrls
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
 		
-
-        def parse_meta(raw_prompt_txt, is_generating):
+        def parse_meta(raw_prompt_txt, is_generating, state_params):
             loaded_json = None
-            if is_json(raw_prompt_txt):
-                loaded_json = json.loads(raw_prompt_txt)
+            if len(raw_prompt_txt)>=1 and (raw_prompt_txt[-1]=='[' or raw_prompt_txt[-1]=='_'):
+                return [gr.update()] * 3 + wildcards_array_show(state_params)
+            matchs = wildcards.array_regex.findall(raw_prompt_txt)
+            matchs2 = wildcards.tag_regex2.findall(raw_prompt_txt)
+            if len(matchs)>0 or len(matchs2)>0:
+                wildcards_array_results =  wildcards_array_show(state_params)
+            else:
+                wildcards_array_results =  wildcards_array_hidden
+            try:
+                if '{' in raw_prompt_txt:
+                    if '}' in raw_prompt_txt:
+                        if ':' in raw_prompt_txt:
+                            loaded_json = json.loads(raw_prompt_txt)
+                            assert isinstance(loaded_json, dict)
+            except:
+                loaded_json = None
 
             if loaded_json is None:
                 if is_generating:
-                    return gr.update(), gr.update(), gr.update()
+                    return [gr.update()] * 3 + wildcards_array_results
                 else:
-                    return gr.update(), gr.update(visible=True), gr.update(visible=False)
+                    return [gr.update(), gr.update(visible=True), gr.update(visible=False)] + wildcards_array_results
 
-            return json.dumps(loaded_json), gr.update(visible=False), gr.update(visible=True)
+            return [json.dumps(loaded_json), gr.update(visible=False), gr.update(visible=True)] + wildcards_array_results
+
+#        def parse_meta(raw_prompt_txt, is_generating):
+#            loaded_json = None
+#            if is_json(raw_prompt_txt):
+#                loaded_json = json.loads(raw_prompt_txt)
+#
+#            if loaded_json is None:
+#                if is_generating:
+#                    return gr.update(), gr.update(), gr.update()
+#                else:
+#                    return gr.update(), gr.update(visible=True), gr.update(visible=False)
+#
+#            return json.dumps(loaded_json), gr.update(visible=False), gr.update(visible=True)
 
         prompt.input(parse_meta, inputs=[prompt, state_is_generating], outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
 
