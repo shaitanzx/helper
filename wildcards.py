@@ -3,7 +3,7 @@ import re
 import json
 import math
 import gradio as gr
-import enhanced.translator as translator
+#import enhanced.translator as translator
 
 from modules.util import get_files_from_folder
 from args_manager import args
@@ -81,29 +81,29 @@ def get_wildcards_samples(path="root"):
     #print(f'wildcards_list:{wildcards_list}')
     if wildcards_list_all:
         print(f'[Wildcards] Refresh and Load {len(wildcards_list_all)}/{len(wildcards.keys())} wildcards: {", ".join(wildcards_list_all)}.')
-    if args.language=='cn':
-        if len(wildcards_translation.keys())==0:
-            wildcards_translation_file = os.path.join(wildcards_path, 'cn.json')
-            if os.path.exists(wildcards_translation_file):
-                with open(wildcards_translation_file, "r", encoding="utf-8") as json_file:
-                    wildcards_translation.update(json.load(json_file))
-                update_flag = False
-                for x in wildcards_list[path]:
-                    if f'list/{x}' not in wildcards_translation.keys():
-                        wildcards_translation.update({f'list/{x}': translator.convert(x, 'Big Model', 'cn')})
-                        update_flag = True
-                if update_flag:
-                    with open(wildcards_translation_file, "w", encoding="utf-8") as json_file:
-                        json.dump(wildcards_translation, json_file)
-            else:
-                for wildcard in wildcards_list["root"]:
-                    wildcards_translation.update({f'list/{wildcard}': translator.convert(wildcard, 'Big Model', 'cn')})
-                #for wildcard in wildcards.keys():
-                #    for word in wildcards[wildcard]:
-                #        wildcards_translation.update({f'word/{wildcard}/{word}': translator.convert(word, 'Big Model', 'cn')})
-                with open(wildcards_translation_file, "w", encoding="utf-8") as json_file:
-                    json.dump(wildcards_translation, json_file)
-        return [['{}|{}'.format(x, wildcards_translation[f'list/{x}'])] for x in wildcards_list[path]]
+#    if args.language=='cn':
+#        if len(wildcards_translation.keys())==0:
+#            wildcards_translation_file = os.path.join(wildcards_path, 'cn.json')
+#            if os.path.exists(wildcards_translation_file):
+#                with open(wildcards_translation_file, "r", encoding="utf-8") as json_file:
+#                    wildcards_translation.update(json.load(json_file))
+#                update_flag = False
+#                for x in wildcards_list[path]:
+#                    if f'list/{x}' not in wildcards_translation.keys():
+#                        wildcards_translation.update({f'list/{x}': translator.convert(x, 'Big Model', 'cn')})
+#                        update_flag = True
+#                if update_flag:
+#                    with open(wildcards_translation_file, "w", encoding="utf-8") as json_file:
+#                        json.dump(wildcards_translation, json_file)
+#            else:
+#                for wildcard in wildcards_list["root"]:
+#                    wildcards_translation.update({f'list/{wildcard}': translator.convert(wildcard, 'Big Model', 'cn')})
+#                #for wildcard in wildcards.keys():
+#                #    for word in wildcards[wildcard]:
+#                #        wildcards_translation.update({f'word/{wildcard}/{word}': translator.convert(word, 'Big Model', 'cn')})
+#                with open(wildcards_translation_file, "w", encoding="utf-8") as json_file:
+#                    json.dump(wildcards_translation, json_file)
+#        return [['{}|{}'.format(x, wildcards_translation[f'list/{x}'])] for x in wildcards_list[path]]
 
     return [[x] for x in wildcards_list[path]]
 
