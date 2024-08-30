@@ -316,6 +316,7 @@ if isinstance(args_manager.args.preset, str):
 shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
+    state_topbar = gr.State({})
     currentTask = gr.State(worker.AsyncTask(args=[]))
     inpaint_engine_state = gr.State('empty')
     with gr.Row():
