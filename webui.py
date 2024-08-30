@@ -7,7 +7,7 @@ import shared
 import modules.config
 import fooocus_version
 import modules.html
-##import modules.async_worker as worker
+import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
@@ -23,7 +23,7 @@ import zipfile
 import threading
 import math
 import numpy as np
-##from extras.inpaint_mask import SAMOptions
+from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -40,7 +40,7 @@ from modules.util import is_json
 from md_lib import civitai_helper
 from md_lib import md_config
 import wildcards
-#import pandas
+
 
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
@@ -192,7 +192,7 @@ def get_task_batch(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-"""
+
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
@@ -254,7 +254,7 @@ def generate_clicked(task: worker.AsyncTask):
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
     return
-"""
+
 
 def sort_enhance_images(images, task):
     if not task.should_enhance or len(images) <= task.images_to_enhance_count:
@@ -316,7 +316,7 @@ if isinstance(args_manager.args.preset, str):
 shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
-##    currentTask = gr.State(worker.AsyncTask(args=[]))
+    currentTask = gr.State(worker.AsyncTask(args=[]))
     state_topbar = gr.State({})
     inpaint_engine_state = gr.State('empty')
     with gr.Row():
@@ -361,8 +361,8 @@ with shared.gradio_root:
                             model_management.interrupt_current_processing()
                         return currentTask
 
-####                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
-####                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
+                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
+                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Accordion(label='Wildcards & Batch Prompts', visible=True, open=True) as prompt_wildcards:
                     wildcards_list = gr.Dataset(components=[prompt], label='Wildcards: [__color__:L3:4], take 3 phrases starting from the 4th in color in order. [__color__:3], take 3 randomly. [__color__], take 1 randomly.', samples=wildcards.get_wildcards_samples(), visible=True, samples_per_page=14)
                     with gr.Accordion(label='Words/phrases of wildcard', visible=True, open=False) as words_in_wildcard:
