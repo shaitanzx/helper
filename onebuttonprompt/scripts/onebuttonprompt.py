@@ -435,30 +435,30 @@ def ui():
             # End of this part of presets
                 
                 with gr.Row(variant="compact"):
-                    insanitylevel = gr.Slider(1, 10, value=5, step=1, label="🎲⬅️❔➡️🎲🎲🎲 Higher levels increases complexity and randomness of generated prompt")
+                    insanitylevel = gr.Slider(1, 10, value=5, step=1, label="Higher levels increases complexity and randomness of generated prompt")
                 with gr.Row(variant="compact"):
                     with gr.Column(variant="compact"):
                         subject = gr.Dropdown(
-                                        subjects, label="📸 Subject Types", value="all")                   
+                                        subjects, label="Subject Types", value="all")                   
                     with gr.Column(variant="compact"):
                         artist = gr.Dropdown(
-                                        artists, label="🎨 Artists", value="all")
+                                        artists, label="Artists", value="all")
                 with gr.Row(variant="compact"):
                     chosensubjectsubtypeobject = gr.Dropdown(
-                                        subjectsubtypesobject, label="🏺 Type of object", value="all", visible=False)
+                                        subjectsubtypesobject, label="Type of object", value="all", visible=False)
                     chosensubjectsubtypehumanoid = gr.Dropdown(
-                                        subjectsubtypeshumanoid, label="👨‍👩‍👧 Type of humanoids", value="all", visible=False)
+                                        subjectsubtypeshumanoid, label="Type of humanoids", value="all", visible=False)
                     chosensubjectsubtypeconcept = gr.Dropdown(
-                                        subjectsubtypesconcept, label="💡🧠💭 Type of concept", value="all", visible=False)
+                                        subjectsubtypesconcept, label="Type of concept", value="all", visible=False)
                     chosengender = gr.Dropdown(
-                                        genders, label="🚻 gender", value="all", visible=False)
+                                        genders, label="gender", value="all", visible=False)
                 with gr.Row(variant="compact"):
                     with gr.Column(variant="compact"):
                         imagetype = gr.Dropdown(
-                                        imagetypes, label="🖼️ type of image", value="all")
+                                        imagetypes, label="type of image", value="all")
                     with gr.Column(variant="compact"):
                         imagemodechance = gr.Slider(
-                                        1, 100, value="20", step=1, label="🎲🖼️ One in X chance to use special image type mode")
+                                        1, 100, value="20", step=1, label="One in X chance to use special image type mode")
                 with gr.Row(variant="compact"):
                     gr.Markdown("""
                                 <font size="2">
@@ -467,10 +467,10 @@ def ui():
                                 """
                     )
                 with gr.Row(variant="compact"):
-                    givensubject = gr.Textbox(label="🔃📸 Overwrite subject: ", value="")
-                    smartsubject = gr.Checkbox(label="🧠📸 Smart subject", value = True)
+                    givensubject = gr.Textbox(label="Overwrite subject: ", value="")
+                    smartsubject = gr.Checkbox(label="Smart subject", value = True)
                 with gr.Row(variant="compact"):
-                    givenoutfit = gr.Textbox(label="🔃👗 Overwrite outfit: ", value="")
+                    givenoutfit = gr.Textbox(label="Overwrite outfit: ", value="")
                 with gr.Row(variant="compact"):
                     gr.Markdown("""
                                 <font size="2">
@@ -480,8 +480,8 @@ def ui():
                     )
                 with gr.Row(variant="compact"):
                     with gr.Column(variant="compact"):
-                        prefixprompt = gr.Textbox(label="⬅️💬 Place this in front of generated prompt (prefix)",value="")
-                        suffixprompt = gr.Textbox(label="➡️💬 Place this at back of generated prompt (suffix)",value="")
+                        prefixprompt = gr.Textbox(label="Place this in front of generated prompt (prefix)",value="")
+                        suffixprompt = gr.Textbox(label="Place this at back of generated prompt (suffix)",value="")
                 with gr.Row(variant="compact"):
                     gr.Markdown("""
                                 <font size="2">
@@ -490,10 +490,10 @@ def ui():
                                 """
                     )
                 with gr.Row(variant="compact"):
-                    giventypeofimage = gr.Textbox(label="🔃🖼️ Overwrite type of image: ", value="")
+                    giventypeofimage = gr.Textbox(label="Overwrite type of image: ", value="")
                 with gr.Row(variant="compact"):
                     with gr.Column(variant="compact"):
-                        antistring = gr.Textbox(label="❌📝 Filter out following properties (comma seperated). Example ""film grain, purple, cat"" ")
+                        antistring = gr.Textbox(label="Filter out following properties (comma seperated). Example ""film grain, purple, cat"" ")
                 with gr.Accordion("Help", open=False):
                         gr.Markdown(
                             """
@@ -510,7 +510,7 @@ def ui():
                             Add additional prompting to the prefix, suffix in this screen. The actual prompt fields are ignored. Negative prompt is in the respective tab.
                             </font>
                             
-                            ### 📸 Subject Types
+                            ### Subject Types
                             
                             <font size="2">
                             You can choose a certain subject type. Choose the all version to randomly choose between the subtypes. Iff you want to generate something more specific, choose the subtype. It has the following types:  
@@ -528,7 +528,7 @@ def ui():
                             After choosing object, humanoid or concept a subselection menu will show. You can pick further details here. When choosing humanoid, you can also select the gender you wish to generate.
 
                            
-                            🚻 gender (only available for human generations):
+                            ### gender (only available for human generations):
 
                             1. all - selects randomly
 
@@ -538,7 +538,7 @@ def ui():
 
                             </font>
                             
-                            ### 🎨 Artists
+                            ### Artists
                             
                             <font size="2">
                             Artists have a major impact on the result.
@@ -554,7 +554,7 @@ def ui():
                             You can turn it off and maybe add your own in the prefix or suffix prompt fields
                             </font>
 
-                            ### 🖼️ type of image
+                            ### type of image
 
                             <font size="2">
                             There are an immense number of image types, not only paintings and photo's, but also isometric renders and funko pops.
@@ -611,7 +611,7 @@ def ui():
 
                             23. the tokinator --> Complete random word gibberish mode, use at own risk
 
-                            ### 🎲🖼️ One in X chance to use special image type mode
+                            ### One in X chance to use special image type mode
 
                             <font size="2">
                             This controls how often it will pick a special generation mode. It is a 1 in X chance. So lower means more often. This will only be applied of "type of image" is set to "all" and there is no Overwrite type of image set.
@@ -619,17 +619,17 @@ def ui():
                             When set to 1, it will always pick a random special generation mode. When set to 20, it is a 1 in 20 chance this will happen.
                             </font>
                             
-                            ### 🔃📸 Overwrite subject
+                            ### Overwrite subject
 
                             When you fill in the Overwrite subject field, that subject will be used to build the dynamic prompt around. It is best, if you set the subject type to match the subject. For example, set it to humanoid if you place a person in the override subject field.
                             
                             This way, you can create unlimited variants of a subject.
 
-                            🧠📸 Smart subject tries to determine what to and not to generate based on your subject. Example, if your Overwrite subject is formed like this: Obese man wearing a kimono
+                            ### Smart subject tries to determine what to and not to generate based on your subject. Example, if your Overwrite subject is formed like this: Obese man wearing a kimono
                             
                             It will then recognize the body type and not generate it. It also recognizes the keyword wearing, and will not generate an outfit.
 
-                            ### 🔃👗 Overwrite outfit
+                            ### Overwrite outfit
 
                             When you fill in the override outfit field, it will generate an outfit in the prompt based on the given value. It can be used in combination with override subject, but does not have to be. It works best with smaller descriptions of the outfit.
 
@@ -665,11 +665,11 @@ def ui():
         with gr.Tab("Workflow assist"):
             with gr.Row(variant="compact"):
                     silentmode = gr.Checkbox(
-                        label="🛠️ Workflow mode, turns off prompt generation and uses below Workflow prompt instead.")
+                        label="Workflow mode, turns off prompt generation and uses below Workflow prompt instead.")
             with gr.Row(variant="compact"):
-                workprompt = gr.Textbox(label="🛠️💬 Workflow prompt")
+                workprompt = gr.Textbox(label="Workflow prompt")
             with gr.Row(variant="compact"):
-                promptvariantinsanitylevel = gr.Slider(0, 10, value=0, step=1, label="🎲🔃 🛠️💬 Prompt variant. Strength of variation of workflow prompt. 0 = no variance.")
+                promptvariantinsanitylevel = gr.Slider(0, 10, value=0, step=1, label="Prompt variant. Strength of variation of workflow prompt. 0 = no variance.")
             with gr.Accordion("Help", open=False):
                 gr.Markdown(
                      """
@@ -686,37 +686,37 @@ def ui():
                      </font>
                      """)
             with gr.Row(variant="compact"):
-                genprom = gr.Button("🔄💬 Generate me some prompts!")
+                genprom = gr.Button("Generate me some prompts!")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt1 = gr.Textbox(label="prompt 1")
                     with gr.Column(variant="compact"):
-                        prompt1toworkflow = gr.Button("⬆️🛠️💬")
+                        prompt1toworkflow = gr.Button("prompt 1")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt2 = gr.Textbox(label="prompt 2")
                     with gr.Column(variant="compact"):
-                        prompt2toworkflow = gr.Button("⬆️🛠️💬")
+                        prompt2toworkflow = gr.Button("prompt 2")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt3 = gr.Textbox(label="prompt 3")
                     with gr.Column(variant="compact"):
-                        prompt3toworkflow = gr.Button("⬆️🛠️💬")
+                        prompt3toworkflow = gr.Button("prompt 3")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt4 = gr.Textbox(label="prompt 4")
                     with gr.Column(variant="compact"):
-                        prompt4toworkflow = gr.Button("⬆️🛠️💬")
+                        prompt4toworkflow = gr.Button("prompt 4")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt5 = gr.Textbox(label="prompt 5")
                     with gr.Column(variant="compact"):
-                        prompt5toworkflow = gr.Button("⬆️🛠️💬")
+                        prompt5toworkflow = gr.Button("prompt 5")
         with gr.Tab("Advanced"):
             with gr.Row(variant="compact"):
                 gr.Markdown("""
                                 <font size="2">
-                                ✨Base model will try and generate prompts fitting the selected model.
+                                ### Base model will try and generate prompts fitting the selected model.
                                 
                                 SD1.5 --> Less natural language
                                 
@@ -726,11 +726,11 @@ def ui():
                             
                                 Anime Model --> Focussed on characters and tags, adds 1girl/1boy automatically.
                             
-                                ⭐ Flufferizer
+                                ### Flufferizer
 
                                 A simple and quick implementiation of Fooocus prompt magic
                             
-                                🦸‍♂️💬 Prompt enhancer
+                                ### Prompt enhancer
 
                                 Choose for "superprompt-v1" to super prompt the prompts with roborovski superprompt-v1 model.
                             
@@ -761,18 +761,18 @@ def ui():
             with gr.Row(variant="compact"):
                 with gr.Column(variant="compact"):
                     promptcompounderlevel = gr.Dropdown(
-                        promptcompounder, label="🔂💬 Prompt compounder", value="1")
+                        promptcompounder, label="Prompt compounder", value="1")
             with gr.Row(variant="compact"):
                 with gr.Column(variant="compact"):
                     seperator = gr.Dropdown(
-                        seperatorlist, label="🚧 Prompt seperator", value="comma")    
+                        seperatorlist, label="Prompt seperator", value="comma")    
                 with gr.Column(variant="compact"):
                     ANDtoggle = gr.Dropdown(
-                        ANDtogglemode, label="🚧🔧 Prompt seperator mode", value="none")
+                        ANDtogglemode, label="Prompt seperator mode", value="none")
             with gr.Accordion("Help", open=False):
                 gr.Markdown(
                     """
-                    ### 🔂💬 Prompt compounder
+                    ### Prompt compounder
                     
                     <font size="2">
                     Normally, it creates a single random prompt. With prompt compounder, it will generate multiple prompts and compound them together. 
@@ -795,11 +795,11 @@ def ui():
                     
                     In the prefix prompt field then add for example: Art by artistname, 2 people
                     
-                    Set the 🔂💬 prompt compounder to: 2
+                    Set the prompt compounder to: 2
                     
-                    Set the 🚧 Prompt seperator to: AND
+                    Set the Prompt seperator to: AND
 
-                    Set the 🚧🔧 Prompt Seperator mode to: prefix AND prompt + suffix
+                    Set the Prompt Seperator mode to: prefix AND prompt + suffix
 
                     "automatic" is entirely build around Latent Couple. It will pass artists and the amount of people/animals/objects to generate in the prompt automatically. Set the prompt compounder equal to the amount of areas defined in Laten Couple.
                     
@@ -815,7 +815,7 @@ def ui():
 
                     Set the 🚧 Prompt seperator to: AND
 
-                    Set the 🚧🔧 Prompt Seperator mode to: automatic
+                    Set the Prompt Seperator mode to: automatic
 
 
                     </font>
@@ -831,10 +831,10 @@ def ui():
                         )
             with gr.Column(variant="compact"):
                 with gr.Row(variant="compact"): 
-                    autonegativeprompt = gr.Checkbox(label="🤖🚫💬 Auto generate negative prompt", value=True) 
-                    autonegativepromptenhance = gr.Checkbox(label="📈🚫💬 Enable base enhancement prompt", value=False)
+                    autonegativeprompt = gr.Checkbox(label="Auto generate negative prompt", value=True) 
+                    autonegativepromptenhance = gr.Checkbox(label="Enable base enhancement prompt", value=False)
             with gr.Row(variant="compact"): 
-                autonegativepromptstrength = gr.Slider(0, 10, value="0", step=1, label="🎲🚫💬 Randomness of negative prompt (lower is more consistency)")
+                autonegativepromptstrength = gr.Slider(0, 10, value="0", step=1, label="Randomness of negative prompt (lower is more consistency)")
             gr.Markdown(
                         """
                         ### Base negative prompt is added on
@@ -842,7 +842,7 @@ def ui():
                         """
                         )
             with gr.Row(): 
-                negativeprompt = gr.Textbox(label="🚫💬 Base negative prompt",value="")
+                negativeprompt = gr.Textbox(label="Base negative prompt",value="")
                  
         with gr.Tab("One Button Run and Upscale"):
             with gr.Row(variant="compact"):
