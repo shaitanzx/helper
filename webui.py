@@ -42,7 +42,7 @@ from md_lib import md_config
 
 import wildcards
 
-from onebuttonprompt import *
+from onebuttonprompt.scripts import onebuttonprompt
 
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
@@ -1377,8 +1377,7 @@ with shared.gradio_root:
 #                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
 #            .then(fn=update_history_link, outputs=history_link) \
 #            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-   
-	ctrls_batch = ctrls[:]
+        ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
         add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
