@@ -691,27 +691,27 @@ def ui():
                     with gr.Column(scale=4, variant="compact"):
                         prompt1 = gr.Textbox(label="prompt 1")
                     with gr.Column(variant="compact"):
-                        prompt1toworkflow = gr.Button("prompt 1")
+                        prompt1toworkflow = gr.Button("prompt1->Workflow Prompt")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt2 = gr.Textbox(label="prompt 2")
                     with gr.Column(variant="compact"):
-                        prompt2toworkflow = gr.Button("prompt 2")
+                        prompt2toworkflow = gr.Button("prompt2->Workflow Prompt")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt3 = gr.Textbox(label="prompt 3")
                     with gr.Column(variant="compact"):
-                        prompt3toworkflow = gr.Button("prompt 3")
+                        prompt3toworkflow = gr.Button("prompt3->Workflow Prompt")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt4 = gr.Textbox(label="prompt 4")
                     with gr.Column(variant="compact"):
-                        prompt4toworkflow = gr.Button("prompt 4")
+                        prompt4toworkflow = gr.Button("prompt4->Workflow Prompt")
             with gr.Row(variant="compact"):
                     with gr.Column(scale=4, variant="compact"):
                         prompt5 = gr.Textbox(label="prompt 5")
                     with gr.Column(variant="compact"):
-                        prompt5toworkflow = gr.Button("prompt 5")
+                        prompt5toworkflow = gr.Button("prompt5->Workflow Prompt")
         with gr.Tab("Advanced"):
             with gr.Row(variant="compact"):
                 gr.Markdown("""
