@@ -7,7 +7,7 @@ import shared
 import modules.config
 import fooocus_version
 import modules.html
-import modules.async_worker as worker
+###import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
@@ -23,7 +23,7 @@ import zipfile
 import threading
 import math
 import numpy as np
-from extras.inpaint_mask import SAMOptions
+###from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -192,7 +192,7 @@ def get_task_batch(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-
+"""
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
@@ -255,7 +255,7 @@ def generate_clicked(task: worker.AsyncTask):
     print(f'Total time: {execution_time:.2f} seconds')
     return
 
-
+"""
 def sort_enhance_images(images, task):
     if not task.should_enhance or len(images) <= task.images_to_enhance_count:
         return images
@@ -1362,7 +1362,7 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-
+"""
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
@@ -1373,7 +1373,8 @@ with shared.gradio_root:
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-        ctrls_batch = ctrls[:]
+"""   
+	ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
         add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
