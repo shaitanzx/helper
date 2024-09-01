@@ -319,7 +319,7 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     state_topbar = gr.State({})
-    currentTask = gr.State(worker.AsyncTask(args=[]))
+    currentTask = gr.State()
     inpaint_engine_state = gr.State('empty')
     with gr.Row():
         with gr.Column(scale=2):
@@ -1366,18 +1366,18 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-"""
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
-            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
-            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
-            .then(fn=update_history_link, outputs=history_link) \
-            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-"""   
+
+#        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+#                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+#            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+#            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+#            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+#            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
+#            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+#                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+#            .then(fn=update_history_link, outputs=history_link) \
+#            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+   
 	ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
