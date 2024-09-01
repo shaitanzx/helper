@@ -1,4 +1,4 @@
-import modules.scripts as scripts
+#import modules.scripts as scripts
 import os
 ##from modules import modelloader, paths, shared, sd_models, sd_samplers
 ##from modules.paths import models_path, script_path
@@ -6,7 +6,7 @@ import importlib
 
 def get_models():
 ##    modellist = sd_models.checkpoint_tiles()
-    modellist = [modellist]
+    modellist = ['modellist']
     return modellist
 
 def get_upscalers():
@@ -34,8 +34,8 @@ def get_upscalers():
     return upscalerlist
 
 def get_samplers():
-    samplerlist = list(sd_samplers.all_samplers_map.keys())
-
+##    samplerlist = list(sd_samplers.all_samplers_map.keys())
+    samplerlist=[]
     # fallback method
     if(samplerlist==[]):
         samplerlist = [
@@ -88,13 +88,13 @@ def get_samplers_for_img2img():
     return samplerlist
 
 def upscalers_on_startup():
-    try:
-        modelloader.cleanup_models()
-    except:
-        pass
-    modelloader.load_upscalers()
-    upscalerlistfromwWebUI = [x.name for x in shared.sd_upscalers]
-
+##    try:
+##        modelloader.cleanup_models()
+##    except:
+##        pass
+##    modelloader.load_upscalers()
+##    upscalerlistfromwWebUI = [x.name for x in shared.sd_upscalers]
+    upscalerlistfromwWebUI=['']
     # In vlad this seems to work, but in WebUI some of these aren't loaded yet
     # lets just hardcode it, and get it over with
     if('LDSR' not in upscalerlistfromwWebUI):
