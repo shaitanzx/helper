@@ -42,6 +42,8 @@ from md_lib import md_config
 
 import wildcards
 
+from onebuttonprompt import onebuttonprompt
+
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
   return
@@ -784,6 +786,8 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                with gr.Accordion('Extention', open=False):
+                  with gr.TabItem(label='OBP') as obp_tab:
+                        onebuttonprompt.ui()
                   with gr.TabItem(label='Civitai_helper') as download_tab:
                         civitai_helper.civitai_help()
                   with gr.TabItem(label='Prompt Translate') as promp_tr_tab:       
