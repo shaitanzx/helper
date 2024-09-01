@@ -1,11 +1,12 @@
 import modules.scripts as scripts
 import os
-from modules import modelloader, paths, shared, sd_models, sd_samplers
-from modules.paths import models_path, script_path
+##from modules import modelloader, paths, shared, sd_models, sd_samplers
+##from modules.paths import models_path, script_path
 import importlib
 
 def get_models():
-    modellist = sd_models.checkpoint_tiles()
+##    modellist = sd_models.checkpoint_tiles()
+    modellist = [modellist]
     return modellist
 
 def get_upscalers():
@@ -16,6 +17,7 @@ def get_upscalers():
     # From 1.4 onwards, the shared.sd_upscalers isn't available on startup. Run load_upscalers first
     # It doesn't work perfectly, I have to call this each time to make sure it stays working.
     upscalerlistfromwWebUI = upscalers_on_startup()
+    
     
     # deduplicate the list
     upscalerlistfromwWebUI = list(dict.fromkeys(upscalerlistfromwWebUI))
