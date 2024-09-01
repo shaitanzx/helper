@@ -42,7 +42,7 @@ from md_lib import md_config
 
 import wildcards
 
-from onebuttonprompt import onebuttonprompt
+from onebuttonprompt import *
 
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
