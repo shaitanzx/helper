@@ -1,6 +1,6 @@
 import os
 import sys
-import folder_paths
+##import folder_paths
 
 custom_nodes_path = os.path.join(folder_paths.base_path, "custom_nodes")
 onebuttonprompt_path = os.path.join(custom_nodes_path, "OneButtonPrompt")
