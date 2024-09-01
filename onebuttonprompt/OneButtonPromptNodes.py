@@ -1,6 +1,6 @@
 import sys
 import os
-import folder_paths
+##import folder_paths
 from datetime import datetime
 import uuid
 import platform
