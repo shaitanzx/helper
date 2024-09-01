@@ -10,19 +10,18 @@ from build_dynamic_prompt import *
 
 
 
-def generateprompts(amount = 1,prompt = "",artists="all",amountofartists = "1", mode="standard"):
+def generateprompts(amount = 1,positive_prompt = "",amountofwords="3"):
     loops = int(amount)  # amount of images to generate
     steps = 0
-    originalpositiveprompt = prompt
+    originalpositiveprompt = positive_prompt
   
     while steps < loops:
         # build prompt
         if originalpositiveprompt == "":
             result = build_dynamic_prompt(insanitylevel=3)
         else: 
-            result = artify_prompt(prompt=prompt, artists=artists, amountofartists=amountofartists, mode=mode)
-            result = flufferizer(prompt=result, reverse_polarity=True)
-        print("ARTIFY COMPLETE: " + result)
+            result = enhance_positive(positive_prompt=positive_prompt, amountofwords=amountofwords)
+        print("enhanced prompt: " + result)
         print("")
         print("loop " + str(steps))
         print("")
@@ -35,4 +34,4 @@ def generateprompts(amount = 1,prompt = "",artists="all",amountofartists = "1", 
     print("All done!")
 
 if __name__ == "__main__":
-    generateprompts(10,"a norwegian forest cat", "all","random", "standard")
+    generateprompts(10,"",5)
