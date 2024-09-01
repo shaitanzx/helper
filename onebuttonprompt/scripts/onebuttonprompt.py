@@ -676,7 +676,7 @@ def ui():
                      <font size="2"> 
                      Workflow assist, suggestions by redditor Woisek.
 
-                     With 🛠️ Workflow mode, you turn off the automatic generation of new prompts on 'generate', and it will use the Workflow prompt field instead. So you can work and finetune any fun prompts without turning of the script.
+                     With Workflow mode, you turn off the automatic generation of new prompts on 'generate', and it will use the Workflow prompt field instead. So you can work and finetune any fun prompts without turning of the script.
 
                      You can use One Button Prompt wildcards in the workflow prompt. For example -outfit- .
 
@@ -741,13 +741,13 @@ def ui():
                     )
             with gr.Row(variant="compact"):
                 base_model = gr.Dropdown(
-                     basemodelslist, label="✨ Base model", value="SDXL")
+                     basemodelslist, label="Base model", value="SDXL")
             with gr.Row(variant="compact"):
                 amountoffluff = gr.Dropdown(
-                     amountofflufflist, label="⭐ Flufferizer", value="dynamic")
+                     amountofflufflist, label="Flufferizer", value="dynamic")
             with gr.Row(variant="compact"):
                 promptenhancer = gr.Dropdown(
-                     prompt_enhancers, label="🤓 Prompt enhancer", value="none")
+                     prompt_enhancers, label="Prompt enhancer", value="none")
             with gr.Row(variant="compact"):
                  gr.Markdown("""
                                 <font size="2">
@@ -811,9 +811,9 @@ def ui():
                     
                     Leave the prompt field empty
                     
-                    Set the 🔂💬 prompt compounder to: 2
+                    Set the prompt compounder to: 2
 
-                    Set the 🚧 Prompt seperator to: AND
+                    Set the Prompt seperator to: AND
 
                     Set the Prompt Seperator mode to: automatic
 
