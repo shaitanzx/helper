@@ -4,7 +4,8 @@ import uuid
 import re
 from datetime import datetime
 import time
-sys.path.append(os.path.abspath(".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), ''))
+
 
 from call_txt2img import *
 from call_img2img import *
