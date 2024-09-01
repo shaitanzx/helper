@@ -10,12 +10,12 @@ import subprocess as sp
 ##from modules.shared import opts, cmd_opts, state
 
 
-from build_dynamic_prompt import *
-from main import *
-from model_lists import *
-from csv_reader import *
+from ..build_dynamic_prompt import *
+from ..main import *
+from ..model_lists import *
+from ..csv_reader import *
 
-from one_button_presets import OneButtonPresets
+from ..one_button_presets import OneButtonPresets
 OBPresets = OneButtonPresets()
 
 basemodelslist = ["SD1.5", "SDXL", "Stable Cascade", "Anime Model"]
@@ -344,16 +344,8 @@ if(generateconceptmixer):
 
 
 
-class Script(scripts.Script):
-    
-    def title(self):
-        return "One Button Prompt"
-
-    def show(self, is_img2img):
-        return True
-
-        
-    def ui(self, is_img2img):
+     
+def ui():
         def gen_prompt(insanitylevel, subject, artist, imagetype, antistring, prefixprompt, suffixprompt, promptcompounderlevel, seperator,givensubject,smartsubject,giventypeofimage, imagemodechance,chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept,givenoutfit, base_model, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix):
 
             promptlist = []
@@ -1352,7 +1344,7 @@ class Script(scripts.Script):
     
 
     
-    def run(self, p, insanitylevel, subject, artist, imagetype, prefixprompt,suffixprompt,negativeprompt, promptcompounderlevel, ANDtoggle, silentmode, workprompt, antistring,seperator, givensubject, smartsubject, giventypeofimage, imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix):
+def run(self, p, insanitylevel, subject, artist, imagetype, prefixprompt,suffixprompt,negativeprompt, promptcompounderlevel, ANDtoggle, silentmode, workprompt, antistring,seperator, givensubject, smartsubject, giventypeofimage, imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix):
         
         images = []
         infotexts = []
