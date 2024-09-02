@@ -789,6 +789,7 @@ with shared.gradio_root:
                with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='OBP') as obp_tab:
                         onebuttonprompt.ui()
+			print ('============================',obp_prompt)
                   with gr.TabItem(label='Civitai_helper') as download_tab:
                         civitai_helper.civitai_help()
                   with gr.TabItem(label='Prompt Translate') as promp_tr_tab:       
