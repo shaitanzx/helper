@@ -44,6 +44,7 @@ import wildcards
 
 from onebuttonprompt.scripts import onebuttonprompt
 
+obp_prompt=[]
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
   return
