@@ -1020,8 +1020,12 @@ def ui():
                     
 
         genprom.click(gen_prompt, inputs=[insanitylevel,subject, artist, imagetype, antistring,prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, givenoutfit, base_model, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix], outputs=[prompt1, prompt2, prompt3,prompt4,prompt5])
-
-        prompt1toworkflow.click(prompttoworkflowprompt, inputs=prompt1, outputs=workprompt)
+        def prompt2prompt(prompt_obp):
+            global obp_prompt
+            obp_prompt=prompt_obp
+            return
+#        prompt1toworkflow.click(prompttoworkflowprompt, inputs=prompt1, outputs=workprompt)
+        prompt1toworkflow.click(prompt2prompt, inputs=prompt1)
         prompt2toworkflow.click(prompttoworkflowprompt, inputs=prompt2, outputs=workprompt)
         prompt3toworkflow.click(prompttoworkflowprompt, inputs=prompt3, outputs=workprompt)
         prompt4toworkflow.click(prompttoworkflowprompt, inputs=prompt4, outputs=workprompt)
