@@ -45,8 +45,14 @@ import wildcards
 from onebuttonprompt.scripts import onebuttonprompt
 
 obp_prompt=[]
+
+choices_ar1=["Any", "1:1", "2:3", "3:4", "5:4", "9:16"]
+choices_ar2=["Any", "1:1", "3:2", "4:3", "4:5", "16:9"]
+
 ar_def=[1,1]
 swap_def=False
+
+
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
   return
@@ -805,17 +811,14 @@ with shared.gradio_root:
                         label='Height',interactive=True)
                     with gr.Row():
                       lock_ar = gr.Dropdown(
-                        ["Any", "1:1", "3:2", "4:3", "5:4", "16:9"], 
+                        [choices=choices_ar1], 
                         value="Any",
                         label="AspectRatio", show_label=True,interactive=True)
-                      lock_ar2 = gr.Dropdown(
-                        ["Any", "1:1", "2:3", "3:4", "5:4", "9:16"], 
-                        value="Any",
-                        label="Lock", show_label=True,
-                        interactive=True,visible=False)
+
                       swap = gr.Button(value='Swap', visible=True)
+		      swap.click(swap_ar,inputs=[lock_arwidth_ar,height_ar],outputs=[lock_ar,width_ar,height_ar]) 
 
-
+"""
                       def w_slide(lock,width,height):
                         global ar_def
                         if lock != "Any":
@@ -870,11 +873,12 @@ with shared.gradio_root:
                           return gr.update (visible=True, value=lock),gr.update (visible=False),gr.update (value=width, interactive=True),gr.update (value=height, interactive=False)
 
 
-                      swap.click(swap_ar,inputs=[lock_ar,lock_ar2,width_ar,height_ar],outputs=[lock_ar,lock_ar2,width_ar,height_ar])  
+                      
                       lock_ar.change(locker, inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar, height_ar])
                       lock_ar2.change(locker2, inputs=[lock_ar2,width_ar,height_ar],outputs=[width_ar,height_ar])
                       width_ar.release(w_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[height_ar])
                       height_ar.release(h_slide,inputs=[lock_ar2,width_ar,height_ar],outputs=[width_ar])
+"""
 #                        onebuttonprompt.ui()
 
                   with gr.TabItem(label='Civitai_helper') as download_tab:
