@@ -114,7 +114,7 @@ div:has(> #positive_prompt) {
 .performance_selection label {
     width: 140px !important;
 }
-/*
+
 .aspect_ratios label {
     flex: calc(50% - 5px) !important;
 }
@@ -126,7 +126,7 @@ div:has(> #positive_prompt) {
 .aspect_ratios label input {
     margin-left: -5px !important;
 }
-*/
+
 .lora_enable label {
   height: 100%;
 }
