@@ -898,8 +898,8 @@ with shared.gradio_root:
 
                     aspect_ratios_selection.change(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                     shared.gradio_root.load(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
-                    width_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=1024,label='Width', interactive=True)
-                    height_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=1024,label='Height',interactive=True)
+                    width_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=512,label='Width', interactive=True)
+                    height_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=512,label='Height',interactive=True)
                     lock_ar = gr.Dropdown(choices=choices_ar1,value="Any",label="AspectRatio", show_label=True,interactive=True)
                     swap = gr.Button(value='Portrait', visible=True)
                     set_ar = gr.Button(value='Set', visible=True)
