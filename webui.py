@@ -42,6 +42,16 @@ from md_lib import md_config
 
 import wildcards
 
+
+choices_ar1=["Any", "1:1", "3:2", "4:3", "4:5", "16:9"]
+choices_ar2=["Any", "1:1", "2:3", "3:4", "5:4", "9:16"]
+modules.config.available_aspect_ratios_labels=[item.replace("<span style=\"color: grey;\">", "").replace("</span>", "") for item in modules.config.available_aspect_ratios_labels]
+modules.config.available_aspect_ratios_labels+=[f'512×512  ∣ 1:1']
+modules.config.default_aspect_ratio=modules.config.default_aspect_ratio.replace("<span style=\"color: grey;\">", "").replace("</span>", "")
+
+
+ar_def=[1,1]
+swap_def=False
 def civitai_helper_nsfw(black_out_nsfw):
   md_config.ch_nsfw_threshold=black_out_nsfw
   return
@@ -883,10 +893,70 @@ with shared.gradio_root:
                                                        choices=modules.config.available_aspect_ratios_labels,
                                                        value=modules.config.default_aspect_ratio,
                                                        info='width × height',
-                                                       elem_classes='aspect_ratios')
+                                                       elem_classes='aspect_ratios_news')
+                    
 
                     aspect_ratios_selection.change(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                     shared.gradio_root.load(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
+                    width_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=1024,label='Width', interactive=True)
+                    height_ar = gr.Slider(minimum=64,maximum=2048,step=8,value=1024,label='Height',interactive=True)
+                    lock_ar = gr.Dropdown(choices=choices_ar1,value="Any",label="AspectRatio", show_label=True,interactive=True)
+                    swap = gr.Button(value='Portrait', visible=True)
+                    set_ar = gr.Button(value='Set', visible=True)
+
+                    def locker(lock,width,height):
+                        global ar_def, swap_def
+                        if lock == "Any":
+                          interact1, interact2 = True, True
+                        else:
+                          new_width, new_height = lock.replace(':', ' ').split(' ')[:2]
+                          ar_def=[int (new_width), int (new_height)]
+                          if swap_def:
+                            width = round (height / ar_def[1] * ar_def[0])
+                            interact1, interact2 = False, True
+                          else:
+                            height=round (width / ar_def[0] * ar_def[1])
+                            interact1, interact2 = True, False
+                        return gr.update (interactive=interact1, value=width), gr.update (interactive=interact2, value=height)
+                    def swap_ar(lock,width,height):
+                        global swap_def, ar_def
+                        swap_def=not swap_def
+                        ar_def[0], ar_def[1] = ar_def[1], ar_def[0]
+                        width, height = height, width                       
+                        if swap_def:
+                          choices=choices_ar2
+                          interact1, interact2 = False, True
+                          name='Landscape'
+                        else: 
+                          choices=choices_ar1
+                          interact1, interact2 = True, False
+                          name = 'Portrait'
+                        if lock != "Any":
+                          ratio_x, ratio_y = lock.replace(':', ' ').split(' ')[:2]
+                          lock=str(ratio_y)+":"+str(ratio_x) 
+                          interact1, interact2 = True, False
+                        if lock == "Any":
+                          interact1, interact2 = True, True
+                        return gr.update (choices=choices, value=lock),gr.update (value=width, interactive=interact1),gr.update (value=height, interactive=interact2),gr.update (value=name)
+                    def w_slide(lock,width,height):
+                        global ar_def
+                        if lock != "Any":
+                          height=width / ar_def[0] * ar_def[1]
+                        return gr.update (value=height)
+                    def h_slide(lock,width,height):
+                        global ar_def
+                        if lock != "Any":
+                          width=height / ar_def[1] * ar_def[0]
+                        return gr.update (value=width)
+                    def set_to_ar(width,height):                        
+                        g = math.gcd(width, height)
+                        modules.config.available_aspect_ratios_labels[-1]=f'{width}×{height}  \U00002223 {width // g}:{height // g}'
+                        return gr.update (choices=modules.config.available_aspect_ratios_labels)
+                swap.click(swap_ar,inputs=[lock_ar,width_ar,height_ar],outputs=[lock_ar,width_ar,height_ar,swap],show_progress=False)
+                lock_ar.change(locker, inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar, height_ar],show_progress=False)
+                width_ar.release(w_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[height_ar],show_progress=False)
+                height_ar.release(h_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar],show_progress=False)
+                set_ar.click(set_to_ar,inputs=[width_ar,height_ar],outputs=aspect_ratios_selection,show_progress=False)
 
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
