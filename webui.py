@@ -961,7 +961,7 @@ with shared.gradio_root:
                 lock_ar.change(locker, inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar, height_ar],show_progress=False)
                 width_ar.release(w_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[height_ar],show_progress=False)
                 height_ar.release(h_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar],show_progress=False)
-                set_ar.click(set_to_ar,inputs=[width_ar,height_ar],outputs=aspect_ratios_selection,show_progress=False)
+                set_ar.click(set_to_ar,inputs=[aspect_ratios_selection,width_ar,height_ar],outputs=aspect_ratios_selection,show_progress=False)
 
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
