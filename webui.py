@@ -7,7 +7,7 @@ import shared
 import modules.config
 import fooocus_version
 import modules.html
-import modules.async_worker as worker
+###import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
@@ -23,7 +23,7 @@ import zipfile
 import threading
 import math
 import numpy as np
-from extras.inpaint_mask import SAMOptions
+###from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -41,6 +41,10 @@ from md_lib import civitai_helper
 from md_lib import md_config
 
 import wildcards
+
+from onebuttonprompt.scripts import onebuttonprompt
+
+obp_prompt=[]
 
 
 choices_ar1=["Any", "1:1", "3:2", "4:3", "4:5", "16:9"]
@@ -202,7 +206,7 @@ def get_task_batch(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-
+"""
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
@@ -264,7 +268,7 @@ def generate_clicked(task: worker.AsyncTask):
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
     return
-
+"""
 
 def sort_enhance_images(images, task):
     if not task.should_enhance or len(images) <= task.images_to_enhance_count:
@@ -794,6 +798,8 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                with gr.Accordion('Extention', open=False):
+		  with gr.TabItem(label='OBP') as obp_tab:
+			onebuttonprompt.ui()
                   with gr.TabItem(label='Civitai_helper') as download_tab:
                         civitai_helper.civitai_help()
                   with gr.TabItem(label='Prompt Translate') as promp_tr_tab:       
@@ -1438,16 +1444,16 @@ with shared.gradio_root:
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
-            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
-            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
-            .then(fn=update_history_link, outputs=history_link) \
-            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+#        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+#                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+#            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+#            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+#            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+#            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
+#            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+#                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+#            .then(fn=update_history_link, outputs=history_link) \
+#            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
         ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
