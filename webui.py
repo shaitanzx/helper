@@ -331,7 +331,8 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     state_topbar = gr.State({})
-    currentTask = gr.State(worker.AsyncTask(args=[]))
+#    currentTask = gr.State(worker.AsyncTask(args=[]))
+    currentTask = gr.State()
     inpaint_engine_state = gr.State('empty')
     with gr.Row():
         with gr.Column(scale=2):
