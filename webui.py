@@ -948,10 +948,15 @@ with shared.gradio_root:
                         if lock != "Any":
                           width=height / ar_def[1] * ar_def[0]
                         return gr.update (value=width)
-                    def set_to_ar(width,height):                        
+                    def set_to_ar(aspect_ratios_selection,width,height): 
                         g = math.gcd(width, height)
-                        modules.config.available_aspect_ratios_labels[-1]=f'{width}×{height}  \U00002223 {width // g}:{height // g}'
-                        return gr.update (choices=modules.config.available_aspect_ratios_labels)
+                        selector=f'{width}×{height}  \U00002223 {width // g}:{height // g}'
+                        if aspect_ratios_selection==modules.config.available_aspect_ratios_labels[-1]:
+                          previos_aspect=selector
+                        else:
+                          previos_aspect=aspect_ratios_selection
+                        modules.config.available_aspect_ratios_labels[-1]=selector
+                        return gr.update (choices=modules.config.available_aspect_ratios_labels, value=previos_aspect)
                 swap.click(swap_ar,inputs=[lock_ar,width_ar,height_ar],outputs=[lock_ar,width_ar,height_ar,swap],show_progress=False)
                 lock_ar.change(locker, inputs=[lock_ar,width_ar,height_ar],outputs=[width_ar, height_ar],show_progress=False)
                 width_ar.release(w_slide,inputs=[lock_ar,width_ar,height_ar],outputs=[height_ar],show_progress=False)
