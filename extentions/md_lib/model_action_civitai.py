@@ -625,7 +625,7 @@ def download_files(filename, model_folder, ver_info, headers, filetypes, dl_all,
         output = f"This model version already exists at `{result}`"
         util.printD(output)
         yield (False, output)
-    print ('-------------------------')
+    
 
     for file_info in ver_info.get("files", {}):
         if not dl_all:
