@@ -37,8 +37,8 @@ from PIL import Image
 from gradio.components import label
 from modules.util import is_json
 
-from md_lib import civitai_helper
-from md_lib import md_config
+from extentions.md_lib import civitai_helper
+from extentions.md_lib import md_config
 
 from extentions import wildcards
 
