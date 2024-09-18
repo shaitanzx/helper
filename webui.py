@@ -42,7 +42,7 @@ from extentions.md_lib import md_config
 
 from extentions import wildcards
 
-from onebuttonprompt.scripts import onebuttonprompt as ob_prompt
+from extentions.obp.scripts import onebuttonprompt as ob_prompt
 
 
 
