@@ -29,7 +29,7 @@ from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
-from modules.module_translate import translate, GoogleTranslator
+from extentions.module_translate import translate, GoogleTranslator
 from urllib.parse import urlparse, parse_qs, unquote
 from modules.model_loader import load_file_from_url
 from rembg import remove
