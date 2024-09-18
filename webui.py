@@ -40,7 +40,7 @@ from modules.util import is_json
 from md_lib import civitai_helper
 from md_lib import md_config
 
-import wildcards
+from extention import wildcards
 
 from onebuttonprompt.scripts import onebuttonprompt as ob_prompt
 
