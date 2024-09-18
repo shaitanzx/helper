@@ -1,6 +1,9 @@
 ## --- Title: Prompt translte
 ## --- Description: Extension for Fooocus, translated prompt to other languages
 ## --- Author: AlekPet (https://github.com/AlekPet/Fooocus_Extensions_AlekPet)
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from modules.launch_util import is_installed, run_pip
 
 packageName = "deep-translator"

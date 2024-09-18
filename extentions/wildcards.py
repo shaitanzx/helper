@@ -7,9 +7,10 @@ import gradio as gr
 
 
 #from modules.util import get_files_from_folder
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from args_manager import args
 
-wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'wildcards'))
+wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards'))
 wildcards_max_bfs_depth = 64
 wildcards = {}
 wildcards_list = {}
