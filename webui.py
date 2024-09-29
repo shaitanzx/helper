@@ -7,7 +7,7 @@ import shared
 import modules.config
 import fooocus_version
 import modules.html
-import modules.async_worker as worker
+##import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
@@ -23,7 +23,7 @@ import zipfile
 import threading
 import math
 import numpy as np
-from extras.inpaint_mask import SAMOptions
+##from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -190,7 +190,6 @@ def queue_obp(*args):
               yield from generate_clicked(currentTask)
               if seed_random:
                   args[9]=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
-#              print ('generation='+str(generation),'prompt='+randomprompt,'negative_prompt='+negativeprompt, 'name_model='+name_model,'name_ratio='+name_ratio)
 
 
 
@@ -344,7 +343,7 @@ def get_task_batch(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-
+"""
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
@@ -406,7 +405,7 @@ def generate_clicked(task: worker.AsyncTask):
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
     return
-
+"""
 
 def sort_enhance_images(images, task):
     if not task.should_enhance or len(images) <= task.images_to_enhance_count:
@@ -1213,6 +1212,82 @@ with shared.gradio_root:
                         with gr.Row():
                           gr.Markdown('Powered by [🪄 rembg 2.0.53](https://github.com/danielgatis/rembg/releases/tag/v2.0.53)')
                         rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress='full')
+                  with gr.TabItem(label='OpenPose_editor') as OP_edit:
+                    with gr.Row():
+                      with gr.Column():
+                        width_ope = gr.Slider(label="width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+                        height_ope = gr.Slider(label="height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+                        with gr.Row():
+                          add_ope = gr.Button(value="Add", variant="primary")
+                          # delete = gr.Button(value="Delete")
+                        with gr.Row():
+                          reset_btn_ope = gr.Button(value="Reset")
+                          json_input_ope = gr.UploadButton(label="Load from JSON", file_types=[".json"], elem_id="openpose_json_button")
+                          png_input_ope = gr.UploadButton(label="Detect from Image", file_types=["image"], type="bytes", elem_id="openpose_detect_button")
+                          bg_input_ope = gr.UploadButton(label="Add Background Image", file_types=["image"], elem_id="openpose_bg_button")
+                        with gr.Row():
+                          preset_list_ope = gr.Dropdown(label="Presets", choices=sorted(presets.keys()), interactive=True)
+                          preset_load_ope = gr.Button(value="Load Preset")
+                          preset_save_ope = gr.Button(value="Save Preset")
+
+                      with gr.Column():
+        # gradioooooo...
+                        canvas_ope = gr.HTML('<canvas id="openpose_editor_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas>')
+                        jsonbox_ope = gr.Text(label="json", elem_id="jsonbox", visible=False)
+                        with gr.Row():
+                          json_output_ope = gr.Button(value="Save JSON")
+                          png_output_ope = gr.Button(value="Save PNG")
+                          send_t2t_ope = gr.Button(value="Send to txt2img")
+                          send_i2i_ope = gr.Button(value="Send to img2img")
+                          control_net_max_models_num_ope = getattr(opts, 'control_net_max_models_num', 0)
+                          select_target_index_ope = gr.Dropdown([str(i) for i in range(control_net_max_models_num)], label="Send to", value="0", interactive=True, visible=(control_net_max_models_num > 1))
+
+                    def estimate(file):
+                      global body_estimation
+
+                      if body_estimation is None:
+                        model_path = os.path.join(models_path, "openpose", "body_pose_model.pth")
+                        if not os.path.isfile(model_path):
+                          body_model_path = "https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth"
+                          load_file_from_url(body_model_path, model_dir=os.path.join(models_path, "openpose"))
+                        body_estimation = Body(model_path)
+        
+                      stream = io.BytesIO(file)
+                      img = Image.open(stream)
+                      candidate, subset = body_estimation(pil2cv(img))
+
+                      result = {
+                        "candidate": candidate2li(candidate),
+                        "subset": subset2li(subset),
+                      }
+      
+                      return str(result).replace("'", '"')
+
+                    def savePreset(name, data):
+                      if name:
+                        presets[name] = json.loads(data)
+                        with open(presets_file, "w") as file:
+                          json.dump(presets, file)
+                        return gr.update(choices=sorted(presets.keys()), value=name), json.dumps(data)
+                      return gr.update(), gr.update()
+
+                    dummy_component_ope = gr.Label(visible=False)
+                    preset_ope = gr.Text(visible=False)
+#                    width_ope.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
+#                    height_ope.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
+#                    png_output_ope.click(None, [], None, _js="savePNG")
+#                    bg_input_ope.upload(None, [], [width, height], _js="() => {addBackground('openpose_bg_button')}")
+#                    png_input_ope.upload(estimate, png_input, jsonbox)
+#                    png_input_ope.upload(None, [], [width, height], _js="() => {addBackground('openpose_detect_button')}")
+#                    add_ope.click(None, [], None, _js="addPose")
+#                    send_t2t_ope.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
+#                    send_i2i_ope.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
+#                    reset_btn_ope.click(None, [], None, _js="resetCanvas")
+#                    json_input_ope.upload(None, json_input, [width, height], _js="() => {loadJSON('openpose_json_button')}")
+#                    json_output_ope.click(None, None, None, _js="saveJSON")
+#                    preset_save_ope.click(savePreset, [dummy_component, dummy_component], [preset_list, preset], _js="savePreset")
+#                    preset_load_ope.click(None, preset, [width, height], _js="loadPreset")
+#                    preset_list_ope.change(lambda selected: json.dumps(presets[selected]), preset_list, preset)
 
             enhance_tab.select(lambda: 'enhance', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             metadata_tab.select(lambda: 'metadata', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
@@ -1782,16 +1857,16 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
-            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
-            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
-            .then(fn=update_history_link, outputs=history_link) \
-            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+#        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+#                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+#            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+#            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+#            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+#            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
+#            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+#                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+#            .then(fn=update_history_link, outputs=history_link) \
+#            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
         ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
