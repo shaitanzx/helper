@@ -43,7 +43,7 @@ from extentions.md_lib import md_config
 from extentions import wildcards
 
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
-
+from extentions.op_edit import *
 
 
 obp_prompt=[]
@@ -1213,22 +1213,23 @@ with shared.gradio_root:
                           gr.Markdown('Powered by [🪄 rembg 2.0.53](https://github.com/danielgatis/rembg/releases/tag/v2.0.53)')
                         rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress='full')
                   with gr.TabItem(label='OpenPose_editor') as OP_edit:
+                    from extentions.op_edit.scripts.body import Body
                     with gr.Row():
                       with gr.Column():
-                        width_ope = gr.Slider(label="width", minimum=64, maximum=2048, value=512, step=64, interactive=True)
-                        height_ope = gr.Slider(label="height", minimum=64, maximum=2048, value=512, step=64, interactive=True)
+                        width_ope = gr.Slider(label="width", minimum=64, maximum=2048, value=1024, step=64, interactive=True)
+                        height_ope = gr.Slider(label="height", minimum=64, maximum=2048, value=1024, step=64, interactive=True)
                         with gr.Row():
                           add_ope = gr.Button(value="Add", variant="primary")
                           # delete = gr.Button(value="Delete")
                         with gr.Row():
-                          reset_btn_ope = gr.Button(value="Reset")
+                          reset_btn_ope = gr.Button(value="Clear")
                           json_input_ope = gr.UploadButton(label="Load from JSON", file_types=[".json"], elem_id="openpose_json_button")
                           png_input_ope = gr.UploadButton(label="Detect from Image", file_types=["image"], type="bytes", elem_id="openpose_detect_button")
                           bg_input_ope = gr.UploadButton(label="Add Background Image", file_types=["image"], elem_id="openpose_bg_button")
-                        with gr.Row():
-                          preset_list_ope = gr.Dropdown(label="Presets", choices=sorted(presets.keys()), interactive=True)
-                          preset_load_ope = gr.Button(value="Load Preset")
-                          preset_save_ope = gr.Button(value="Save Preset")
+##                        with gr.Row():
+##                          preset_list_ope = gr.Dropdown(label="Presets", choices=sorted(extentions.op_edit.presets.keys()), interactive=True)
+##                          preset_load_ope = gr.Button(value="Load Preset")
+##                          preset_save_ope = gr.Button(value="Save Preset")
 
                       with gr.Column():
         # gradioooooo...
@@ -1239,8 +1240,8 @@ with shared.gradio_root:
                           png_output_ope = gr.Button(value="Save PNG")
                           send_t2t_ope = gr.Button(value="Send to txt2img")
                           send_i2i_ope = gr.Button(value="Send to img2img")
-                          control_net_max_models_num_ope = getattr(opts, 'control_net_max_models_num', 0)
-                          select_target_index_ope = gr.Dropdown([str(i) for i in range(control_net_max_models_num)], label="Send to", value="0", interactive=True, visible=(control_net_max_models_num > 1))
+#                          control_net_max_models_num_ope = getattr(opts, 'control_net_max_models_num', 0)
+                          select_target_index_ope = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Send to", value="0", interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
 
                     def estimate(file):
                       global body_estimation
@@ -1268,22 +1269,22 @@ with shared.gradio_root:
                         presets[name] = json.loads(data)
                         with open(presets_file, "w") as file:
                           json.dump(presets, file)
-                        return gr.update(choices=sorted(presets.keys()), value=name), json.dumps(data)
+                        return gr.update(choices=sorted(op_edit.presets.keys()), value=name), json.dumps(data)
                       return gr.update(), gr.update()
 
                     dummy_component_ope = gr.Label(visible=False)
                     preset_ope = gr.Text(visible=False)
-#                    width_ope.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
-#                    height_ope.change(None, [width, height], None, _js="(w, h) => {resizeCanvas(w, h)}")
+                    width_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
+                    height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
 #                    png_output_ope.click(None, [], None, _js="savePNG")
-#                    bg_input_ope.upload(None, [], [width, height], _js="() => {addBackground('openpose_bg_button')}")
-#                    png_input_ope.upload(estimate, png_input, jsonbox)
+                    bg_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_bg_button')}")
+                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope)
 #                    png_input_ope.upload(None, [], [width, height], _js="() => {addBackground('openpose_detect_button')}")
-#                    add_ope.click(None, [], None, _js="addPose")
+                    add_ope.click(None, [], None, _js="addPose")
 #                    send_t2t_ope.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
 #                    send_i2i_ope.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
-#                    reset_btn_ope.click(None, [], None, _js="resetCanvas")
-#                    json_input_ope.upload(None, json_input, [width, height], _js="() => {loadJSON('openpose_json_button')}")
+                    reset_btn_ope.click(None, [], None, _js="resetCanvas")
+                    json_input_ope.upload(None, json_input_ope, [width_ope, height_ope], _js="() => {loadJSON('openpose_json_button')}")
 #                    json_output_ope.click(None, None, None, _js="saveJSON")
 #                    preset_save_ope.click(savePreset, [dummy_component, dummy_component], [preset_list, preset], _js="savePreset")
 #                    preset_load_ope.click(None, preset, [width, height], _js="loadPreset")
@@ -1792,7 +1793,8 @@ with shared.gradio_root:
                                            inpaint_mask_sam_max_detections, dino_erode_or_dilate, debugging_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
-        ctrls = [currentTask, generate_image_grid]
+##        ctrls = [currentTask, generate_image_grid]
+        ctrls = [generate_image_grid]
         ctrls += [
             prompt, negative_prompt, style_selections,
             performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
@@ -1920,13 +1922,13 @@ with shared.gradio_root:
               .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
         stop_obp.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
 
-        reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
-                                   [gr.update(visible=False)] * 6 +
-                                   [gr.update(visible=True, value=[])],
-                           outputs=[currentTask, state_is_generating, generate_button,
-                                    reset_button, stop_button, skip_button,
-                                    progress_html, progress_window, progress_gallery, gallery],
-                           queue=False)
+#        reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
+#                                   [gr.update(visible=False)] * 6 +
+##                                   [gr.update(visible=True, value=[])],
+ #                          outputs=[currentTask, state_is_generating, generate_button,
+ #                                   reset_button, stop_button, skip_button,
+ #                                   progress_html, progress_window, progress_gallery, gallery],
+ #                          queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
