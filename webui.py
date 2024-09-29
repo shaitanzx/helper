@@ -7,7 +7,7 @@ import shared
 import modules.config
 import fooocus_version
 import modules.html
-##import modules.async_worker as worker
+import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
@@ -23,7 +23,9 @@ import zipfile
 import threading
 import math
 import numpy as np
-##from extras.inpaint_mask import SAMOptions
+import io
+import cv2
+from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -43,8 +45,6 @@ from extentions.md_lib import md_config
 from extentions import wildcards
 
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
-from extentions.op_edit import *
-
 
 obp_prompt=[]
 
@@ -343,7 +343,7 @@ def get_task_batch(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-"""
+
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
@@ -405,7 +405,7 @@ def generate_clicked(task: worker.AsyncTask):
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
     return
-"""
+
 
 def sort_enhance_images(images, task):
     if not task.should_enhance or len(images) <= task.images_to_enhance_count:
@@ -468,7 +468,7 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     state_topbar = gr.State({})
-#    currentTask = gr.State(worker.AsyncTask(args=[]))
+    currentTask = gr.State(worker.AsyncTask(args=[]))
     inpaint_engine_state = gr.State('empty')
     with gr.Row():
         with gr.Column(scale=2):
@@ -512,8 +512,8 @@ with shared.gradio_root:
                             model_management.interrupt_current_processing()
                         return currentTask
 
-#                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
-#                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
+                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
+                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Accordion(label='Wildcards', visible=True, open=False) as prompt_wildcards:
                 wildcards_list = gr.Dataset(components=[prompt], label='Wildcards:', samples=wildcards.get_wildcards_samples(), visible=True, samples_per_page=14)
                 with gr.Accordion(label='Words/phrases of wildcard', visible=True, open=False) as words_in_wildcard:
@@ -1214,6 +1214,35 @@ with shared.gradio_root:
                         rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress='full')
                   with gr.TabItem(label='OpenPose_editor') as OP_edit:
                     from extentions.op_edit.scripts.body import Body
+                    body_estimation = None
+#                    presets_file = os.path.join(basedir(), "presets.json")
+#                    presets = {}
+
+#                    try: 
+#                      with open(presets_file) as file:
+#                        presets = json.load(file)
+#                    except FileNotFoundError:
+#                      pass
+
+                    def pil2cv(in_image):
+                      out_image = np.array(in_image, dtype=np.uint8)
+
+                      if out_image.shape[2] == 3:
+                        out_image = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)
+                      return out_image
+
+                    def candidate2li(li):
+                      res = []
+                      for x, y, *_ in li:
+                        res.append([x, y])
+                      return res
+
+                    def subset2li(li):
+                      res = []
+                      for r in li:
+                        for c in r:
+                          res.append(c)
+                      return res
                     with gr.Row():
                       with gr.Column():
                         width_ope = gr.Slider(label="width", minimum=64, maximum=2048, value=1024, step=64, interactive=True)
@@ -1247,10 +1276,15 @@ with shared.gradio_root:
                       global body_estimation
 
                       if body_estimation is None:
-                        model_path = os.path.join(models_path, "openpose", "body_pose_model.pth")
+                        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit", "body_pose_model.pth")
+#                        model_path = os.path.join(models_path, "openpose", "body_pose_model.pth")
                         if not os.path.isfile(model_path):
                           body_model_path = "https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth"
-                          load_file_from_url(body_model_path, model_dir=os.path.join(models_path, "openpose"))
+                          load_file_from_url(
+                            url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth", 
+                            model_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit"),
+                            file_name='body_pose_model.pth'
+                          )
                         body_estimation = Body(model_path)
         
                       stream = io.BytesIO(file)
@@ -1279,7 +1313,7 @@ with shared.gradio_root:
 #                    png_output_ope.click(None, [], None, _js="savePNG")
                     bg_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_bg_button')}")
                     png_input_ope.upload(estimate, png_input_ope, jsonbox_ope)
-#                    png_input_ope.upload(None, [], [width, height], _js="() => {addBackground('openpose_detect_button')}")
+                    png_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_detect_button')}")
                     add_ope.click(None, [], None, _js="addPose")
 #                    send_t2t_ope.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
 #                    send_i2i_ope.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
@@ -1793,8 +1827,7 @@ with shared.gradio_root:
                                            inpaint_mask_sam_max_detections, dino_erode_or_dilate, debugging_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
-##        ctrls = [currentTask, generate_image_grid]
-        ctrls = [generate_image_grid]
+        ctrls = [currentTask, generate_image_grid]
         ctrls += [
             prompt, negative_prompt, style_selections,
             performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
@@ -1859,16 +1892,16 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-#        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-#                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
-#            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-#            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-#            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-#            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
-#            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-#                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
-#            .then(fn=update_history_link, outputs=history_link) \
-#            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
+            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+            .then(fn=update_history_link, outputs=history_link) \
+            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
         ctrls_batch = ctrls[:]
         ctrls_batch.append(ratio)
         ctrls_batch.append(seed_random)
@@ -1922,13 +1955,13 @@ with shared.gradio_root:
               .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
         stop_obp.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
 
-#        reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
-#                                   [gr.update(visible=False)] * 6 +
-##                                   [gr.update(visible=True, value=[])],
- #                          outputs=[currentTask, state_is_generating, generate_button,
- #                                   reset_button, stop_button, skip_button,
- #                                   progress_html, progress_window, progress_gallery, gallery],
- #                          queue=False)
+        reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
+                                   [gr.update(visible=False)] * 6 +
+                                   [gr.update(visible=True, value=[])],
+                           outputs=[currentTask, state_is_generating, generate_button,
+                                    reset_button, stop_button, skip_button,
+                                    progress_html, progress_window, progress_gallery, gallery],
+                           queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
