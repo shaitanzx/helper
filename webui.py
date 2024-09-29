@@ -512,8 +512,8 @@ with shared.gradio_root:
                             model_management.interrupt_current_processing()
                         return currentTask
 
-                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
-                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
+#                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
+#                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Accordion(label='Wildcards', visible=True, open=False) as prompt_wildcards:
                 wildcards_list = gr.Dataset(components=[prompt], label='Wildcards:', samples=wildcards.get_wildcards_samples(), visible=True, samples_per_page=14)
                 with gr.Accordion(label='Words/phrases of wildcard', visible=True, open=False) as words_in_wildcard:
