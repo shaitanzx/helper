@@ -23,8 +23,6 @@ import zipfile
 import threading
 import math
 import numpy as np
-import io
-import cv2
 from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
@@ -1212,117 +1210,6 @@ with shared.gradio_root:
                         with gr.Row():
                           gr.Markdown('Powered by [🪄 rembg 2.0.53](https://github.com/danielgatis/rembg/releases/tag/v2.0.53)')
                         rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress='full')
-                  with gr.TabItem(label='OpenPose_editor') as OP_edit:
-                    from extentions.op_edit.scripts.body import Body
-                    body_estimation = None
-#                    presets_file = os.path.join(basedir(), "presets.json")
-#                    presets = {}
-
-#                    try: 
-#                      with open(presets_file) as file:
-#                        presets = json.load(file)
-#                    except FileNotFoundError:
-#                      pass
-
-                    def pil2cv(in_image):
-                      out_image = np.array(in_image, dtype=np.uint8)
-
-                      if out_image.shape[2] == 3:
-                        out_image = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)
-                      return out_image
-
-                    def candidate2li(li):
-                      res = []
-                      for x, y, *_ in li:
-                        res.append([x, y])
-                      return res
-
-                    def subset2li(li):
-                      res = []
-                      for r in li:
-                        for c in r:
-                          res.append(c)
-                      return res
-                    with gr.Row():
-                      with gr.Column():
-                        width_ope = gr.Slider(label="width", minimum=64, maximum=2048, value=1024, step=64, interactive=True)
-                        height_ope = gr.Slider(label="height", minimum=64, maximum=2048, value=1024, step=64, interactive=True)
-                        with gr.Row():
-                          add_ope = gr.Button(value="Add", variant="primary")
-                          # delete = gr.Button(value="Delete")
-                        with gr.Row():
-                          reset_btn_ope = gr.Button(value="Clear")
-                          json_input_ope = gr.UploadButton(label="Load from JSON", file_types=[".json"], elem_id="openpose_json_button")
-                          png_input_ope = gr.UploadButton(label="Detect from Image", file_types=["image"], type="bytes", elem_id="openpose_detect_button")
-                          bg_input_ope = gr.UploadButton(label="Add Background Image", file_types=["image"], elem_id="openpose_bg_button")
-##                        with gr.Row():
-##                          preset_list_ope = gr.Dropdown(label="Presets", choices=sorted(extentions.op_edit.presets.keys()), interactive=True)
-##                          preset_load_ope = gr.Button(value="Load Preset")
-##                          preset_save_ope = gr.Button(value="Save Preset")
-
-                      with gr.Column():
-        # gradioooooo...
-                        canvas_ope = gr.HTML('<canvas id="openpose_editor_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas>')
-                        jsonbox_ope = gr.Text(label="json", elem_id="jsonbox", visible=False)
-                        with gr.Row():
-                          json_output_ope = gr.Button(value="Save JSON")
-                          png_output_ope = gr.Button(value="Save PNG")
-                          send_t2t_ope = gr.Button(value="Send to txt2img")
-                          send_i2i_ope = gr.Button(value="Send to img2img")
-#                          control_net_max_models_num_ope = getattr(opts, 'control_net_max_models_num', 0)
-                          select_target_index_ope = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Send to", value="0", interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
-
-                    def estimate(file):
-                      global body_estimation
-
-                      if body_estimation is None:
-                        model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit", "body_pose_model.pth")
-#                        model_path = os.path.join(models_path, "openpose", "body_pose_model.pth")
-                        if not os.path.isfile(model_path):
-                          body_model_path = "https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth"
-                          load_file_from_url(
-                            url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth", 
-                            model_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit"),
-                            file_name='body_pose_model.pth'
-                          )
-                        body_estimation = Body(model_path)
-        
-                      stream = io.BytesIO(file)
-                      img = Image.open(stream)
-                      candidate, subset = body_estimation(pil2cv(img))
-
-                      result = {
-                        "candidate": candidate2li(candidate),
-                        "subset": subset2li(subset),
-                      }
-      
-                      return str(result).replace("'", '"')
-
-                    def savePreset(name, data):
-                      if name:
-                        presets[name] = json.loads(data)
-                        with open(presets_file, "w") as file:
-                          json.dump(presets, file)
-                        return gr.update(choices=sorted(op_edit.presets.keys()), value=name), json.dumps(data)
-                      return gr.update(), gr.update()
-
-                    dummy_component_ope = gr.Label(visible=False)
-                    preset_ope = gr.Text(visible=False)
-                    width_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
-                    height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
-#                    png_output_ope.click(None, [], None, _js="savePNG")
-                    bg_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_bg_button')}")
-                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope)
-                    png_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_detect_button')}")
-                    add_ope.click(None, [], None, _js="addPose")
-#                    send_t2t_ope.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
-#                    send_i2i_ope.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
-                    reset_btn_ope.click(None, [], None, _js="resetCanvas")
-                    json_input_ope.upload(None, json_input_ope, [width_ope, height_ope], _js="() => {loadJSON('openpose_json_button')}")
-#                    json_output_ope.click(None, None, None, _js="saveJSON")
-#                    preset_save_ope.click(savePreset, [dummy_component, dummy_component], [preset_list, preset], _js="savePreset")
-#                    preset_load_ope.click(None, preset, [width, height], _js="loadPreset")
-#                    preset_list_ope.change(lambda selected: json.dumps(presets[selected]), preset_list, preset)
 
             enhance_tab.select(lambda: 'enhance', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             metadata_tab.select(lambda: 'metadata', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
@@ -1641,9 +1528,9 @@ with shared.gradio_root:
                                                         info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
 
                         with gr.Tab(label='Canny&OpenPose'):
-                            canny_low_threshold = gr.Slider(label='Canny&Pose Low Threshold', minimum=1, maximum=255,
+                            canny_low_threshold = gr.Slider(label='Canny Low Threshold', minimum=1, maximum=255,
                                                             step=1, value=64)
-                            canny_high_threshold = gr.Slider(label='Canny&Pose High Threshold', minimum=1, maximum=255,
+                            canny_high_threshold = gr.Slider(label='Canny High Threshold', minimum=1, maximum=255,
                                                              step=1, value=128)
                         
 
