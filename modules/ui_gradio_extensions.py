@@ -39,9 +39,6 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
-    fabric_js_path = webpath('extentions/op_edit/javascript/fabric.js')
-    head += f'<script type="text/javascript" src="{fabric_js_path}"></script>\n'
-    op_edit_js_path = webpath('extentions/op_edit/javascript/main.js')
     head += f'<script type="text/javascript" src="{op_edit_js_path}"></script>\n'
     civitai_js_path = webpath('extentions/md_lib/civitai_helper.js')
     head += f'<script type="text/javascript" src="{civitai_js_path}"></script>\n'

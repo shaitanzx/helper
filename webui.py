@@ -101,11 +101,6 @@ def queue_obp(*args):
     size=args.pop()
     base_model=args.pop()
     model=args.pop()
-
-    
-    
-    
-    
     
     sect_models=ob_prompt.modellist
     cur_sect_models=model
@@ -150,9 +145,6 @@ def queue_obp(*args):
         if(autonegativeprompt):
                 negativeprompt = ob_prompt.build_dynamic_negative(positive_prompt=randomprompt, insanitylevel=autonegativepromptstrength,enhance=autonegativepromptenhance, existing_negative_prompt=originalnegativeprompt, base_model_obp=base_model_obp)
         randomprompt = ob_prompt.flufferizer(prompt=randomprompt, amountoffluff=amountoffluff)
-
-
-
 
         if cur_sect_models=='all':
           model_list_gen=len(model_list)
