@@ -1895,7 +1895,8 @@ with shared.gradio_root:
                       outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
-
+      gr.HTML("<div><p style='text-align:center;'>We are in <a href='https://t.me/+xlhhGmrz9SlmYzg6' target='_blank'>Telegram</a></p> </div>")
+  
 def dump_default_english_config():
     from modules.localization import dump_english_config
     dump_english_config(grh.all_components)
