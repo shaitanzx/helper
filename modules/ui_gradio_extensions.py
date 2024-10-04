@@ -42,9 +42,10 @@ def javascript_html():
     civitai_js_path = webpath('extentions/md_lib/civitai_helper.js')
     head += f'<script type="text/javascript" src="{civitai_js_path}"></script>\n'
     head += f'<meta name="samples-path" content="{samples_path}">\n'
-    poses_js_path = webpath('extentions/op_edit/javascript')
-    head += f'<script type="text/javascript" src="{civitai_js_path}/fabric.js"></script>\n'
-    head += f'<script type="text/javascript" src="{civitai_js_path}/main.js"></script>\n'
+    fabric_js_path = webpath('extentions/op_edit/javascript/fabric.js')
+    head += f'<script type="text/javascript" src="{fabric_js_path}"></script>\n'
+    poses_js_path = webpath('extentions/op_edit/javascript/main.js')
+    head += f'<script type="text/javascript" src="{poses_js_path}"></script>\n'
 
     if args_manager.args.theme:
         head += f'<script type="text/javascript">set_theme(\"{args_manager.args.theme}\");</script>\n'

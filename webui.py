@@ -931,14 +931,14 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='OpenPoseEditor') as op_edit_tab:
                     body_estimation = None
-                    presets_file = os.path.join(scripts.basedir(), "presets.json")
+###                    presets_file = os.path.join(scripts.basedir(), "presets.json")
                     presets = {}
 
-                    try: 
-                      with open(presets_file) as file:
-                        presets = json.load(file)
-                    except FileNotFoundError:
-                      pass
+#                    try: 
+#                      with open(presets_file) as file:
+#                        presets = json.load(file)
+#                    except FileNotFoundError:
+#                      pass
 
                     def pil2cv(in_image):
                       out_image = np.array(in_image, dtype=np.uint8)
@@ -993,14 +993,14 @@ with shared.gradio_root:
 
                       if body_estimation is None:
                         model_path_ope = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit")
-                        model_file_ope = os.path.join(models_path_ope, "body_pose_model.pth")
+                        model_file_ope = os.path.join(model_path_ope, "body_pose_model.pth")
                         if not os.path.isfile(model_path_ope):
 
                           load_file_from_url(
                             url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth",
                             model_dir=model_path_ope,
-                            file_name='body_pose_model.pth'
-                      body_estimation = Body(model_file_ope)
+                            file_name='body_pose_model.pth')
+                        body_estimation = Body(model_file_ope)
         
                       stream = io.BytesIO(file)
                       img = Image.open(stream)
@@ -1034,7 +1034,7 @@ with shared.gradio_root:
 #                    send_t2t.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
 #                    send_i2i.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
                     reset_btn_ope.click(None, [], None, _js="resetCanvas")
-                    json_input_ope.upload(None, json_input_ope, [width_ope, height], _js="() => {loadJSON('openpose_json_button')}")
+                    json_input_ope.upload(None, json_input_ope, [width_ope, height_ope], _js="() => {loadJSON('openpose_json_button')}")
                     json_output_ope.click(None, None, None, _js="saveJSON")
 #                    preset_save.click(savePreset, [dummy_component, dummy_component], [preset_list, preset], _js="savePreset")
 #                    preset_load.click(None, preset, [width, height], _js="loadPreset")
