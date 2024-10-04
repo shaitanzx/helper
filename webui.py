@@ -1000,7 +1000,7 @@ with shared.gradio_root:
                             url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth",
                             model_dir=model_path_ope,
                             file_name='body_pose_model.pth'
-                        body_estimation = Body(model_file_ope)
+                      body_estimation = Body(model_file_ope)
         
                       stream = io.BytesIO(file)
                       img = Image.open(stream)
