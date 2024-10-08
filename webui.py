@@ -1028,7 +1028,8 @@ with shared.gradio_root:
                     height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
                     png_output_ope.click(None, [], None, _js="savePNG")
                     bg_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_bg_button')}")
-                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope)
+                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope) \
+                      .then (None, [jsonbox_ope], None, _js="(x) => {detectImage(x)}")
                     png_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_detect_button')}")
                     add_ope.click(None, [], None, _js="addPose")
 #                    send_t2t.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
