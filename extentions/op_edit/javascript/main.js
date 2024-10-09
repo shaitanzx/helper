@@ -713,6 +713,7 @@ function json_onDrop(event) {
 }
 
 onUiLoaded(function() {
+    console.log(`Running OpenPose Editor`);
     initCanvas(gradioApp().querySelector('#openpose_editor_canvas'))
 
     var canvas_drag_overlay = document.createElement("div");
