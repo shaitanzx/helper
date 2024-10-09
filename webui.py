@@ -931,14 +931,14 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='OpenPoseEditor') as op_edit_tab:
                     body_estimation = None
-###                    presets_file = os.path.join(scripts.basedir(), "presets.json")
+                    presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets.json")
                     presets = {}
 
-#                    try: 
-#                      with open(presets_file) as file:
-#                        presets = json.load(file)
-#                    except FileNotFoundError:
-#                      pass
+                    try: 
+                      with open(presets_file) as file:
+                        presets = json.load(file)
+                    except FileNotFoundError:
+                      pass
 
                     def pil2cv(in_image):
                       out_image = np.array(in_image, dtype=np.uint8)
@@ -971,22 +971,25 @@ with shared.gradio_root:
                           json_input_ope = gr.UploadButton(label="Load from JSON", file_types=[".json"], elem_id="openpose_json_button")
                           png_input_ope = gr.UploadButton(label="Detect from Image", file_types=["image"], type="bytes", elem_id="openpose_detect_button")
                           bg_input_ope = gr.UploadButton(label="Add Background Image", file_types=["image"], elem_id="openpose_bg_button")
-#                        with gr.Row():
-#                          preset_list = gr.Dropdown(label="Presets", choices=sorted(presets.keys()), interactive=True)
-#                          preset_load = gr.Button(value="Load Preset")
-#                          preset_save = gr.Button(value="Save Preset")
+                        with gr.Row():
+                          preset_list = gr.Dropdown(label="Presets", choices=sorted(presets.keys()), interactive=True)
+                          preset_load = gr.Button(value="Load Preset")
+                          preset_save = gr.Button(value="Save Preset")
+                        with gr.Row():
+                          json_output_ope = gr.Button(value="Save JSON")
+                          png_output_ope = gr.Button(value="Save PNG")
+
 
                       with gr.Column():
         # gradioooooo...
                         canvas_ope = gr.HTML('<canvas id="openpose_editor_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas>')
                         jsonbox_ope = gr.Text(label="json", elem_id="jsonbox", visible=False)
-                        with gr.Row():
-                          json_output_ope = gr.Button(value="Save JSON")
-                          png_output_ope = gr.Button(value="Save PNG")
-                          send_t2t_ope = gr.Button(value="Send to txt2img")
-                          send_i2i_ope = gr.Button(value="Send to img2img")
+#                        with gr.Row():
+
+#                          send_t2t_ope = gr.Button(value="Send to txt2img")
+#                          send_i2i_ope = gr.Button(value="Send to img2img")
 #                          control_net_max_models_num = getattr(opts, 'control_net_max_models_num', 0)
-                          select_target_index = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Send to", value="0", interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
+#                          select_target_index = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Send to", value="0", interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
 
                     def estimate(file):
                       global body_estimation
@@ -1021,9 +1024,9 @@ with shared.gradio_root:
                         return gr.update(choices=sorted(presets.keys()), value=name), json.dumps(data)
                       return gr.update(), gr.update()
 ######
-                    dummy_component = gr.Label(visible=True)
+                    dummy_component = gr.Label(visible=False)
 ######
-                    preset_ope = gr.Text(visible=True)
+                    preset_ope = gr.Text(visible=False)
                     width_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
                     height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
                     png_output_ope.click(None, [], None, _js="savePNG")
@@ -1037,9 +1040,9 @@ with shared.gradio_root:
                     reset_btn_ope.click(None, [], None, _js="resetCanvas")
                     json_input_ope.upload(None, json_input_ope, [width_ope, height_ope], _js="() => {loadJSON('openpose_json_button')}")
                     json_output_ope.click(None, None, None, _js="saveJSON")
-#                    preset_save.click(savePreset, [dummy_component, dummy_component], [preset_list, preset], _js="savePreset")
-#                    preset_load.click(None, preset, [width, height], _js="loadPreset")
-#                    preset_list.change(lambda selected: json.dumps(presets[selected]), preset_list, preset)
+                    preset_save.click(savePreset, [dummy_component, dummy_component], [preset_list, preset_ope], _js="savePreset")
+                    preset_load.click(None, preset_ope, [width_ope, height_ope], _js="loadPreset")
+                    preset_list.change(lambda selected: json.dumps(presets[selected]), preset_list, preset_ope)
 
 
                   with gr.TabItem(label='OBP') as obp_tab:
