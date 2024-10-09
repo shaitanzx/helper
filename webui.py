@@ -45,6 +45,8 @@ from extentions import wildcards
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
 
 from extentions.op_edit.body import Body
+import io
+import cv2
 
 obp_prompt=[]
 
@@ -929,7 +931,7 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='OpenPoseEditor') as op_edit_tab:
                     body_estimation = None
-                    presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets.json")
+                    presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit")
                     presets = {}
 
                     try: 
@@ -976,24 +978,15 @@ with shared.gradio_root:
                         with gr.Row():
                           json_output_ope = gr.Button(value="Save JSON")
                           png_output_ope = gr.Button(value="Save PNG")
-
-
                       with gr.Column():
         # gradioooooo...
                         canvas_ope = gr.HTML('<canvas id="openpose_editor_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas>')
                         jsonbox_ope = gr.Text(label="json", elem_id="jsonbox", visible=False)
-#                        with gr.Row():
-
-#                          send_t2t_ope = gr.Button(value="Send to txt2img")
-#                          send_i2i_ope = gr.Button(value="Send to img2img")
-#                          control_net_max_models_num = getattr(opts, 'control_net_max_models_num', 0)
-#                          select_target_index = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Send to", value="0", interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
-
                     def estimate(file):
                       global body_estimation
 
                       if body_estimation is None:
-                        model_path_ope = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit")
+                        model_path_ope = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "controlnet")
                         model_file_ope = os.path.join(model_path_ope, "body_pose_model.pth")
                         if not os.path.isfile(model_path_ope):
 
@@ -1001,6 +994,7 @@ with shared.gradio_root:
                             url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth",
                             model_dir=model_path_ope,
                             file_name='body_pose_model.pth')
+
                         body_estimation = Body(model_file_ope)
         
                       stream = io.BytesIO(file)
@@ -1021,9 +1015,9 @@ with shared.gradio_root:
                           json.dump(presets, file)
                         return gr.update(choices=sorted(presets.keys()), value=name), json.dumps(data)
                       return gr.update(), gr.update()
-######
+
                     dummy_component = gr.Label(visible=False)
-######
+
                     preset_ope = gr.Text(visible=False)
                     width_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
                     height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
@@ -1033,8 +1027,6 @@ with shared.gradio_root:
                       .then (None, [jsonbox_ope], None, _js="(x) => {detectImage(x)}")
                     png_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_detect_button')}")
                     add_ope.click(None, [], None, _js="addPose")
-#                    send_t2t.click(None, select_target_index, None, _js="(i) => {sendImage('txt2img', i)}")
-#                    send_i2i.click(None, select_target_index, None, _js="(i) => {sendImage('img2img', i)}")
                     reset_btn_ope.click(None, [], None, _js="resetCanvas")
                     json_input_ope.upload(None, json_input_ope, [width_ope, height_ope], _js="() => {loadJSON('openpose_json_button')}")
                     json_output_ope.click(None, None, None, _js="saveJSON")
