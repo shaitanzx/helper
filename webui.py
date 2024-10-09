@@ -1636,7 +1636,7 @@ with shared.gradio_root:
                                                         step=0.001, value=0.25,
                                                         info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
 
-                        with gr.Tab(label='Canny&OpenPose'):
+                        with gr.Tab(label='Canny'):
                             canny_low_threshold = gr.Slider(label='Canny Low Threshold', minimum=1, maximum=255,
                                                             step=1, value=64)
                             canny_high_threshold = gr.Slider(label='Canny High Threshold', minimum=1, maximum=255,
