@@ -44,6 +44,7 @@ from extentions import wildcards
 
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
 
+from extentions.op_edit.body import Body
 
 obp_prompt=[]
 
