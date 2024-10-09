@@ -931,7 +931,7 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='OpenPoseEditor') as op_edit_tab:
                     body_estimation = None
-                    presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit")
+                    presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit","presets.json")
                     presets = {}
 
                     try: 
@@ -994,6 +994,7 @@ with shared.gradio_root:
                             url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth",
                             model_dir=model_path_ope,
                             file_name='body_pose_model.pth')
+
 
                         body_estimation = Body(model_file_ope)
         
