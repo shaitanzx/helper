@@ -929,7 +929,7 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
-                  with gr.TabItem(label='OpenPoseEditor') as op_edit_tab:
+                  with gr.TabItem(label='OpenPoseEditor', elem_id='op_edit_tab') as op_edit_tab:
                     body_estimation = None
                     presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit","presets.json")
                     presets = {}
@@ -1024,8 +1024,7 @@ with shared.gradio_root:
                     height_ope.change(None, [width_ope, height_ope], None, _js="(w, h) => {resizeCanvas(w, h)}")
                     png_output_ope.click(None, [], None, _js="savePNG")
                     bg_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_bg_button')}")
-                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope) \
-                      .then (None, [jsonbox_ope], None, _js="(x) => {detectImage(x)}")
+                    png_input_ope.upload(estimate, png_input_ope, jsonbox_ope)
                     png_input_ope.upload(None, [], [width_ope, height_ope], _js="() => {addBackground('openpose_detect_button')}")
                     add_ope.click(None, [], None, _js="addPose")
                     reset_btn_ope.click(None, [], None, _js="resetCanvas")

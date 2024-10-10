@@ -354,7 +354,7 @@ function initCanvas(elem){
     undo_history.push(JSON.stringify(canvas));
 
     const json_observer = new MutationObserver((m) => {
-        if(gradioApp().querySelector('#tab_openpose_editor').style.display!=='block') return;
+        if(gradioApp().querySelector('#op_edit_tab').style.display!=='block') return;
         try {
             const json = gradioApp().querySelector("#jsonbox").querySelector("textarea")
             if(json.value.length!==0) detectImage(json.value);
@@ -720,7 +720,7 @@ onUiLoaded(function() {
     canvas_drag_overlay.id = "canvas_drag_overlay"
     canvas_drag_overlay.style = "pointer-events: none; visibility: hidden; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: white; font-size: 2.5em; font-family: inherit; font-weight: 600; line-height: 100%; background: rgba(0,0,0,0.5); margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid; position: absolute;"
 
-    var canvas = gradioApp().querySelector("#tab_openpose_editor .canvas-container")
+    var canvas = gradioApp().querySelector("#op_edit_tab .canvas-container")
     canvas.appendChild(canvas_drag_overlay)
     canvas.addEventListener("dragover", canvas_onDragOver);
     canvas.addEventListener("dragleave", () => gradioApp().querySelector("#canvas_drag_overlay").style.visibility = "hidden");
