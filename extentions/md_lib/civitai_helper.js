@@ -868,8 +868,8 @@ function processSingleCard(active_tab_type, active_extra_tab_type, card) {
 
 onUiLoaded(() => {
     //get gradio version
-    const gradio_ver = ch_gradio_version();
-    console.log(`Running Stable-Diffusion-Webui-Civitai-Helper on Gradio Version: ${gradio_ver}`);
+//    const gradio_ver = ch_gradio_version();
+    console.log(`Running Stable-Diffusion-Webui-Civitai-Helper`);
 
     // console.log(window.opts);
     // createUI = createUI();
@@ -947,23 +947,23 @@ onUiLoaded(() => {
     }
 
     //add refresh button to extra network's toolbar
-    for (const prefix of tab_prefix_list) {
-        const extra_tab = getExtraTabs(prefix);
-        const headers = extra_tab.firstChild.children;
+//    for (const prefix of tab_prefix_list) {
+//        const extra_tab = getExtraTabs(prefix);
+//        const headers = extra_tab.firstChild.children;
 
-        for (const header of headers) {
-            const model_type = header.textContent.trim().replace(" ", "_").toLowerCase();
+//        for (const header of headers) {
+//            const model_type = header.textContent.trim().replace(" ", "_").toLowerCase();
 
-            let extraNetworksClick = () => {
-                waitForExtraTabs(prefix, [model_type]);
-                header.removeEventListener("click", extraNetworksClick);
-            };
+//            let extraNetworksClick = () => {
+//                waitForExtraTabs(prefix, [model_type]);
+//                header.removeEventListener("click", extraNetworksClick);
+//            };
 
-            header.addEventListener("click", extraNetworksClick);
-        }
-    }
+//            header.addEventListener("click", extraNetworksClick);
+//        }
+//    }
 
     //run it once
-    update_card_for_civitai();
+//    update_card_for_civitai();
 
 });})();
