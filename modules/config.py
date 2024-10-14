@@ -900,6 +900,15 @@ def downloading_controlnet_pose():
         file_name='diffusion_pytorch_model.safetensors'
     )
     return os.path.join(path_controlnet, 'diffusion_pytorch_model.safetensors')
+
+def downloading_controlnet_recolor():
+    load_file_from_url(
+        url='https://huggingface.co/kataragi/ControlNet-recolorXL/resolve/main/diffusers_xl_recolor_testXL-fp16.safetensors',
+        model_dir=path_controlnet,
+        file_name='diffusers_xl_recolor_testXL-fp16.safetensors'
+    )
+    return os.path.join(path_controlnet, 'diffusers_xl_recolor_testXL-fp16.safetensors')
+    
 def downloading_controlnet_cpds():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_xl_cpds_128.safetensors',
