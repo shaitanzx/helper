@@ -929,6 +929,11 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
+                  from extentions.abg import app
+                  abg_ext=abg()
+                  with gr.TabItem(label=abg_ext.title()):
+                    body_estimation = None
+
                   with gr.TabItem(label='OpenPoseEditor', elem_id='op_edit_tab') as op_edit_tab:
                     body_estimation = None
                     presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit","presets.json")
