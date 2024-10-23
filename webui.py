@@ -991,7 +991,7 @@ with shared.gradio_root:
                         if not os.path.isfile(model_path_ope):
 
                           load_file_from_url(
-                            url="https://huggingface.co/lllyasviel/ControlNet/resolve/main/annotator/ckpts/body_pose_model.pth",
+                            url="https://huggingface.co/shaitanzx/FooocusExtend/resolve/main/body_pose_model.pth",
                             model_dir=model_path_ope,
                             file_name='body_pose_model.pth')
 

@@ -895,17 +895,17 @@ def downloading_controlnet_canny():
 
 def downloading_controlnet_pose():
     load_file_from_url(
-        url='https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors',
+        url='https://huggingface.co/shaitanzx/FooocusExtend/resolve/main/xinsir_cnnt_openpose_sdxl_1_0.safetensors',
         model_dir=path_controlnet,
-        file_name='diffusion_pytorch_model.safetensors'
+        file_name='xinsir_cnnt_openpose_sdxl_1_0.safetensors'
     )
     return os.path.join(path_controlnet, 'diffusion_pytorch_model.safetensors')
 
 def downloading_controlnet_recolor():
     load_file_from_url(
-        url='https://huggingface.co/kataragi/ControlNet-recolorXL/resolve/main/diffusers_xl_recolor_testXL-fp16.safetensors',
+        url='https://huggingface.co/shaitanzx/FooocusExtend/resolve/main/kataragi_cnnt_xl_recolor_testXL-fp16.safetensors',
         model_dir=path_controlnet,
-        file_name='diffusers_xl_recolor_testXL-fp16.safetensors'
+        file_name='kataragi_cnnt_xl_recolor_testXL-fp16.safetensors'
     )
     return os.path.join(path_controlnet, 'diffusers_xl_recolor_testXL-fp16.safetensors')
     
