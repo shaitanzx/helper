@@ -908,6 +908,14 @@ def downloading_controlnet_recolor():
         file_name='kataragi_cnnt_xl_recolor_testXL-fp16.safetensors'
     )
     return os.path.join(path_controlnet, 'kataragi_cnnt_xl_recolor_testXL-fp16.safetensors')
+
+def downloading_controlnet_scribble():
+    load_file_from_url(
+        url='https://huggingface.co/shaitanzx/FooocusExtend/resolve/main/xinsir_cnnt_scribble_sdxl-1_0.safetensors',
+        model_dir=path_controlnet,
+        file_name='xinsir_cnnt_scribble_sdxl-1_0.safetensors'
+    )
+    return os.path.join(path_controlnet, 'xinsir_cnnt_scribble_sdxl-1_0.safetensors')
     
 def downloading_controlnet_cpds():
     load_file_from_url(

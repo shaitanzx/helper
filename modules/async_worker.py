@@ -277,7 +277,8 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
 
-    def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, current_task_id,
+    def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path,
+                     controlnet_recolor_path, controlnet_scribble_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, steps, switch, positive_cond,
                      negative_cond, task, loras, tiled, use_expansion, width, height, base_progress, preparation_steps,
                      total_count, show_intermediate_results, persist_image=True):
@@ -288,7 +289,8 @@ def worker():
                 (flags.cn_canny, controlnet_canny_path),
                 (flags.cn_cpds, controlnet_cpds_path),
                 (flags.cn_pose, controlnet_pose_path),
-                (flags.cn_recolor, controlnet_recolor_path)
+                (flags.cn_recolor, controlnet_recolor_path),
+                (flags.cn_scribble, controlnet_scribble_path)
             ]:
                 for cn_img, cn_stop, cn_weight in async_task.cn_tasks[cn_flag]:
                     positive_cond, negative_cond = core.apply_controlnet(
@@ -420,6 +422,17 @@ def worker():
             if async_task.debugging_cn_preprocessor:
                 yield_result(async_task, cn_img, current_progress, async_task.black_out_nsfw, do_not_show_finished_images=True)
         for task in async_task.cn_tasks[flags.cn_recolor]:
+            cn_img, cn_stop, cn_weight = task
+            cn_img = resize_image(HWC3(cn_img), width=width, height=height)
+
+            if not async_task.skipping_cn_preprocessor:
+                cn_img = preprocessors.cpds(cn_img)
+
+            cn_img = HWC3(cn_img)
+            task[0] = core.numpy_to_pytorch(cn_img)
+            if async_task.debugging_cn_preprocessor:
+                yield_result(async_task, cn_img, current_progress, async_task.black_out_nsfw, do_not_show_finished_images=True)
+        for task in async_task.cn_tasks[flags.cn_scribble]:
             cn_img, cn_stop, cn_weight = task
             cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
@@ -874,7 +887,8 @@ def worker():
         return current_progress
 
     def apply_image_input(async_task, base_model_additional_loras, clip_vision_path, controlnet_canny_path,
-                          controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, goals, inpaint_head_model_path, inpaint_image, inpaint_mask,
+                          controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path, 
+                          goals, inpaint_head_model_path, inpaint_image, inpaint_mask,
                           inpaint_parameterized,  ip_adapter_face_path, ip_adapter_path, ip_negative_path,
                           skip_prompt_processing, use_synthetic_refiner):
         if (async_task.current_tab == 'uov' or (
@@ -949,6 +963,8 @@ def worker():
                 controlnet_pose_path = modules.config.downloading_controlnet_pose()
             if len(async_task.cn_tasks[flags.cn_recolor]) > 0:
                 controlnet_recolor_path = modules.config.downloading_controlnet_recolor()
+            if len(async_task.cn_tasks[flags.cn_scribble]) > 0:
+                controlnet_scribble_path = modules.config.downloading_controlnet_scribble()
             if len(async_task.cn_tasks[flags.cn_ip]) > 0:
                 clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
             if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
@@ -958,7 +974,7 @@ def worker():
             goals.append('enhance')
             skip_prompt_processing = True
             async_task.enhance_input_image = HWC3(async_task.enhance_input_image)
-        return base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner
+        return base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner
 
     def prepare_upscale(async_task, goals, uov_input_image, uov_method, performance, steps, current_progress,
                         advance_progress=False, skip_prompt_processing=False):
@@ -990,7 +1006,8 @@ def worker():
         processing_time = time.perf_counter() - processing_start_time
         print(f'Processing time (total): {processing_time:.2f} seconds')
 
-    def process_enhance(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+    def process_enhance(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, 
+                        controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                         current_progress, current_task_id, denoising_strength, inpaint_disable_initial_latent,
                         inpaint_engine, inpaint_respective_field, inpaint_strength,
                         prompt, negative_prompt, final_scheduler_name, goals, height, img, mask,
@@ -1046,7 +1063,8 @@ def worker():
                 inpaint_respective_field, switch, inpaint_disable_initial_latent,
                 current_progress, True)
         imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path,
-                                                         controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, current_task_id, denoising_strength,
+                                                         controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, 
+                                                         controlnet_scribble_path, current_task_id, denoising_strength,
                                                          final_scheduler_name, goals, initial_latent, steps, switch,
                                                          task_enhance['c'], task_enhance['uc'], task_enhance, loras,
                                                          tiled, use_expansion, width, height, current_progress,
@@ -1056,7 +1074,8 @@ def worker():
         del task_enhance['c'], task_enhance['uc']  # Save memory
         return current_progress, imgs[0], prompt, negative_prompt
 
-    def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+    def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path, 
+                        controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                         current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                         prompt, negative_prompt, final_scheduler_name, height, img, preparation_steps, switch, tiled,
                         total_count, use_expansion, use_style, use_synthetic_refiner, width, persist_image=True):
@@ -1074,7 +1093,8 @@ def worker():
             try:
                 current_progress, img, prompt, negative_prompt = process_enhance(
                     all_steps, async_task, callback, controlnet_canny_path,
-                    controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, current_progress, current_task_id, denoising_strength, False,
+                    controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
+                    current_progress, current_task_id, denoising_strength, False,
                     'None', 0.0, 0.0, prompt, negative_prompt, final_scheduler_name,
                     goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
                     use_expansion, use_style, use_synthetic_refiner, width, persist_image=persist_image)
@@ -1160,6 +1180,7 @@ def worker():
         controlnet_cpds_path = None
         controlnet_pose_path = None
         controlnet_recolor_path = None
+        controlnet_scribble_path = None
         clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
         goals = []
@@ -1167,14 +1188,16 @@ def worker():
         current_progress = 1
 
         if async_task.input_image_checkbox:
-            base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner = apply_image_input(
-                async_task, base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+            base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path,
+                controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner = apply_image_input(
+                async_task, base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path,
+                controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                 goals, inpaint_head_model_path, inpaint_image, inpaint_mask, inpaint_parameterized, ip_adapter_face_path,
                 ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner)
 
         # Load or unload CNs
         progressbar(async_task, current_progress, 'Loading control models ...')
-        pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path])
+        pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path])
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
@@ -1314,7 +1337,8 @@ def worker():
 
             try:
                 imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path,
-                                                                 controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, current_task_id,
+                                                                 controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
+                                                                 current_task_id,
                                                                  denoising_strength, final_scheduler_name, goals,
                                                                  initial_latent, async_task.steps, switch, task['c'],
                                                                  task['uc'], task, loras, tiled, use_expansion, width,
@@ -1373,7 +1397,8 @@ def worker():
                 current_task_id += 1
                 persist_image = not async_task.save_final_enhanced_image_only or active_enhance_tabs == 0
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
-                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+                    controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                     async_task.prompt, async_task.negative_prompt, final_scheduler_name, height, img, preparation_steps,
                     switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width, persist_image)
@@ -1436,7 +1461,8 @@ def worker():
 
                 try:
                     current_progress, img, enhance_prompt_processed, enhance_negative_prompt_processed = process_enhance(
-                        all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+                        all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, 
+                        controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                         current_progress, current_task_id, denoising_strength, enhance_inpaint_disable_initial_latent,
                         enhance_inpaint_engine, enhance_inpaint_respective_field, enhance_inpaint_strength,
                         enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
@@ -1474,7 +1500,8 @@ def worker():
                 # last step in enhance, always save
                 persist_image = True
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
-                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path, controlnet_recolor_path,
+                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path, 
+                    controlnet_pose_path, controlnet_recolor_path, controlnet_scribble_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                     last_enhance_prompt, last_enhance_negative_prompt, final_scheduler_name, height, img,
                     preparation_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner,
