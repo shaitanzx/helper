@@ -899,7 +899,7 @@ def downloading_controlnet_pose():
         model_dir=path_controlnet,
         file_name='xinsir_cnnt_openpose_sdxl_1_0.safetensors'
     )
-    return os.path.join(path_controlnet, 'diffusion_pytorch_model.safetensors')
+    return os.path.join(path_controlnet, 'xinsir_cnnt_openpose_sdxl_1_0.safetensors')
 
 def downloading_controlnet_recolor():
     load_file_from_url(
@@ -907,7 +907,7 @@ def downloading_controlnet_recolor():
         model_dir=path_controlnet,
         file_name='kataragi_cnnt_xl_recolor_testXL-fp16.safetensors'
     )
-    return os.path.join(path_controlnet, 'diffusers_xl_recolor_testXL-fp16.safetensors')
+    return os.path.join(path_controlnet, 'kataragi_cnnt_xl_recolor_testXL-fp16.safetensors')
     
 def downloading_controlnet_cpds():
     load_file_from_url(
