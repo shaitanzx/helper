@@ -60,7 +60,7 @@ modules.config.default_aspect_ratio=modules.config.default_aspect_ratio.replace(
 
 ar_def=[1,1]
 swap_def=False
-
+cell_index='0'
 
 def queue_obp(*args):
     global finished_batch
@@ -260,14 +260,18 @@ def clearer():
   return      
 def queue_new(*args):
     global finished_batch
+    global cell_index
+    index = int(cell_index)*4
     finished_batch=False 
     args = list(args)
     seed_random = args.pop()
     scale=args.pop()    
     lora_args=3*(int(modules.config.default_max_lora_number))
-    batch_all=len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])
+    ip_cell=66+lora_args+index
+    batch_files = sorted([file.name for file in batch_path.iterdir() if file.is_file()])
+    batch_all = len(batch_files)
     passed=1
-    for f_name in os.listdir('./batch_images'):
+    for f_name in batch_files:
       if not finished_batch:  
         copy = args[:]
         img = Image.open('./batch_images/'+f_name)
@@ -287,7 +291,7 @@ def queue_new(*args):
                       w = int(width * ratio)
                       h = int(height * ratio)
                       img = img.resize((w, h), Image.LANCZOS)
-                  args[(65+lora_args)]=np.array(img)
+                  args[ip_cell]=np.array(img)
         print (f"[Images QUEUE] {passed} / {batch_all}")
         passed+=1
         currentTask=get_task_batch(args)
@@ -890,12 +894,17 @@ with shared.gradio_root:
                     gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
                 with gr.Row():
                   with gr.Column():
+                    def cell_index_change(index):
+                      global cell_index
+                      cell_index = index
+                      return
                     add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
                     batch_start = gr.Button(value='Start queue', visible=True)
                     batch_stop = gr.Button(value='Stop queue', visible=False)
                     batch_clear = gr.Button(value='Clear queue')
+                    select_target_batch = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Use cell", value=cell_index, interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
                     status_batch = gr.Textbox(show_label=False, value = '', container=False, visible=False, interactive=False)
-
+                    select_target_batch.change(cell_index_change,inputs=select_target_batch)
 
                 with gr.Row():
                   with gr.Column():
