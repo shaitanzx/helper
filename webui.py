@@ -301,6 +301,8 @@ def queue_new_prompt(*args):
   global finished_batch
   finished_batch=False
   args = list(args)
+  base_neg_token = args.pop()
+  base_pos_token = args.pop()
   seed_random = args.pop()
   batch_args = args.pop()
   batch_args.reverse()
@@ -309,8 +311,18 @@ def queue_new_prompt(*args):
   while batch_args and not finished_batch:
       print (f"[Prompts QUEUE] Element #{passed}")
       one_batch_args=batch_args.pop()
-      args[2]=one_batch_args[0]
-      args[3]=one_batch_args[1]
+      if base_pos_token=='Prefix':
+        args[2]= args[2] + one_batch_args[0]
+      elif base_pos_token=='Suffix':
+        args[2]= one_batch_args[0] + args[2]
+      else:
+        args[2]=one_batch_args[0]
+      if base_neg_token=='Prefix':
+        args[3]= args[3] + one_batch_args[1]
+      elif base_neg_token=='Suffix':
+        args[3]= one_batch_args[1] + args[3]
+      else:
+        args[3]=one_batch_args[1]
       currentTask=get_task_batch(args)
       yield from generate_clicked(currentTask)
       args=copy[:]
@@ -908,6 +920,9 @@ with shared.gradio_root:
                       datatype=["str", "str"],
                       row_count=1, wrap=True,
                       col_count=(2, "fixed"), type="array", interactive=True)
+                    with gr.Row():
+                      positive_batch = gr.Radio(label='Base positive prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
+                      negative_batch = gr.Radio(label='Base negative prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
                     with gr.Row():
                       prompt_delete=gr.Button(value="Delete last row")
                       prompt_clear=gr.Button(value="Clear Batch")
@@ -1922,6 +1937,8 @@ with shared.gradio_root:
         ctrls_prompt = ctrls[:]
         ctrls_prompt.append(batch_prompt)
         ctrls_prompt.append(seed_random)
+        ctrls_prompt.append(positive_batch)
+        ctrls_prompt.append(negative_batch)
         prompt_start.click(lambda: (gr.update(interactive=False),gr.update(interactive=False),gr.update(interactive=False),gr.update(visible=False),gr.update(visible=False), gr.update(visible=True, interactive=True)),
                               outputs=[batch_prompt,prompt_delete,prompt_clear,generate_button,prompt_start, prompt_stop]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
