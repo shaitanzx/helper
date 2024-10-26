@@ -45,6 +45,7 @@ from extentions import wildcards
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
 
 from extentions.op_edit.body import Body
+from pathlib import Path
 import io
 import cv2
 
@@ -268,8 +269,9 @@ def queue_new(*args):
     scale=args.pop()    
     lora_args=3*(int(modules.config.default_max_lora_number))
     ip_cell=66+lora_args+index
-    batch_files = sorted([file.name for file in batch_path.iterdir() if file.is_file()])
-    batch_all = len(batch_files)
+    
+    batch_files=sorted([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])
+    batch_all=len(batch_files)
     passed=1
     for f_name in batch_files:
       if not finished_batch:  
@@ -292,7 +294,7 @@ def queue_new(*args):
                       h = int(height * ratio)
                       img = img.resize((w, h), Image.LANCZOS)
                   args[ip_cell]=np.array(img)
-        print (f"[Images QUEUE] {passed} / {batch_all}")
+        print (f"[Images QUEUE] {passed} / {batch_all}. Filename: {f_name}")
         passed+=1
         currentTask=get_task_batch(args)
         yield from generate_clicked(currentTask)
