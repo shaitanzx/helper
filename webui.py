@@ -1574,11 +1574,9 @@ with shared.gradio_root:
                         vae_name = gr.Dropdown(label='VAE', choices=[modules.flags.default_vae] + modules.config.vae_filenames,
                                                      value=modules.config.default_vae, show_label=True)
 
-                        generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
+                        generate_image_grid = gr.Checkbox(label='Generate and Save Image Grid for Each Batch',
                                                           info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
                                                           value=False)
-                        save_image_grid = gr.Checkbox(label='Save Image Grid for Each Batch',
-                                                          value=modules.flags.save_image_grid)
 
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
                                                    minimum=-1, maximum=200, step=1,

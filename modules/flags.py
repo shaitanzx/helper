@@ -1,6 +1,5 @@
 from enum import IntEnum, Enum
 
-save_image_grid = True
 disabled = 'Disabled'
 enabled = 'Enabled'
 subtle_variation = 'Vary (Subtle)'
