@@ -440,7 +440,7 @@ class Script():
     def title(self):
         return "X/Y/Z plot"
 
-    def ui(self, is_img2img):
+    def ui(self):
         self.current_axis_options = [x for x in axis_options if type(x) == AxisOption or x.is_img2img == is_img2img]
 
         with gr.Row():
