@@ -283,7 +283,7 @@ def worker():
                      denoising_strength, final_scheduler_name, goals, initial_latent, steps, switch, positive_cond,
                      negative_cond, task, loras, tiled, use_expansion, width, height, base_progress, preparation_steps,
                      total_count, show_intermediate_results, persist_image=True):
-        print ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',async_task.prompt)
+        
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
         if 'cn' in goals:
@@ -679,6 +679,7 @@ def worker():
 
     def process_prompt(async_task, prompt, negative_prompt, base_model_additional_loras, image_number, disable_seed_increment, use_expansion, use_style,
                        use_synthetic_refiner, current_progress, advance_progress=False):
+        
         prompts = remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')
         negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.splitlines()], default='')
         prompt = prompts[0]
@@ -1120,6 +1121,7 @@ def worker():
     @torch.inference_mode()
     def handler(async_task: AsyncTask):
         preparation_start_time = time.perf_counter()
+        
         async_task.processing = True
 
         async_task.outpaint_selections = [o.lower() for o in async_task.outpaint_selections]
@@ -1366,6 +1368,8 @@ def worker():
         if not async_task.should_enhance:
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
+            print ('ccccccccccccccccccccccccccccccccccccccccc',async_task.prompt)
+            async_task.base_model_name='waiNSFWIllustrious_v70.safetensors'
             return
 
         progressbar(async_task, current_progress, 'Processing enhance ...')
@@ -1518,15 +1522,21 @@ def worker():
             print(f'Enhancement image time: {enhancement_image_time:.2f} seconds')
 
         stop_processing(async_task, processing_start_time)
+        
         return
 
     while True:
         time.sleep(0.01)
+        
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
+            
 
             try:
+                print ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',task)
                 handler(task)
+                handler(task)
+                print ('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',task)
                 if task.generate_image_grid:
                     build_image_wall(task)
                 task.yields.append(['finish', task.results])
