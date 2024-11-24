@@ -48,7 +48,7 @@ from extentions.op_edit.body import Body
 from pathlib import Path
 import io
 import cv2
-
+from extentions import xyz_grid as xyz
 obp_prompt=[]
 
 
