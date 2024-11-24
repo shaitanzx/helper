@@ -1,6 +1,7 @@
 from collections import namedtuple
 from copy import copy
 from itertools import permutations, chain
+from logging import info
 import random
 import csv
 import os.path
@@ -22,6 +23,12 @@ import gradio as gr
 import re
 
 ##from modules.ui_components import ToolButton
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import modules.config
+import modules.flags
+from modules.sdxl_styles import legal_style_names
 
 fill_values_symbol = "\U0001f4d2"  # 📒
 
@@ -152,7 +159,8 @@ def apply_vae(p, x, xs):
     p.override_settings['sd_vae'] = find_vae(x)
 
 
-def apply_styles(p: StableDiffusionProcessingTxt2Img, x: str, _):
+#def apply_styles(p: StableDiffusionProcessingTxt2Img, x: str, _):
+def apply_styles(x: str, _):
     p.styles.extend(x.split(','))
 
 
@@ -252,11 +260,11 @@ class AxisOptionImg2Img(AxisOption):
         self.is_img2img = True
 
 
+
 class AxisOptionTxt2Img(AxisOption):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_img2img = False
-
 
 axis_options = [
     AxisOption("Nothing", str, do_nothing, format_value=format_nothing),
@@ -273,15 +281,15 @@ axis_options = [
     AxisOptionTxt2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers if x.name not in opts.hide_samplers]),
     AxisOptionTxt2Img("Hires sampler", str, apply_field("hr_sampler_name"), confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
     AxisOptionImg2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
-    AxisOption("Checkpoint name", str, apply_checkpoint, format_value=format_remove_path, confirm=confirm_checkpoints, cost=1.0, choices=lambda: sorted(sd_models.checkpoints_list, key=str.casefold)),
+    AxisOption("Checkpoint name", str, apply_checkpoint, format_value=format_remove_path, confirm=confirm_checkpoints, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
+    AxisOption("Schedule type", str, apply_field("scheduler"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
+    AxisOption("Schedule min sigma", float, apply_override("sigma_min")),
+    AxisOption("Schedule max sigma", float, apply_override("sigma_max")),
     AxisOption("Negative Guidance minimum sigma", float, apply_field("s_min_uncond")),
     AxisOption("Sigma Churn", float, apply_field("s_churn")),
     AxisOption("Sigma min", float, apply_field("s_tmin")),
     AxisOption("Sigma max", float, apply_field("s_tmax")),
     AxisOption("Sigma noise", float, apply_field("s_noise")),
-    AxisOption("Schedule type", str, apply_field("scheduler"), choices=lambda: [x.label for x in sd_schedulers.schedulers]),
-    AxisOption("Schedule min sigma", float, apply_override("sigma_min")),
-    AxisOption("Schedule max sigma", float, apply_override("sigma_max")),
     AxisOption("Schedule rho", float, apply_override("rho")),
     AxisOption("Beta schedule alpha", float, apply_override("beta_dist_alpha")),
     AxisOption("Beta schedule beta", float, apply_override("beta_dist_beta")),
@@ -292,15 +300,15 @@ axis_options = [
     AxisOption("Extra noise", float, apply_override("img2img_extra_noise")),
     AxisOptionTxt2Img("Hires upscaler", str, apply_field("hr_upscaler"), choices=lambda: [*shared.latent_upscale_modes, *[x.name for x in shared.sd_upscalers]]),
     AxisOptionImg2Img("Cond. Image Mask Weight", float, apply_field("inpainting_mask_weight")),
-    AxisOption("VAE", str, apply_vae, cost=0.7, choices=lambda: ['Automatic', 'None'] + list(sd_vae.vae_dict)),
-    AxisOption("Styles", str, apply_styles, choices=lambda: list(shared.prompt_styles.styles)),
+    AxisOption("VAE", str, apply_vae, cost=0.7, choices=lambda: ['Automatic', 'None'] + list(modules.config.vae_filenames)),
+    AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
     AxisOption("UniPC Order", int, apply_uni_pc_order, cost=0.5),
     AxisOption("Face restore", str, apply_face_restore, format_value=format_value),
     AxisOption("Token merging ratio", float, apply_override('token_merging_ratio')),
     AxisOption("Token merging ratio high-res", float, apply_override('token_merging_ratio_hr')),
     AxisOption("Always discard next-to-last sigma", str, apply_override('always_discard_next_to_last_sigma', boolean=True), choices=boolean_choice(reverse=True)),
     AxisOption("SGM noise multiplier", str, apply_override('sgm_noise_multiplier', boolean=True), choices=boolean_choice(reverse=True)),
-    AxisOption("Refiner checkpoint", str, apply_field('refiner_checkpoint'), format_value=format_remove_path, confirm=confirm_checkpoints_or_none, cost=1.0, choices=lambda: ['None'] + sorted(sd_models.checkpoints_list, key=str.casefold)),
+    AxisOption("Refiner checkpoint", str, apply_field('refiner_checkpoint'), format_value=format_remove_path, confirm=confirm_checkpoints_or_none, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
     AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
     AxisOption("RNG source", str, apply_override("randn_source"), choices=lambda: ["GPU", "CPU", "NV"]),
     AxisOption("FP8 mode", str, apply_override("fp8_storage"), cost=0.9, choices=lambda: ["Disable", "Enable for SDXL", "Enable"]),
@@ -437,46 +445,46 @@ re_range_count_float = re.compile(r"\s*([+-]?\s*\d+(?:.\d*)?)\s*-\s*([+-]?\s*\d+
 
 
 ###class Script():
-def title(self):
+def title():
     return "X/Y/Z plot"
 
-def ui(self):
-    self.current_axis_options = [x for x in axis_options if type(x) == AxisOption or x.is_img2img == is_img2img]
+def ui():
+    current_axis_options = [x for x in axis_options if type(x) == AxisOption]
 
     with gr.Row():
         with gr.Column(scale=19):
             with gr.Row():
-                x_type = gr.Dropdown(label="X type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[1].label, type="index", elem_id=self.elem_id("x_type"))
-                x_values = gr.Textbox(label="X values", lines=1, elem_id=self.elem_id("x_values"))
+                x_type = gr.Dropdown(label="X type", choices=[x.label for x in current_axis_options], value=current_axis_options[1].label, type="index", elem_id="x_type")
+                x_values = gr.Textbox(label="X values", lines=1, elem_id="x_values")
                 x_values_dropdown = gr.Dropdown(label="X values", visible=False, multiselect=True, interactive=True)
-                fill_x_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_x_tool_button", visible=False)
+                fill_x_button = gr.Button(value=fill_values_symbol, elem_id="xyz_grid_fill_x_tool_button", visible=False)
 
             with gr.Row():
-                y_type = gr.Dropdown(label="Y type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[0].label, type="index", elem_id=self.elem_id("y_type"))
-                y_values = gr.Textbox(label="Y values", lines=1, elem_id=self.elem_id("y_values"))
+                y_type = gr.Dropdown(label="Y type", choices=[x.label for x in current_axis_options], value=current_axis_options[0].label, type="index", elem_id="y_type")
+                y_values = gr.Textbox(label="Y values", lines=1, elem_id="y_values")
                 y_values_dropdown = gr.Dropdown(label="Y values", visible=False, multiselect=True, interactive=True)
-                fill_y_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_y_tool_button", visible=False)
+                fill_y_button = gr.Button(value=fill_values_symbol, elem_id="xyz_grid_fill_y_tool_button", visible=False)
 
             with gr.Row():
-                z_type = gr.Dropdown(label="Z type", choices=[x.label for x in self.current_axis_options], value=self.current_axis_options[0].label, type="index", elem_id=self.elem_id("z_type"))
-                z_values = gr.Textbox(label="Z values", lines=1, elem_id=self.elem_id("z_values"))
+                z_type = gr.Dropdown(label="Z type", choices=[x.label for x in current_axis_options], value=current_axis_options[0].label, type="index", elem_id="z_type")
+                z_values = gr.Textbox(label="Z values", lines=1, elem_id="z_values")
                 z_values_dropdown = gr.Dropdown(label="Z values", visible=False, multiselect=True, interactive=True)
-                fill_z_button = ToolButton(value=fill_values_symbol, elem_id="xyz_grid_fill_z_tool_button", visible=False)
+                fill_z_button = gr.Button(value=fill_values_symbol, elem_id="xyz_grid_fill_z_tool_button", visible=False)
 
     with gr.Row(variant="compact", elem_id="axis_options"):
         with gr.Column():
-            draw_legend = gr.Checkbox(label='Draw legend', value=True, elem_id=self.elem_id("draw_legend"))
-            no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id=self.elem_id("no_fixed_seeds"))
+            draw_legend = gr.Checkbox(label='Draw legend', value=True, elem_id="draw_legend")
+            no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id="no_fixed_seeds")
             with gr.Row():
-                vary_seeds_x = gr.Checkbox(label='Vary seeds for X', value=False, min_width=80, elem_id=self.elem_id("vary_seeds_x"), tooltip="Use different seeds for images along X axis.")
-                vary_seeds_y = gr.Checkbox(label='Vary seeds for Y', value=False, min_width=80, elem_id=self.elem_id("vary_seeds_y"), tooltip="Use different seeds for images along Y axis.")
-                vary_seeds_z = gr.Checkbox(label='Vary seeds for Z', value=False, min_width=80, elem_id=self.elem_id("vary_seeds_z"), tooltip="Use different seeds for images along Z axis.")
+                vary_seeds_x = gr.Checkbox(label='Vary seeds for X', value=False, min_width=80, elem_id="vary_seeds_x", info="Use different seeds for images along X axis.")
+                vary_seeds_y = gr.Checkbox(label='Vary seeds for Y', value=False, min_width=80, elem_id="vary_seeds_y", info="Use different seeds for images along Y axis.")
+                vary_seeds_z = gr.Checkbox(label='Vary seeds for Z', value=False, min_width=80, elem_id="vary_seeds_z", info="Use different seeds for images along Z axis.")
         with gr.Column():
-            include_lone_images = gr.Checkbox(label='Include Sub Images', value=False, elem_id=self.elem_id("include_lone_images"))
-            include_sub_grids = gr.Checkbox(label='Include Sub Grids', value=False, elem_id=self.elem_id("include_sub_grids"))
-            csv_mode = gr.Checkbox(label='Use text inputs instead of dropdowns', value=False, elem_id=self.elem_id("csv_mode"))
+            include_lone_images = gr.Checkbox(label='Include Sub Images', value=False, elem_id="include_lone_images")
+            include_sub_grids = gr.Checkbox(label='Include Sub Grids', value=False, elem_id="include_sub_grids")
+            csv_mode = gr.Checkbox(label='Use text inputs instead of dropdowns', value=False, elem_id="csv_mode")
         with gr.Column():
-            margin_size = gr.Slider(label="Grid margins (px)", minimum=0, maximum=500, value=0, step=2, elem_id=self.elem_id("margin_size"))
+            margin_size = gr.Slider(label="Grid margins (px)", minimum=0, maximum=500, value=0, step=2, elem_id="margin_size")
 
     with gr.Row(variant="compact", elem_id="swap_axes"):
         swap_xy_axes_button = gr.Button(value="Swap X/Y axes", elem_id="xy_grid_swap_axes_button")
@@ -484,7 +492,7 @@ def ui(self):
         swap_xz_axes_button = gr.Button(value="Swap X/Z axes", elem_id="xz_grid_swap_axes_button")
 
     def swap_axes(axis1_type, axis1_values, axis1_values_dropdown, axis2_type, axis2_values, axis2_values_dropdown):
-        return self.current_axis_options[axis2_type].label, axis2_values, axis2_values_dropdown, self.current_axis_options[axis1_type].label, axis1_values, axis1_values_dropdown
+        return current_axis_options[axis2_type].label, axis2_values, axis2_values_dropdown, current_axis_options[axis1_type].label, axis1_values, axis1_values_dropdown
 
     xy_swap_args = [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown]
     swap_xy_axes_button.click(swap_axes, inputs=xy_swap_args, outputs=xy_swap_args)
@@ -494,7 +502,7 @@ def ui(self):
     swap_xz_axes_button.click(swap_axes, inputs=xz_swap_args, outputs=xz_swap_args)
 
     def fill(axis_type, csv_mode):
-        axis = self.current_axis_options[axis_type]
+        axis = current_axis_options[axis_type]
         if axis.choices:
             if csv_mode:
                 return list_to_csv_string(axis.choices()), gr.update()
@@ -510,7 +518,7 @@ def ui(self):
     def select_axis(axis_type, axis_values, axis_values_dropdown, csv_mode):
         axis_type = axis_type or 0  # if axle type is None set to 0
 
-        choices = self.current_axis_options[axis_type].choices
+        choices = current_axis_options[axis_type].choices
         has_choices = choices is not None
 
         if has_choices:
@@ -545,7 +553,7 @@ def ui(self):
         valslist = csv_string_to_list_strip(vals)
         return gr.update(value=valslist)
 
-    self.infotext_fields = (
+    infotext_fields = (
         (x_type, "X Type"),
         (x_values, "X Values"),
         (x_values_dropdown, lambda params: get_dropdown_update_from_params("X", params)),
@@ -581,8 +589,8 @@ def run(self, p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values
 
         if opt.type == int:
            valslist_ext = []
-
-            for val in valslist:
+           
+           for val in valslist:
                 if val.strip() == '':
                     continue
                 m = re_range.fullmatch(val)
@@ -601,8 +609,7 @@ def run(self, p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values
                     valslist_ext += [int(x) for x in np.linspace(start=start, stop=end, num=num).tolist()]
                 else:
                     valslist_ext.append(val)
-
-            valslist = valslist_ext
+           valslist = valslist_ext
         elif opt.type == float:
             valslist_ext = []
 

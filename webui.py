@@ -49,7 +49,6 @@ from pathlib import Path
 import io
 import cv2
 from extentions import xyz_grid as xyz
-xyz_plot = xyz.script()
 obp_prompt=[]
 
 
@@ -956,9 +955,9 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
-                  with gr.TabItem(label=xyz_plot.title()) as xyz_plot:
+                  with gr.TabItem(label=xyz.title()) as xyz_plot:
                     xyz_check=gr.Checkbox(label='Enable X/Y/Z plot', value=False, elem_classes='min_check')
-                    xyz_plot.ui()
+                    xyz.ui()
                   with gr.TabItem(label='OBP') as obp_tab:
                         with gr.Tab("Main"):
                             with gr.Row(variant="compact"):
