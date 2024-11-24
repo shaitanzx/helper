@@ -957,7 +957,8 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
                     xyz_check=gr.Checkbox(label='Enable X/Y/Z plot', value=False, elem_classes='min_check')
-                    xyz.ui()
+                    x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode = xyz.ui()
+                    xyz_start=gr.Button(value="Start xyz",visible=True)
                   with gr.TabItem(label='OBP') as obp_tab:
                         with gr.Tab("Main"):
                             with gr.Row(variant="compact"):
@@ -1908,6 +1909,30 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
+        def xyz_test(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
+          print('x_type',x_type)
+          print('x_values',x_values)
+          print('x_values_dropdown',x_values_dropdown)
+          print('y_type',y_type)
+          print('y_values',y_values)
+          print('y_values_dropdown',y_values_dropdown)
+          print('z_type',z_type)
+          print('z_values',z_values)
+          print('z_values_dropdown',z_values_dropdown)
+          print('draw_legend',draw_legend)
+          print('include_lone_images',include_lone_images)
+          print('include_sub_grids',include_sub_grids)
+          print('no_fixed_seeds',no_fixed_seeds)
+          print('vary_seeds_x',vary_seeds_x)
+          print('vary_seeds_y',vary_seeds_y)
+          print('vary_seeds_z',vary_seeds_z)
+          print('margin_size',margin_size)
+          print('csv_mode',csv_mode)
+          p='prompt'
+          xyz.run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+
+          return
+        xyz_start.click(fn=xyz_test,inputs=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode])
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
