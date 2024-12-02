@@ -340,6 +340,7 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
 #    state.job_count = list_size * p.n_iter
 
     def process_cell(x, y, z, ix, iy, iz):
+        print(x, y, z, ix, iy, iz)
         nonlocal processed_result
 
         def index(ix, iy, iz):
@@ -379,31 +380,31 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
                     for iz, z in enumerate(zs):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
             else:
                 for iz, z in enumerate(zs):
                     for iy, y in enumerate(ys):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
     elif first_axes_processed == 'y':
         for iy, y in enumerate(ys):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iz, z in enumerate(zs):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
             else:
                 for iz, z in enumerate(zs):
                     for ix, x in enumerate(xs):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
     elif first_axes_processed == 'z':
         for iz, z in enumerate(zs):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iy, y in enumerate(ys):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
             else:
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
-                        print(x, y, z, ix, iy, iz)
+                        process_cell(x, y, z, ix, iy, iz)
 
     if not processed_result:
         # Should never happen, I've only seen it on one of four open tabs and it needed to refresh.
