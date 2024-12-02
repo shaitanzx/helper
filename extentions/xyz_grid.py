@@ -317,15 +317,27 @@ axis_options = [
 
 
 def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend, include_lone_images, include_sub_grids, first_axes_processed, second_axes_processed, margin_size):
-    hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
-    ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
-    title_texts = [[images.GridAnnotation(z)] for z in z_labels]
 
-    list_size = (len(xs) * len(ys) * len(zs))
+    print('xs', xs)
+    print('ys',ys)
+    print('zs',zs)
+    print('x_labels',x_labels)
+    print('y_labels',y_labels)
+    print('z_labels',z_labels)
+
+
+
+
+
+#    hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
+#    ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
+#    title_texts = [[images.GridAnnotation(z)] for z in z_labels]
+
+#    list_size = (len(xs) * len(ys) * len(zs))
 
     processed_result = None
 
-    state.job_count = list_size * p.n_iter
+#    state.job_count = list_size * p.n_iter
 
     def process_cell(x, y, z, ix, iy, iz):
         nonlocal processed_result
@@ -367,31 +379,31 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
                     for iz, z in enumerate(zs):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
             else:
                 for iz, z in enumerate(zs):
                     for iy, y in enumerate(ys):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
     elif first_axes_processed == 'y':
         for iy, y in enumerate(ys):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iz, z in enumerate(zs):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
             else:
                 for iz, z in enumerate(zs):
                     for ix, x in enumerate(xs):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
     elif first_axes_processed == 'z':
         for iz, z in enumerate(zs):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iy, y in enumerate(ys):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
             else:
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
-                        process_cell(x, y, z, ix, iy, iz)
+                        print(x, y, z, ix, iy, iz)
 
     if not processed_result:
         # Should never happen, I've only seen it on one of four open tabs and it needed to refresh.
@@ -778,8 +790,8 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
     grid_infotext = [None] * (1 + len(zs))
     print('grid_infotext',grid_infotext)
     def cell(x, y, z, ix, iy, iz):
-        if shared.state.interrupted or state.stopping_generation:
-            return Processed(p, [], p.seed, "")
+#        if shared.state.interrupted or state.stopping_generation:
+#            return Processed(p, [], p.seed, "")
 
         pc = copy(p)
         pc.styles = pc.styles[:]
@@ -839,7 +851,8 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
         return res
 
     with SharedSettingsStackHelper():
-        processed = draw_xyz_grid(
+#        processed = 
+        draw_xyz_grid(
             p,
             xs=xs,
             ys=ys,
