@@ -281,7 +281,7 @@ axis_options = [
     AxisOptionTxt2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers if x.name not in opts.hide_samplers]),
     AxisOptionTxt2Img("Hires sampler", str, apply_field("hr_sampler_name"), confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
     AxisOptionImg2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
-    AxisOption("Checkpoint name", str, apply_checkpoint, format_value=format_remove_path, confirm=confirm_checkpoints, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
+    AxisOption("Checkpoint name", str, apply_checkpoint, format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
     AxisOption("Schedule type", str, apply_field("scheduler"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
     AxisOption("Schedule min sigma", float, apply_override("sigma_min")),
     AxisOption("Schedule max sigma", float, apply_override("sigma_max")),
@@ -516,6 +516,9 @@ def ui():
     fill_z_button.click(fn=fill, inputs=[z_type, csv_mode], outputs=[z_values, z_values_dropdown])
 
     def select_axis(axis_type, axis_values, axis_values_dropdown, csv_mode):
+        print ('axis_type',axis_type)
+        print ('axis_values',axis_values)
+        print ('axis_values_dropdown',axis_values_dropdown)
         axis_type = axis_type or 0  # if axle type is None set to 0
 
         choices = current_axis_options[axis_type].choices
@@ -531,7 +534,9 @@ def ui():
                 if axis_values:
                    axis_values_dropdown = list(filter(lambda x: x in choices, csv_string_to_list_strip(axis_values)))
                    axis_values = ""
-
+        print ('axis_type',axis_type)
+        print ('axis_values',axis_values)
+        print ('axis_values_dropdown',axis_values_dropdown)
         return (gr.Button.update(visible=has_choices), gr.Textbox.update(visible=not has_choices or csv_mode, value=axis_values),
                 gr.update(choices=choices if has_choices else None, visible=has_choices and not csv_mode, value=axis_values_dropdown))
 
@@ -567,8 +572,9 @@ def ui():
 
     return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
 
-def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
+def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
+    current_axis_options = [x for x in axis_options if type(x) == AxisOption]
     print('x_type',x_type)
     print('x_values',x_values)
     print('x_values_dropdown',x_values_dropdown)
@@ -589,13 +595,14 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
     print('csv_mode',csv_mode)
     p='prompt'
 
-    if not no_fixed_seeds:
-        modules.processing.fix_seed(p)
+#random seed
+#    if not no_fixed_seeds:
+#        modules.processing.fix_seed(p)
 
 #show grid in galery
-    if not opts.return_grid:
-        p.batch_size = 1
-
+#    if not opts.return_grid:
+#        p.batch_size = 1
+    batch_size =1  
     def process_axis(opt, vals, vals_dropdown):
         if opt.label == 'Nothing':
             return [0]
@@ -606,7 +613,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             valslist = opt.prepare(vals)
         else:
             valslist = csv_string_to_list_strip(vals)
-
+        print ('valslist',valslist)
         if opt.type == int:
            valslist_ext = []
            
@@ -662,72 +669,86 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             # Confirm options are valid before starting
         if opt.confirm:
             opt.confirm(p, valslist)
-
+        
         return valslist
 
-    x_opt = self.current_axis_options[x_type]
+    x_opt = current_axis_options[x_type]
+    print ('x_opt',x_opt)
     if x_opt.choices is not None and not csv_mode:
         x_values = list_to_csv_string(x_values_dropdown)
+    print ('x_values',x_values)
     xs = process_axis(x_opt, x_values, x_values_dropdown)
+    print ('xs',xs)
 
-    y_opt = self.current_axis_options[y_type]
+    y_opt = current_axis_options[y_type]
+    print ('y_opt',y_opt)
     if y_opt.choices is not None and not csv_mode:
         y_values = list_to_csv_string(y_values_dropdown)
+    print ('y_values',y_values)
     ys = process_axis(y_opt, y_values, y_values_dropdown)
+    print ('ys',ys)
 
-    z_opt = self.current_axis_options[z_type]
+    z_opt = current_axis_options[z_type]
+    print ('z_opt',z_opt)
     if z_opt.choices is not None and not csv_mode:
         z_values = list_to_csv_string(z_values_dropdown)
+    print ('z_values',z_values)
     zs = process_axis(z_opt, z_values, z_values_dropdown)
+    print ('zs',zs)
 
         # this could be moved to common code, but unlikely to be ever triggered anywhere else
     Image.MAX_IMAGE_PIXELS = None  # disable check in Pillow and rely on check below to allow large custom image sizes
-    grid_mp = round(len(xs) * len(ys) * len(zs) * p.width * p.height / 1000000)
-    assert grid_mp < opts.img_max_size_mp, f'Error: Resulting grid would be too large ({grid_mp} MPixels) (max configured size is {opts.img_max_size_mp} MPixels)'
+
+# calculating grid megapixels    
+#    grid_mp = round(len(xs) * len(ys) * len(zs) * p.width * p.height / 1000000)
+#    assert grid_mp < opts.img_max_size_mp, f'Error: Resulting grid would be too large ({grid_mp} MPixels) (max configured size is {opts.img_max_size_mp} MPixels)'
 
     def fix_axis_seeds(axis_opt, axis_list):
         if axis_opt.label in ['Seed', 'Var. seed']:
             return [int(random.randrange(4294967294)) if val is None or val == '' or val == -1 else val for val in axis_list]
         else:
             return axis_list
+#seed the axes
+#    if not no_fixed_seeds:
+#        xs = fix_axis_seeds(x_opt, xs)
+#        ys = fix_axis_seeds(y_opt, ys)
+#        zs = fix_axis_seeds(z_opt, zs)
 
-    if not no_fixed_seeds:
-        xs = fix_axis_seeds(x_opt, xs)
-        ys = fix_axis_seeds(y_opt, ys)
-        zs = fix_axis_seeds(z_opt, zs)
+#    if x_opt.label == 'Steps':
+#        total_steps = sum(xs) * len(ys) * len(zs)
+#    elif y_opt.label == 'Steps':
+#        total_steps = sum(ys) * len(xs) * len(zs)
+#    elif z_opt.label == 'Steps':
+#        total_steps = sum(zs) * len(xs) * len(ys)
+#    else:
+#        total_steps = p.steps * len(xs) * len(ys) * len(zs)
 
-    if x_opt.label == 'Steps':
-        total_steps = sum(xs) * len(ys) * len(zs)
-    elif y_opt.label == 'Steps':
-        total_steps = sum(ys) * len(xs) * len(zs)
-    elif z_opt.label == 'Steps':
-        total_steps = sum(zs) * len(xs) * len(ys)
-    else:
-        total_steps = p.steps * len(xs) * len(ys) * len(zs)
+#    if isinstance(p, StableDiffusionProcessingTxt2Img) and p.enable_hr:
+#        if x_opt.label == "Hires steps":
+#            total_steps += sum(xs) * len(ys) * len(zs)
+#        elif y_opt.label == "Hires steps":
+#            total_steps += sum(ys) * len(xs) * len(zs)
+#        elif z_opt.label == "Hires steps":
+#            total_steps += sum(zs) * len(xs) * len(ys)
+#        elif p.hr_second_pass_steps:
+#            total_steps += p.hr_second_pass_steps * len(xs) * len(ys) * len(zs)
+#        else:
+#            total_steps *= 2
+#    total_steps *= p.n_iter
 
-    if isinstance(p, StableDiffusionProcessingTxt2Img) and p.enable_hr:
-        if x_opt.label == "Hires steps":
-            total_steps += sum(xs) * len(ys) * len(zs)
-        elif y_opt.label == "Hires steps":
-            total_steps += sum(ys) * len(xs) * len(zs)
-        elif z_opt.label == "Hires steps":
-            total_steps += sum(zs) * len(xs) * len(ys)
-        elif p.hr_second_pass_steps:
-            total_steps += p.hr_second_pass_steps * len(xs) * len(ys) * len(zs)
-        else:
-            total_steps *= 2
+#    image_cell_count = p.n_iter * p.batch_size
+#    cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
+#    plural_s = 's' if len(zs) > 1 else ''
+#    print(f"X/Y/Z plot will create {len(xs) * len(ys) * len(zs) * image_cell_count} images on {len(zs)} {len(xs)}x{len(ys)} grid{plural_s}{cell_console_text}. (Total steps to process: {total_steps})")
+#    shared.total_tqdm.updateTotal(total_steps)
 
-    total_steps *= p.n_iter
+    print(AxisInfo(x_opt, xs))
+    print(AxisInfo(y_opt, ys))
+    print(AxisInfo(z_opt, zs))
 
-    image_cell_count = p.n_iter * p.batch_size
-    cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
-    plural_s = 's' if len(zs) > 1 else ''
-    print(f"X/Y/Z plot will create {len(xs) * len(ys) * len(zs) * image_cell_count} images on {len(zs)} {len(xs)}x{len(ys)} grid{plural_s}{cell_console_text}. (Total steps to process: {total_steps})")
-    shared.total_tqdm.updateTotal(total_steps)
-
-    state.xyz_plot_x = AxisInfo(x_opt, xs)
-    state.xyz_plot_y = AxisInfo(y_opt, ys)
-    state.xyz_plot_z = AxisInfo(z_opt, zs)
+#    state.xyz_plot_x = AxisInfo(x_opt, xs)
+#    state.xyz_plot_y = AxisInfo(y_opt, ys)
+#    state.xyz_plot_z = AxisInfo(z_opt, zs)
 
         # If one of the axes is very slow to change between (like SD model
         # checkpoint), then make sure it is in the outer iteration of the nested
@@ -752,9 +773,10 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             second_axes_processed = 'x'
         else:
             second_axes_processed = 'y'
-
+    print('first_axes_processed',first_axes_processed)
+    print('second_axes_processed',second_axes_processed)
     grid_infotext = [None] * (1 + len(zs))
-
+    print('grid_infotext',grid_infotext)
     def cell(x, y, z, ix, iy, iz):
         if shared.state.interrupted or state.stopping_generation:
             return Processed(p, [], p.seed, "")
