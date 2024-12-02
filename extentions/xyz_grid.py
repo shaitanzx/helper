@@ -569,6 +569,25 @@ def ui():
 
 def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
+    print('x_type',x_type)
+    print('x_values',x_values)
+    print('x_values_dropdown',x_values_dropdown)
+    print('y_type',y_type)
+    print('y_values',y_values)
+    print('y_values_dropdown',y_values_dropdown)
+    print('z_type',z_type)
+    print('z_values',z_values)
+    print('z_values_dropdown',z_values_dropdown)
+    print('draw_legend',draw_legend)
+    print('include_lone_images',include_lone_images)
+    print('include_sub_grids',include_sub_grids)
+    print('no_fixed_seeds',no_fixed_seeds)
+    print('vary_seeds_x',vary_seeds_x)
+    print('vary_seeds_y',vary_seeds_y)
+    print('vary_seeds_z',vary_seeds_z)
+    print('margin_size',margin_size)
+    print('csv_mode',csv_mode)
+    p='prompt'
 
     if not no_fixed_seeds:
         modules.processing.fix_seed(p)
