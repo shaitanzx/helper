@@ -164,9 +164,8 @@ def apply_vae(p, x, xs):
     p.override_settings['sd_vae'] = find_vae(x)
 
 
-#def apply_styles(p: StableDiffusionProcessingTxt2Img, x: str, _):
-def apply_styles(x: str, _):
-    p.styles.extend(x.split(','))
+def apply_styles(p, x: str, _):
+    p.style_selections.extend(x.split(','))
 
 
 def apply_uni_pc_order(p, x, xs):

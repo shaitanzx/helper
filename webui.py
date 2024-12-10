@@ -68,7 +68,7 @@ def cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task):
 #    if shared.state.interrupted or state.stopping_generation:
 #        return Processed(p, [], p.seed, "")
 
-#    pc = copy(p)
+    pc = copy.deepcopy(currentTask)
 #    pc.styles = pc.styles[:]
     print('x',x)
     print('y',y)
@@ -79,9 +79,9 @@ def cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task):
     print('ix',ix)
     print('iy',iy)
     print('iz',iz)
-    x_opt.apply(currentTask, x, xs)
-    y_opt.apply(currentTask, y, ys)
-    z_opt.apply(currentTask, z, zs)
+    x_opt.apply(pc, x, xs)
+    y_opt.apply(pc, y, ys)
+    z_opt.apply(pc, z, zs)
     print(currentTask.base_model_name)
 
 
@@ -101,7 +101,7 @@ def cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task):
 #        errors.display(e, "generating image for xyz plot")
 ###    yield from generate_clicked(currentTask)
 #       res = Processed(p, [], p.seed, "")
-    new_copy = copy.deepcopy(currentTask)
+    new_copy = copy.deepcopy(pc)
     xyz_task.append(new_copy)
     return xyz_task
 
