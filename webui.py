@@ -73,8 +73,7 @@ def cell(currentTask,x, y, z, ix, iy, iz):
     x_opt.apply(currentTask, x, xs)
     y_opt.apply(currentTask, y, ys)
     z_opt.apply(currentTask, z, zs)
-
-	xdim = len(xs) if vary_seeds_x else 1
+    xdim = len(xs) if vary_seeds_x else 1
     ydim = len(ys) if vary_seeds_y else 1
 
     if vary_seeds_x:
@@ -90,11 +89,11 @@ def cell(currentTask,x, y, z, ix, iy, iz):
 #        errors.display(e, "generating image for xyz plot")
     yield from generate_clicked(currentTask)
 #       res = Processed(p, [], p.seed, "")
+    return
 
 
-		
 def queue_xyz(*args):
-	args = list(args)
+    args = list(args)
     csv_mode = args.pop()
     margin_size = args.pop()
     vary_seeds_z = args.pop()
@@ -113,11 +112,11 @@ def queue_xyz(*args):
     x_values_dropdown = args.pop()
     x_values = args.pop()
     x_type = args.pop()
-	currentTask=get_task(args)
-	currentTask.generate_image_grid=False
-	currentTask.image_number=1
-	xs,ys,zs,x_labels,y_labels,z_labels,first_axes_processed,second_axes_processed=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
-	if first_axes_processed == 'x':
+    currentTask=get_task(args)
+    currentTask.generate_image_grid=False
+    currentTask.image_number=1
+    xs,ys,zs,x_labels,y_labels,z_labels,first_axes_processed,second_axes_processed=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+    if first_axes_processed == 'x':
         for ix, x in enumerate(xs):
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
@@ -147,8 +146,7 @@ def queue_xyz(*args):
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
                         cell(currentTask,x, y, z, ix, iy, iz)
-	
-	return
+    return
 
 def queue_obp(*args):
     global finished_batch
