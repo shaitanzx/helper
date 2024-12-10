@@ -742,7 +742,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             second_axes_processed = 'y'
 
     grid_infotext = [None] * (1 + len(zs))
-    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed
+    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
 	
 """
 	###################################################################################
