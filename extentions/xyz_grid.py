@@ -696,7 +696,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 #    total_steps *= p.n_iter
 
 #    image_cell_count = p.n_iter * p.batch_size
-	image_cell_count = 1
+    image_cell_count = 1
 	
     cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
     plural_s = 's' if len(zs) > 1 else ''
@@ -705,11 +705,11 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 #    shared.total_tqdm.updateTotal(total_steps)
 
 #    state.xyz_plot_x = AxisInfo(x_opt, xs)
-	xyz_plot_x = AxisInfo(x_opt, xs)
+    xyz_plot_x = AxisInfo(x_opt, xs)
 #    state.xyz_plot_y = AxisInfo(y_opt, ys)
-	xyz_plot_y = AxisInfo(y_opt, ys)
+    xyz_plot_y = AxisInfo(y_opt, ys)
 #    state.xyz_plot_z = AxisInfo(z_opt, zs)
-	xyz_plot_z = AxisInfo(z_opt, zs)
+    xyz_plot_z = AxisInfo(z_opt, zs)
 
         # If one of the axes is very slow to change between (like SD model
         # checkpoint), then make sure it is in the outer iteration of the nested
@@ -736,7 +736,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             second_axes_processed = 'y'
 
     grid_infotext = [None] * (1 + len(zs))
-	return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed
+    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed
 	
 """
 	###################################################################################
