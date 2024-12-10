@@ -82,7 +82,7 @@ def confirm_samplers(p, xs):
 
 
 def apply_checkpoint(p, x, xs):
-"""
+    """
     info = modules.sd_models.get_closet_checkpoint_match(x)
     if info is None:
         raise RuntimeError(f"Unknown checkpoint: {x}")
@@ -95,9 +95,10 @@ def apply_checkpoint(p, x, xs):
     refresh_loading_params_for_xyz_grid()
     # This saves part of the reload
     opts.set('sd_model_checkpoint', org_cp)
-"""
-	for x in xs:
-		p.base_model_name=x
+    """
+
+    for x in xs:
+        p.base_model_name=x
 
 def refresh_loading_params_for_xyz_grid():
     """
@@ -562,6 +563,9 @@ def ui():
 def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
 
+
+
+    current_axis_options = [x for x in axis_options if type(x) == AxisOption]
 #    if not no_fixed_seeds:
 #        modules.processing.fix_seed(p)
 
@@ -645,6 +649,8 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
     if x_opt.choices is not None and not csv_mode:
         x_values = list_to_csv_string(x_values_dropdown)
     xs = process_axis(x_opt, x_values, x_values_dropdown)
+    print('------------------------------------')
+    print (x_opt,x_values)
 
     y_opt = current_axis_options[y_type]
     if y_opt.choices is not None and not csv_mode:

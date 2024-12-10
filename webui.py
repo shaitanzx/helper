@@ -77,11 +77,11 @@ def cell(currentTask,x, y, z, ix, iy, iz):
     ydim = len(ys) if vary_seeds_y else 1
 
     if vary_seeds_x:
-        pc.seed += ix
+        currentTask.seed += ix
     if vary_seeds_y:
-        pc.seed += iy * xdim
+        currentTask.seed += iy * xdim
     if vary_seeds_z:
-        pc.seed += iz * xdim * ydim
+        currentTask.seed += iz * xdim * ydim
 
 #    try:
 #        res = process_images(pc)
@@ -112,10 +112,18 @@ def queue_xyz(*args):
     x_values_dropdown = args.pop()
     x_values = args.pop()
     x_type = args.pop()
-    currentTask=get_task(args)
+    currentTask=get_task_batch(args)
     currentTask.generate_image_grid=False
     currentTask.image_number=1
     xs,ys,zs,x_labels,y_labels,z_labels,first_axes_processed,second_axes_processed=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+    print('xs',xs)
+    print('ys',ys)
+    print('zs',zs)
+    print('x_labels',x_labels)
+    print('y_labels',y_labels)
+    print('z_labels',z_labels)
+    print('first_axes_processed',first_axes_processed)
+    print('second_axes_processed',second_axes_processed)
     if first_axes_processed == 'x':
         for ix, x in enumerate(xs):
             if second_axes_processed == 'y':
