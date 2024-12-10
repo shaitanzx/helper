@@ -63,6 +63,93 @@ ar_def=[1,1]
 swap_def=False
 cell_index='0'
 
+
+def cell(currentTask,x, y, z, ix, iy, iz):
+#    if shared.state.interrupted or state.stopping_generation:
+#        return Processed(p, [], p.seed, "")
+
+#    pc = copy(p)
+#    pc.styles = pc.styles[:]
+    x_opt.apply(currentTask, x, xs)
+    y_opt.apply(currentTask, y, ys)
+    z_opt.apply(currentTask, z, zs)
+
+	xdim = len(xs) if vary_seeds_x else 1
+    ydim = len(ys) if vary_seeds_y else 1
+
+    if vary_seeds_x:
+        pc.seed += ix
+    if vary_seeds_y:
+        pc.seed += iy * xdim
+    if vary_seeds_z:
+        pc.seed += iz * xdim * ydim
+
+#    try:
+#        res = process_images(pc)
+#    except Exception as e:
+#        errors.display(e, "generating image for xyz plot")
+    yield from generate_clicked(currentTask)
+#       res = Processed(p, [], p.seed, "")
+
+
+		
+def queue_xyz(*args):
+	args = list(args)
+    csv_mode = args.pop()
+    margin_size = args.pop()
+    vary_seeds_z = args.pop()
+    vary_seeds_y = args.pop()
+    vary_seeds_x = args.pop()
+    no_fixed_seeds = args.pop()
+    include_sub_grids = args.pop()
+    include_lone_images = args.pop()
+    draw_legend = args.pop()
+    z_values_dropdown = args.pop()
+    z_values = args.pop()
+    z_type = args.pop()
+    y_values_dropdown = args.pop()
+    y_values = args.pop()
+    y_type = args.pop()
+    x_values_dropdown = args.pop()
+    x_values = args.pop()
+    x_type = args.pop()
+	currentTask=get_task(args)
+	currentTask.generate_image_grid=False
+	currentTask.image_number=1
+	xs,ys,zs,x_labels,y_labels,z_labels,first_axes_processed,second_axes_processed=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+	if first_axes_processed == 'x':
+        for ix, x in enumerate(xs):
+            if second_axes_processed == 'y':
+                for iy, y in enumerate(ys):
+                    for iz, z in enumerate(zs):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+            else:
+                for iz, z in enumerate(zs):
+                    for iy, y in enumerate(ys):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+    elif first_axes_processed == 'y':
+        for iy, y in enumerate(ys):
+            if second_axes_processed == 'x':
+                for ix, x in enumerate(xs):
+                    for iz, z in enumerate(zs):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+            else:
+                for iz, z in enumerate(zs):
+                    for ix, x in enumerate(xs):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+    elif first_axes_processed == 'z':
+        for iz, z in enumerate(zs):
+            if second_axes_processed == 'x':
+                for ix, x in enumerate(xs):
+                    for iy, y in enumerate(ys):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+            else:
+                for iy, y in enumerate(ys):
+                    for ix, x in enumerate(xs):
+                        cell(currentTask,x, y, z, ix, iy, iz)
+	
+	return
+
 def queue_obp(*args):
     global finished_batch
     finished_batch=False
@@ -1932,7 +2019,10 @@ with shared.gradio_root:
           xyz.run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
 
           return
-        xyz_start.click(fn=xyz.run,inputs=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode])
+		ctrls_xyz=ctrls[:]
+		xyz_ctrls=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
+		ctrls_xyz.extend(xyz_ctrls)
+        xyz_start.click(fn=queue_xyz,inputs=ctrls_xyz, outputs=[progress_html, progress_window, progress_gallery, gallery])
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \

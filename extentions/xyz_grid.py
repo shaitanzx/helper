@@ -30,7 +30,7 @@ import modules.config
 import modules.flags
 from modules.sdxl_styles import legal_style_names
 
-fill_values_symbol = "\U0001f4d2"  # 📒
+fill_values_symbol = "\U0001f4d2"  # рџ“’
 
 AxisInfo = namedtuple('AxisInfo', ['axis', 'values'])
 
@@ -82,6 +82,7 @@ def confirm_samplers(p, xs):
 
 
 def apply_checkpoint(p, x, xs):
+"""
     info = modules.sd_models.get_closet_checkpoint_match(x)
     if info is None:
         raise RuntimeError(f"Unknown checkpoint: {x}")
@@ -94,6 +95,9 @@ def apply_checkpoint(p, x, xs):
     refresh_loading_params_for_xyz_grid()
     # This saves part of the reload
     opts.set('sd_model_checkpoint', org_cp)
+"""
+	for x in xs:
+		p.base_model_name=x
 
 def refresh_loading_params_for_xyz_grid():
     """
@@ -268,51 +272,22 @@ class AxisOptionTxt2Img(AxisOption):
 
 axis_options = [
     AxisOption("Nothing", str, do_nothing, format_value=format_nothing),
-    AxisOption("Seed", int, apply_field("seed")),
-    AxisOption("Var. seed", int, apply_field("subseed")),
-    AxisOption("Var. strength", float, apply_field("subseed_strength")),
-    AxisOption("Steps", int, apply_field("steps")),
-    AxisOptionTxt2Img("Hires steps", int, apply_field("hr_second_pass_steps")),
-    AxisOption("CFG Scale", float, apply_field("cfg_scale")),
-    AxisOption("Distilled CFG Scale", float, apply_field("distilled_cfg_scale")),
-    AxisOptionImg2Img("Image CFG Scale", float, apply_field("image_cfg_scale")),
     AxisOption("Prompt S/R", str, apply_prompt, format_value=format_value),
-    AxisOption("Prompt order", str_permutations, apply_order, format_value=format_value_join_list),
-    AxisOptionTxt2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers if x.name not in opts.hide_samplers]),
-    AxisOptionTxt2Img("Hires sampler", str, apply_field("hr_sampler_name"), confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
-    AxisOptionImg2Img("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: [x.name for x in sd_samplers.samplers_for_img2img if x.name not in opts.hide_samplers]),
-    AxisOption("Checkpoint name", str, apply_checkpoint, format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
-    AxisOption("Schedule type", str, apply_field("scheduler"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
-    AxisOption("Schedule min sigma", float, apply_override("sigma_min")),
-    AxisOption("Schedule max sigma", float, apply_override("sigma_max")),
-    AxisOption("Negative Guidance minimum sigma", float, apply_field("s_min_uncond")),
-    AxisOption("Sigma Churn", float, apply_field("s_churn")),
-    AxisOption("Sigma min", float, apply_field("s_tmin")),
-    AxisOption("Sigma max", float, apply_field("s_tmax")),
-    AxisOption("Sigma noise", float, apply_field("s_noise")),
-    AxisOption("Schedule rho", float, apply_override("rho")),
-    AxisOption("Beta schedule alpha", float, apply_override("beta_dist_alpha")),
-    AxisOption("Beta schedule beta", float, apply_override("beta_dist_beta")),
-    AxisOption("Eta", float, apply_field("eta")),
-    AxisOption("Clip skip", int, apply_override('CLIP_stop_at_last_layers')),
-    AxisOption("Denoising", float, apply_field("denoising_strength")),
-    AxisOption("Initial noise multiplier", float, apply_field("initial_noise_multiplier")),
-    AxisOption("Extra noise", float, apply_override("img2img_extra_noise")),
-    AxisOptionTxt2Img("Hires upscaler", str, apply_field("hr_upscaler"), choices=lambda: [*shared.latent_upscale_modes, *[x.name for x in shared.sd_upscalers]]),
-    AxisOptionImg2Img("Cond. Image Mask Weight", float, apply_field("inpainting_mask_weight")),
-    AxisOption("VAE", str, apply_vae, cost=0.7, choices=lambda: ['Automatic', 'None'] + list(modules.config.vae_filenames)),
-    AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
-    AxisOption("UniPC Order", int, apply_uni_pc_order, cost=0.5),
-    AxisOption("Face restore", str, apply_face_restore, format_value=format_value),
-    AxisOption("Token merging ratio", float, apply_override('token_merging_ratio')),
-    AxisOption("Token merging ratio high-res", float, apply_override('token_merging_ratio_hr')),
-    AxisOption("Always discard next-to-last sigma", str, apply_override('always_discard_next_to_last_sigma', boolean=True), choices=boolean_choice(reverse=True)),
-    AxisOption("SGM noise multiplier", str, apply_override('sgm_noise_multiplier', boolean=True), choices=boolean_choice(reverse=True)),
-    AxisOption("Refiner checkpoint", str, apply_field('refiner_checkpoint'), format_value=format_remove_path, confirm=confirm_checkpoints_or_none, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
-    AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
-    AxisOption("RNG source", str, apply_override("randn_source"), choices=lambda: ["GPU", "CPU", "NV"]),
-    AxisOption("FP8 mode", str, apply_override("fp8_storage"), cost=0.9, choices=lambda: ["Disable", "Enable for SDXL", "Enable"]),
-    AxisOption("Size", str, apply_size),
+    AxisOption("Prompt order", str_permutations, apply_order, format_value=format_value_join_list),	
+	AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
+	AxisOption("Steps", int, apply_field("steps")),
+#	AxisOption("Aspect Ratio", str, apply_size),
+	AxisOption("Seed", int, apply_field("seed")),
+	AxisOption("Sharpness", int, apply_field("sharpness")),
+	AxisOption("CFG Scale", float, apply_field("cfg_scale")),
+	AxisOption("Checkpoint name", str, apply_field('base_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
+	AxisOption("Refiner checkpoint", str, apply_field('refiner_checkpoint'), format_value=format_remove_path, confirm=confirm_checkpoints_or_none, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
+	AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
+	AxisOption("Clip skip", int, apply_override('CLIP_stop_at_last_layers')),
+	AxisOption("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: sorted(modules.flags.sampler_list, key=str.casefold)),
+	AxisOption("Scheduler", str, apply_field("scheduler_name"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
+	AxisOption("VAE", str, apply_field("vae_name"), cost=0.7, choices=lambda: ['None'] + list(modules.config.vae_filenames)),
+	AxisOption("Refiner swap method", str, apply_field("refiner_swap_method"), format_value=format_value, confirm=confirm_samplers, choices=['joint', 'separate', 'vae'])
 ]
 
 
@@ -340,7 +315,6 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
 #    state.job_count = list_size * p.n_iter
 
     def process_cell(x, y, z, ix, iy, iz):
-        print(x, y, z, ix, iy, iz)
         nonlocal processed_result
 
         def index(ix, iy, iz):
@@ -585,37 +559,18 @@ def ui():
 
     return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
 
-def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
+def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
-    current_axis_options = [x for x in axis_options if type(x) == AxisOption]
-    print('x_type',x_type)
-    print('x_values',x_values)
-    print('x_values_dropdown',x_values_dropdown)
-    print('y_type',y_type)
-    print('y_values',y_values)
-    print('y_values_dropdown',y_values_dropdown)
-    print('z_type',z_type)
-    print('z_values',z_values)
-    print('z_values_dropdown',z_values_dropdown)
-    print('draw_legend',draw_legend)
-    print('include_lone_images',include_lone_images)
-    print('include_sub_grids',include_sub_grids)
-    print('no_fixed_seeds',no_fixed_seeds)
-    print('vary_seeds_x',vary_seeds_x)
-    print('vary_seeds_y',vary_seeds_y)
-    print('vary_seeds_z',vary_seeds_z)
-    print('margin_size',margin_size)
-    print('csv_mode',csv_mode)
-    p='prompt'
 
-#random seed
 #    if not no_fixed_seeds:
 #        modules.processing.fix_seed(p)
 
-#show grid in galery
 #    if not opts.return_grid:
 #        p.batch_size = 1
-    batch_size =1  
+
+
+	
+
     def process_axis(opt, vals, vals_dropdown):
         if opt.label == 'Nothing':
             return [0]
@@ -626,11 +581,11 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
             valslist = opt.prepare(vals)
         else:
             valslist = csv_string_to_list_strip(vals)
-        print ('valslist',valslist)
+
         if opt.type == int:
-           valslist_ext = []
-           
-           for val in valslist:
+            valslist_ext = []
+
+            for val in valslist:
                 if val.strip() == '':
                     continue
                 m = re_range.fullmatch(val)
@@ -649,7 +604,8 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
                     valslist_ext += [int(x) for x in np.linspace(start=start, stop=end, num=num).tolist()]
                 else:
                     valslist_ext.append(val)
-           valslist = valslist_ext
+
+            valslist = valslist_ext
         elif opt.type == float:
             valslist_ext = []
 
@@ -682,37 +638,26 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
             # Confirm options are valid before starting
         if opt.confirm:
             opt.confirm(p, valslist)
-        
+
         return valslist
 
     x_opt = current_axis_options[x_type]
-    print ('x_opt',x_opt)
     if x_opt.choices is not None and not csv_mode:
         x_values = list_to_csv_string(x_values_dropdown)
-    print ('x_values',x_values)
     xs = process_axis(x_opt, x_values, x_values_dropdown)
-    print ('xs',xs)
 
     y_opt = current_axis_options[y_type]
-    print ('y_opt',y_opt)
     if y_opt.choices is not None and not csv_mode:
         y_values = list_to_csv_string(y_values_dropdown)
-    print ('y_values',y_values)
     ys = process_axis(y_opt, y_values, y_values_dropdown)
-    print ('ys',ys)
 
     z_opt = current_axis_options[z_type]
-    print ('z_opt',z_opt)
     if z_opt.choices is not None and not csv_mode:
         z_values = list_to_csv_string(z_values_dropdown)
-    print ('z_values',z_values)
     zs = process_axis(z_opt, z_values, z_values_dropdown)
-    print ('zs',zs)
 
         # this could be moved to common code, but unlikely to be ever triggered anywhere else
-    Image.MAX_IMAGE_PIXELS = None  # disable check in Pillow and rely on check below to allow large custom image sizes
-
-# calculating grid megapixels    
+#    Image.MAX_IMAGE_PIXELS = None  # disable check in Pillow and rely on check below to allow large custom image sizes
 #    grid_mp = round(len(xs) * len(ys) * len(zs) * p.width * p.height / 1000000)
 #    assert grid_mp < opts.img_max_size_mp, f'Error: Resulting grid would be too large ({grid_mp} MPixels) (max configured size is {opts.img_max_size_mp} MPixels)'
 
@@ -721,20 +666,20 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
             return [int(random.randrange(4294967294)) if val is None or val == '' or val == -1 else val for val in axis_list]
         else:
             return axis_list
-#seed the axes
+
 #    if not no_fixed_seeds:
 #        xs = fix_axis_seeds(x_opt, xs)
 #        ys = fix_axis_seeds(y_opt, ys)
 #        zs = fix_axis_seeds(z_opt, zs)
 
-#    if x_opt.label == 'Steps':
-#        total_steps = sum(xs) * len(ys) * len(zs)
-#    elif y_opt.label == 'Steps':
-#        total_steps = sum(ys) * len(xs) * len(zs)
-#    elif z_opt.label == 'Steps':
-#        total_steps = sum(zs) * len(xs) * len(ys)
-#    else:
-#        total_steps = p.steps * len(xs) * len(ys) * len(zs)
+    if x_opt.label == 'Steps':
+        total_steps = sum(xs) * len(ys) * len(zs)
+    elif y_opt.label == 'Steps':
+        total_steps = sum(ys) * len(xs) * len(zs)
+    elif z_opt.label == 'Steps':
+        total_steps = sum(zs) * len(xs) * len(ys)
+    else:
+        total_steps = p.steps * len(xs) * len(ys) * len(zs)
 
 #    if isinstance(p, StableDiffusionProcessingTxt2Img) and p.enable_hr:
 #        if x_opt.label == "Hires steps":
@@ -747,21 +692,24 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
 #            total_steps += p.hr_second_pass_steps * len(xs) * len(ys) * len(zs)
 #        else:
 #            total_steps *= 2
+
 #    total_steps *= p.n_iter
 
 #    image_cell_count = p.n_iter * p.batch_size
-#    cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
-#    plural_s = 's' if len(zs) > 1 else ''
-#    print(f"X/Y/Z plot will create {len(xs) * len(ys) * len(zs) * image_cell_count} images on {len(zs)} {len(xs)}x{len(ys)} grid{plural_s}{cell_console_text}. (Total steps to process: {total_steps})")
+	image_cell_count = 1
+	
+    cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
+    plural_s = 's' if len(zs) > 1 else ''
+    print(f"X/Y/Z plot will create {len(xs) * len(ys) * len(zs) * image_cell_count} images on {len(zs)} {len(xs)}x{len(ys)} grid{plural_s}{cell_console_text}. (Total steps to process: {total_steps})")
+
 #    shared.total_tqdm.updateTotal(total_steps)
 
-    print(AxisInfo(x_opt, xs))
-    print(AxisInfo(y_opt, ys))
-    print(AxisInfo(z_opt, zs))
-
 #    state.xyz_plot_x = AxisInfo(x_opt, xs)
+	xyz_plot_x = AxisInfo(x_opt, xs)
 #    state.xyz_plot_y = AxisInfo(y_opt, ys)
+	xyz_plot_y = AxisInfo(y_opt, ys)
 #    state.xyz_plot_z = AxisInfo(z_opt, zs)
+	xyz_plot_z = AxisInfo(z_opt, zs)
 
         # If one of the axes is very slow to change between (like SD model
         # checkpoint), then make sure it is in the outer iteration of the nested
@@ -786,13 +734,16 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
             second_axes_processed = 'x'
         else:
             second_axes_processed = 'y'
-    print('first_axes_processed',first_axes_processed)
-    print('second_axes_processed',second_axes_processed)
+
     grid_infotext = [None] * (1 + len(zs))
-    print('grid_infotext',grid_infotext)
+	return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed
+	
+"""
+	###################################################################################
+
     def cell(x, y, z, ix, iy, iz):
-#        if shared.state.interrupted or state.stopping_generation:
-#            return Processed(p, [], p.seed, "")
+        if shared.state.interrupted or state.stopping_generation:
+            return Processed(p, [], p.seed, "")
 
         pc = copy(p)
         pc.styles = pc.styles[:]
@@ -852,8 +803,7 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
         return res
 
     with SharedSettingsStackHelper():
-#        processed = 
-        draw_xyz_grid(
+        processed = draw_xyz_grid(
             p,
             xs=xs,
             ys=ys,
@@ -905,3 +855,4 @@ def run(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown
             del processed.infotexts[1]
 
     return processed
+"""
