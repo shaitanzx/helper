@@ -77,8 +77,7 @@ def apply_order(p, x, xs):
 
 def confirm_samplers(p, xs):
     for x in xs:
-        if x.lower() not in sd_samplers.samplers_map:
-            raise RuntimeError(f"Unknown sampler: {x}")
+        p.sampler_name_name=x
 
 
 def apply_checkpoint(p, x, xs):
@@ -274,20 +273,21 @@ axis_options = [
     AxisOption("Nothing", str, do_nothing, format_value=format_nothing),
     AxisOption("Prompt S/R", str, apply_prompt, format_value=format_value),
     AxisOption("Prompt order", str_permutations, apply_order, format_value=format_value_join_list),	
-	AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
-	AxisOption("Steps", int, apply_field("steps")),
+	  AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
+	  AxisOption("Steps", int, apply_field("steps")),
 #	AxisOption("Aspect Ratio", str, apply_size),
-	AxisOption("Seed", int, apply_field("seed")),
-	AxisOption("Sharpness", int, apply_field("sharpness")),
-	AxisOption("CFG Scale", float, apply_field("cfg_scale")),
-	AxisOption("Checkpoint name", str, apply_field('base_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
-	AxisOption("Refiner checkpoint", str, apply_field('refiner_checkpoint'), format_value=format_remove_path, confirm=confirm_checkpoints_or_none, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
-	AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
-	AxisOption("Clip skip", int, apply_override('CLIP_stop_at_last_layers')),
-	AxisOption("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: sorted(modules.flags.sampler_list, key=str.casefold)),
-	AxisOption("Scheduler", str, apply_field("scheduler_name"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
-	AxisOption("VAE", str, apply_field("vae_name"), cost=0.7, choices=lambda: ['None'] + list(modules.config.vae_filenames)),
-	AxisOption("Refiner swap method", str, apply_field("refiner_swap_method"), format_value=format_value, confirm=confirm_samplers, choices=['joint', 'separate', 'vae'])
+	  AxisOption("Seed", int, apply_field("seed")),
+	  AxisOption("Sharpness", int, apply_field("sharpness")),
+	  AxisOption("CFG (Guidance) Scale", float, apply_field("cfg_scale")),
+	  AxisOption("Checkpoint name", str, apply_field('base_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
+#	  AxisOption("Refiner checkpoint", str, apply_field('refiner_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
+#	  AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
+	  AxisOption("Clip skip", int, apply_field('clip_skip')),
+	  AxisOption("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: sorted(modules.flags.sampler_list, key=str.casefold)),
+	  AxisOption("Scheduler", str, apply_field("scheduler_name"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
+	  AxisOption("VAE", str, apply_field("vae_name"), cost=0.7, choices=lambda: ['Default (model)'] + list(modules.config.vae_filenames)),
+#	  AxisOption("Refiner swap method", str, apply_field("refiner_swap_method"), format_value=format_value, choices=lambda: sorted(['joint', 'separate', 'vae'], key=str.casefold))
+	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
 
