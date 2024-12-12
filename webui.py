@@ -94,15 +94,12 @@ def queue_xyz(*args):
     currentTask.image_number=1
     xyz_task=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
     temp_var=[]
-    temp_var2=[]
     for i, currentTask in enumerate(xyz_task):
-        currentTask.yields+=temp_var2
         currentTask.results+=temp_var
         print(f"[X/Y/Z Plot: Image Generation {i + 1}:")
         yield from generate_clicked(currentTask)
         print('aaaaaaaa',currentTask.yields)  
         temp_var=currentTask.results
-        temp_var2=currentTask.yields
       
     return
 

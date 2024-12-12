@@ -1368,8 +1368,6 @@ def worker():
         if not async_task.should_enhance:
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
-#            print ('ccccccccccccccccccccccccccccccccccccccccc',async_task.prompt)
-#            async_task.base_model_name='waiNSFWIllustrious_v70.safetensors'
             return
 
         progressbar(async_task, current_progress, 'Processing enhance ...')
