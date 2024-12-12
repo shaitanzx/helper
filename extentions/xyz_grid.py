@@ -1,5 +1,5 @@
 from collections import namedtuple
-from copy import copy
+import copy
 from itertools import permutations, chain
 from logging import info
 import random
@@ -293,12 +293,6 @@ axis_options = [
 
 def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend, include_lone_images, include_sub_grids, first_axes_processed, second_axes_processed, margin_size):
 
-    print('xs', xs)
-    print('ys',ys)
-    print('zs',zs)
-    print('x_labels',x_labels)
-    print('y_labels',y_labels)
-    print('z_labels',z_labels)
 
 
 
@@ -308,20 +302,16 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
 #    ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
 #    title_texts = [[images.GridAnnotation(z)] for z in z_labels]
 
-#    list_size = (len(xs) * len(ys) * len(zs))
+    
 
-    processed_result = None
+#    processed_result = None
 
 #    state.job_count = list_size * p.n_iter
 
     def process_cell(x, y, z, ix, iy, iz):
-        nonlocal processed_result
+#        nonlocal processed_result
 
-        def index(ix, iy, iz):
-            return ix + iy * len(xs) + iz * len(xs) * len(ys)
-
-        state.job = f"{index(ix, iy, iz) + 1} out of {list_size}"
-
+        """
         processed: Processed = cell(x, y, z, ix, iy, iz)
 
         if processed_result is None:
@@ -348,38 +338,9 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
                 # This corrects size in case of batches:
                 cell_size = processed_result.images[0].size
             processed_result.images[idx] = Image.new(cell_mode, cell_size)
+        """
 
-    if first_axes_processed == 'x':
-        for ix, x in enumerate(xs):
-            if second_axes_processed == 'y':
-                for iy, y in enumerate(ys):
-                    for iz, z in enumerate(zs):
-                        process_cell(x, y, z, ix, iy, iz)
-            else:
-                for iz, z in enumerate(zs):
-                    for iy, y in enumerate(ys):
-                        process_cell(x, y, z, ix, iy, iz)
-    elif first_axes_processed == 'y':
-        for iy, y in enumerate(ys):
-            if second_axes_processed == 'x':
-                for ix, x in enumerate(xs):
-                    for iz, z in enumerate(zs):
-                        process_cell(x, y, z, ix, iy, iz)
-            else:
-                for iz, z in enumerate(zs):
-                    for ix, x in enumerate(xs):
-                        process_cell(x, y, z, ix, iy, iz)
-    elif first_axes_processed == 'z':
-        for iz, z in enumerate(zs):
-            if second_axes_processed == 'x':
-                for ix, x in enumerate(xs):
-                    for iy, y in enumerate(ys):
-                        process_cell(x, y, z, ix, iy, iz)
-            else:
-                for iy, y in enumerate(ys):
-                    for ix, x in enumerate(xs):
-                        process_cell(x, y, z, ix, iy, iz)
-
+    """
     if not processed_result:
         # Should never happen, I've only seen it on one of four open tabs and it needed to refresh.
         print("Unexpected error: Processing could not begin, you may need to refresh the tab or restart the service.")
@@ -413,7 +374,7 @@ def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend
     processed_result.infotexts.insert(0, processed_result.infotexts[0])
 
     return processed_result
-
+    """
 
 class SharedSettingsStackHelper(object):
     def __enter__(self):
@@ -741,38 +702,55 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             second_axes_processed = 'y'
 
     grid_infotext = [None] * (1 + len(zs))
-    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
-	
-"""
-	###################################################################################
+#    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
+    list_size = (len(xs) * len(ys) * len(zs))
+ 
+    def cell(x, y, z, ix, iy, iz,xyz_task):
+        pc = copy.deepcopy(p)
 
-    def cell(x, y, z, ix, iy, iz):
-        if shared.state.interrupted or state.stopping_generation:
-            return Processed(p, [], p.seed, "")
-
-        pc = copy(p)
-        pc.styles = pc.styles[:]
         x_opt.apply(pc, x, xs)
         y_opt.apply(pc, y, ys)
         z_opt.apply(pc, z, zs)
+        new_copy = copy.deepcopy(pc)
+        xyz_task.append(new_copy)
+        return xyz_task
+    xyz_task=[]
+    if first_axes_processed == 'x':
+        for ix, x in enumerate(xs):
+            if second_axes_processed == 'y':
+                for iy, y in enumerate(ys):
+                    for iz, z in enumerate(zs):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+            else:
+                for iz, z in enumerate(zs):
+                    for iy, y in enumerate(ys):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+    elif first_axes_processed == 'y':
+        for iy, y in enumerate(ys):
+            if second_axes_processed == 'x':
+                for ix, x in enumerate(xs):
+                    for iz, z in enumerate(zs):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+            else:
+                for iz, z in enumerate(zs):
+                    for ix, x in enumerate(xs):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+    elif first_axes_processed == 'z':
+        for iz, z in enumerate(zs):
+            if second_axes_processed == 'x':
+                for ix, x in enumerate(xs):
+                    for iy, y in enumerate(ys):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+            else:
+                for iy, y in enumerate(ys):
+                    for ix, x in enumerate(xs):
+                        cell(x, y, z, ix, iy, iz,xyz_task)
+    return xyz_task
 
-        xdim = len(xs) if vary_seeds_x else 1
-        ydim = len(ys) if vary_seeds_y else 1
 
-        if vary_seeds_x:
-            pc.seed += ix
-        if vary_seeds_y:
-            pc.seed += iy * xdim
-        if vary_seeds_z:
-            pc.seed += iz * xdim * ydim
 
-        try:
-            res = process_images(pc)
-        except Exception as e:
-            errors.display(e, "generating image for xyz plot")
 
-            res = Processed(p, [], p.seed, "")
-
+    """
             # Sets subgrid infotexts
         subgrid_index = 1 + iz
         if grid_infotext[subgrid_index] is None and ix == 0 and iy == 0:
@@ -860,4 +838,4 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             del processed.infotexts[1]
 
     return processed
-"""
+    """

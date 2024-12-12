@@ -64,46 +64,9 @@ swap_def=False
 cell_index='0'
 
 
-def cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task):
-#    if shared.state.interrupted or state.stopping_generation:
-#        return Processed(p, [], p.seed, "")
-
-    pc = copy.deepcopy(currentTask)
-#    pc.styles = pc.styles[:]
-    print('x',x)
-    print('y',y)
-    print('z',z)
-    print('xs',xs)
-    print('ys',ys)
-    print('zs',zs)
-    print('ix',ix)
-    print('iy',iy)
-    print('iz',iz)
-    x_opt.apply(pc, x, xs)
-    y_opt.apply(pc, y, ys)
-    z_opt.apply(pc, z, zs)
-    print(currentTask.base_model_name)
 
 
-#    xdim = len(xs) if vary_seeds_x else 1
-#    ydim = len(ys) if vary_seeds_y else 1
-
-#    if vary_seeds_x:
-#        currentTask.seed += ix
-#    if vary_seeds_y:
-#        currentTask.seed += iy * xdim
-#    if vary_seeds_z:
-#        currentTask.seed += iz * xdim * ydim
-
-#    try:
-#        res = process_images(pc)
-#    except Exception as e:
-#        errors.display(e, "generating image for xyz plot")
-###    yield from generate_clicked(currentTask)
-#       res = Processed(p, [], p.seed, "")
-    new_copy = copy.deepcopy(pc)
-    xyz_task.append(new_copy)
-    return xyz_task
+    
 
 
 def queue_xyz(*args):
@@ -129,54 +92,18 @@ def queue_xyz(*args):
     currentTask=get_task_batch(args)
     currentTask.generate_image_grid=False
     currentTask.image_number=1
-    xs,ys,zs,x_labels,y_labels,z_labels,first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
-    print('xs',xs)
-    print('ys',ys)
-    print('zs',zs)
-    print('x_labels',x_labels)
-    print('y_labels',y_labels)
-    print('z_labels',z_labels)
-    print('first_axes_processed',first_axes_processed)
-    print('second_axes_processed',second_axes_processed)
-    print('x_opt',x_opt)
-    print('y_opt',y_opt)
-    print('z_opt',z_opt)
-    xyz_task=[]
-    if first_axes_processed == 'x':
-        for ix, x in enumerate(xs):
-            if second_axes_processed == 'y':
-                for iy, y in enumerate(ys):
-                    for iz, z in enumerate(zs):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
-                        
-            else:
-                for iz, z in enumerate(zs):
-                    for iy, y in enumerate(ys):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
-    elif first_axes_processed == 'y':
-        for iy, y in enumerate(ys):
-            if second_axes_processed == 'x':
-                for ix, x in enumerate(xs):
-                    for iz, z in enumerate(zs):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
-            else:
-                for iz, z in enumerate(zs):
-                    for ix, x in enumerate(xs):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
-    elif first_axes_processed == 'z':
-        for iz, z in enumerate(zs):
-            if second_axes_processed == 'x':
-                for ix, x in enumerate(xs):
-                    for iy, y in enumerate(ys):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
-            else:
-                for iy, y in enumerate(ys):
-                    for ix, x in enumerate(xs):
-                        cell(currentTask,x, y, z, ix, iy, iz,xs, ys, zs,x_opt,y_opt,z_opt,xyz_task)
+    xyz_task=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+    temp_var=[]
+    temp_var2=[]
     for i, currentTask in enumerate(xyz_task):
-        print(f"Обрабатываем копию {i + 1}:")
+        currentTask.yields+=temp_var2
+        currentTask.results+=temp_var
+        print(f"[X/Y/Z Plot: Image Generation {i + 1}:")
         yield from generate_clicked(currentTask)
-        
+        print('aaaaaaaa',currentTask.yields)  
+        temp_var=currentTask.results
+        temp_var2=currentTask.yields
+      
     return
 
 def queue_obp(*args):
@@ -187,7 +114,8 @@ def queue_obp(*args):
     presetsuffix=args.pop()
     presetprefix=args.pop()
     promptenhancer=args.pop()
-    amountoffluff=args.pop()
+    amount
+    offluff=args.pop()
     OBP_preset=args.pop()
 
     base_model_obp=args.pop()
