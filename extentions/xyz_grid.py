@@ -290,7 +290,7 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask.results):
+def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask.results):
     hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
     ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
     title_texts = [[images.GridAnnotation(z)] for z in z_labels]
@@ -708,12 +708,14 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         else:
             second_axes_processed = 'y'
 
-    grid_infotext = [None] * (1 + len(zs))
+
     
 #    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
     list_size = (len(xs) * len(ys) * len(zs))
  
     def cell(x, y, z, ix, iy, iz,xyz_task):
+        def index(ix, iy, iz):
+            return ix + iy * len(xs) + iz * len(xs) * len(ys)
         pc = copy.deepcopy(p)
 
         x_opt.apply(pc, x, xs)
@@ -739,50 +741,28 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 
             # Sets subgrid infotexts
         subgrid_index = 1 + iz
-        if grid_infotext[subgrid_index] is None and ix == 0 and iy == 0:
-                pc.extra_generation_params = copy(pc.extra_generation_params)
-                pc.extra_generation_params['Script'] = 'xyz plot'
-
+        
         if x_opt.label != 'Nothing':
-                    pc.extra_generation_params["X Type"] = x_opt.label
-                    pc.extra_generation_params["X Values"] = x_values
-                    if x_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                        pc.extra_generation_params["Fixed X Values"] = ", ".join([str(x) for x in xs])
+            xyz_grid.x_type = x_opt.label
+            xyz_grid.x_values = x_values
 
         if y_opt.label != 'Nothing':
-                    pc.extra_generation_params["Y Type"] = y_opt.label
-                    pc.extra_generation_params["Y Values"] = y_values
-                    if y_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                        pc.extra_generation_params["Fixed Y Values"] = ", ".join([str(y) for y in ys])
+            xyz_grid.y_type = y_opt.label
+            xyz_grid.y_values = y_values
 
-        grid_infotext[subgrid_index] = processing.create_infotext(pc, pc.all_prompts, pc.all_seeds, pc.all_subseeds)
-
-            # Sets main grid infotext
-            if grid_infotext[0] is None and ix == 0 and iy == 0 and iz == 0:
-                pc.extra_generation_params = copy(pc.extra_generation_params)
-
-                if z_opt.label != 'Nothing':
-                    pc.extra_generation_params["Z Type"] = z_opt.label
-                    pc.extra_generation_params["Z Values"] = z_values
-                    if z_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                        pc.extra_generation_params["Fixed Z Values"] = ", ".join([str(z) for z in zs])
-
-                grid_infotext[0] = processing.create_infotext(pc, pc.all_prompts, pc.all_seeds, pc.all_subseeds)
-
-            return res
-
-
-
-
-
-
-
-
+        if z_opt.label != 'Nothing':
+           xyz_grid.z_type = z_opt.label
+           xyz_grid.z_values = z_values
+         
+        grid_infotext[index(ix,iy,iz)] = [x_opt.label,x_values,y_opt.label,y_values,z_opt.label,z_values]
+        print(index(ix,iy,iz), grid_infotext[index(ix,iy,iz)] )
 
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
         return xyz_task
     xyz_task=[]
+    grid_infotext = [None] * (1 + len(zs))
+    xyz_grid=[]
     if first_axes_processed == 'x':
         for ix, x in enumerate(xs):
             if second_axes_processed == 'y':
