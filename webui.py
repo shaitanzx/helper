@@ -94,7 +94,9 @@ def queue_xyz(*args):
     currentTask=get_task_batch(args)
     currentTask.generate_image_grid=False
     currentTask.image_number=1
-    xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+    xyz_grid,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
+    for i in range(0, len(xyz_grid), 6):
+      print(xyz_grid[i:i+6]) 
     temp_var=[]
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var

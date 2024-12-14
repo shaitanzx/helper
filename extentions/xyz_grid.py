@@ -714,15 +714,21 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 #    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
     list_size = (len(xs) * len(ys) * len(zs))
  
-    def cell(x, y, z, ix, iy, iz,xyz_task):
+    def cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid):
         def index(ix, iy, iz):
             return ix + iy * len(xs) + iz * len(xs) * len(ys)
         pc = copy.deepcopy(p)
 
         x_opt.apply(pc, x, xs)
+        xyz_grid.append(x_opt.label)
+        xyz_grid.append(x)
         y_opt.apply(pc, y, ys)
+        xyz_grid.append(y_opt.label)
+        xyz_grid.append(y)
         z_opt.apply(pc, z, zs)
-        
+        xyz_grid.append(z_opt.label)
+        xyz_grid.append(z)
+        """
         xdim = len(xs) if vary_seeds_x else 1
         ydim = len(ys) if vary_seeds_y else 1
 
@@ -743,24 +749,11 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             # Sets subgrid infotexts
         subgrid_index = 1 + iz
         
-        if x_opt.label != 'Nothing':
-            xyz_grid.x_type = x_opt.label
-            xyz_grid.x_values = x_values
-
-        if y_opt.label != 'Nothing':
-            xyz_grid.y_type = y_opt.label
-            xyz_grid.y_values = y_values
-
-        if z_opt.label != 'Nothing':
-           xyz_grid.z_type = z_opt.label
-           xyz_grid.z_values = z_values
-         
-        grid_infotext[index(ix,iy,iz)] = [x_opt.label,x_values,y_opt.label,y_values,z_opt.label,z_values]
-        print(index(ix,iy,iz), grid_infotext[index(ix,iy,iz)] )
+        """
 
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
-        return xyz_task
+        return xyz_task,xyz_grid
     xyz_task=[]
     grid_infotext = [None] * (1 + len(zs))
     xyz_grid=[]
@@ -769,32 +762,32 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
             else:
                 for iz, z in enumerate(zs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
     elif first_axes_processed == 'y':
         for iy, y in enumerate(ys):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
             else:
                 for iz, z in enumerate(zs):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
     elif first_axes_processed == 'z':
         for iz, z in enumerate(zs):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
             else:
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
-    return xyz_task,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+    return xyz_grid,xyz_task,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
 
 
 
