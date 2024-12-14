@@ -105,7 +105,7 @@ def queue_xyz(*args):
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
     print(currentTask.results)
-    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask.results)  
+    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid)  
     return
 
 def queue_obp(*args):

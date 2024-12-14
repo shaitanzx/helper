@@ -290,7 +290,7 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask):
+def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid):
     
     hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
     ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
@@ -298,8 +298,12 @@ def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,
     print (hor_texts)
     print (ver_texts)
     print (title_texts)
-    
-
+    list_size = (len(xs) * len(ys) * len(zs))
+    processed_result = {}
+    processed_result['images'] = [None] * list_size
+    processed_result['infotexts'] = [None] * list_size
+    processed_result['images'][0] = currentTask.results[0]
+    print 
     """
     if processed_result is None:
             # Use our first processed result object as a template container to hold our full results
@@ -309,7 +313,7 @@ def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,
             processed_result.all_seeds = [None] * list_size
             processed_result.infotexts = [None] * list_size
             processed_result.index_of_first_image = 1
-
+    
     idx = index(ix, iy, iz)
     if processed.images:
             # Non-empty list indicates some degree of success.
@@ -728,29 +732,6 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         z_opt.apply(pc, z, zs)
         xyz_grid.append(z_opt.label)
         xyz_grid.append(z)
-        """
-        xdim = len(xs) if vary_seeds_x else 1
-        ydim = len(ys) if vary_seeds_y else 1
-
-        if vary_seeds_x:
-                pc.seed += ix
-        if vary_seeds_y:
-                pc.seed += iy * xdim
-        if vary_seeds_z:
-                pc.seed += iz * xdim * ydim
-
-#            try:
-#                res = process_images(pc)
-#            except Exception as e:
-#                errors.display(e, "generating image for xyz plot")
-
-#                res = Processed(p, [], p.seed, "")
-
-            # Sets subgrid infotexts
-        subgrid_index = 1 + iz
-        
-        """
-
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
         return xyz_task,xyz_grid
@@ -788,66 +769,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
                     for ix, x in enumerate(xs):
                         cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
     return xyz_grid,xyz_task,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
-
-
-
-
     """
-            # Sets subgrid infotexts
-        subgrid_index = 1 + iz
-        if grid_infotext[subgrid_index] is None and ix == 0 and iy == 0:
-            pc.extra_generation_params = copy(pc.extra_generation_params)
-            pc.extra_generation_params['Script'] = self.title()
-
-            if x_opt.label != 'Nothing':
-                pc.extra_generation_params["X Type"] = x_opt.label
-                pc.extra_generation_params["X Values"] = x_values
-                if x_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                    pc.extra_generation_params["Fixed X Values"] = ", ".join([str(x) for x in xs])
-
-            if y_opt.label != 'Nothing':
-                pc.extra_generation_params["Y Type"] = y_opt.label
-                pc.extra_generation_params["Y Values"] = y_values
-                if y_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                    pc.extra_generation_params["Fixed Y Values"] = ", ".join([str(y) for y in ys])
-
-            grid_infotext[subgrid_index] = processing.create_infotext(pc, pc.all_prompts, pc.all_seeds, pc.all_subseeds)
-
-            # Sets main grid infotext
-        if grid_infotext[0] is None and ix == 0 and iy == 0 and iz == 0:
-            pc.extra_generation_params = copy(pc.extra_generation_params)
-
-            if z_opt.label != 'Nothing':
-                pc.extra_generation_params["Z Type"] = z_opt.label
-                pc.extra_generation_params["Z Values"] = z_values
-                if z_opt.label in ["Seed", "Var. seed"] and not no_fixed_seeds:
-                    pc.extra_generation_params["Fixed Z Values"] = ", ".join([str(z) for z in zs])
-
-            grid_infotext[0] = processing.create_infotext(pc, pc.all_prompts, pc.all_seeds, pc.all_subseeds)
-
-        return res
-
-    with SharedSettingsStackHelper():
-        processed = draw_xyz_grid(
-            p,
-            xs=xs,
-            ys=ys,
-            zs=zs,
-            x_labels=[x_opt.format_value(p, x_opt, x) for x in xs],
-            y_labels=[y_opt.format_value(p, y_opt, y) for y in ys],
-            z_labels=[z_opt.format_value(p, z_opt, z) for z in zs],
-            cell=cell,
-            draw_legend=draw_legend,
-            include_lone_images=include_lone_images,
-            include_sub_grids=include_sub_grids,
-            first_axes_processed=first_axes_processed,
-            second_axes_processed=second_axes_processed,
-            margin_size=margin_size
-        )
-        
-        # reset loading params to previous state
-    refresh_loading_params_for_xyz_grid()
-
     if not processed.images:
             # It broke, no further handling needed.
         return processed
