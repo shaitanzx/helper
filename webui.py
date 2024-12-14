@@ -70,6 +70,8 @@ cell_index='0'
 
 
 def queue_xyz(*args):
+    global finished_batch
+    finished_batch=False 
     args = list(args)
     csv_mode = args.pop()
     margin_size = args.pop()
@@ -97,9 +99,9 @@ def queue_xyz(*args):
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var
         print(f"[X/Y/Z Plot: Image Generation {i + 1}:")
-        yield from generate_clicked(currentTask)
-        print('aaaaaaaa',currentTask.yields)  
-        temp_var=currentTask.results
+        if not finished_batch:
+            yield from generate_clicked(currentTask)
+            temp_var=currentTask.results
       
     return
 
@@ -111,8 +113,7 @@ def queue_obp(*args):
     presetsuffix=args.pop()
     presetprefix=args.pop()
     promptenhancer=args.pop()
-    amount
-    offluff=args.pop()
+    amountoffluff=args.pop()
     OBP_preset=args.pop()
 
     base_model_obp=args.pop()
@@ -554,6 +555,8 @@ with shared.gradio_root:
                     def stop_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'stop'
+                        global finished_batch
+                        finished_batch=True
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
@@ -561,6 +564,8 @@ with shared.gradio_root:
                     def skip_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'skip'
+                        global finished_batch
+                        finished_batch=True
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
