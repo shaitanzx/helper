@@ -8,6 +8,7 @@ import os.path
 from io import StringIO
 from PIL import Image
 import numpy as np
+import cv2
 
 ###import modules.scripts as scripts
 import gradio as gr
@@ -29,6 +30,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import modules.config
 import modules.flags
 from modules.sdxl_styles import legal_style_names
+from modules.private_logger import log
 
 fill_values_symbol = "\U0001f4d2"  # рџ“’
 
@@ -292,18 +294,44 @@ axis_options = [
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid):
     
-    hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
-    ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
-    title_texts = [[images.GridAnnotation(z)] for z in z_labels]
-    print (hor_texts)
-    print (ver_texts)
-    print (title_texts)
-    list_size = (len(xs) * len(ys) * len(zs))
-    processed_result = {}
-    processed_result['images'] = [None] * list_size
-    processed_result['infotexts'] = [None] * list_size
-    processed_result['images'][0] = currentTask.results[0]
-    print 
+
+    
+    task_result=currentTask.results
+    task_result.reverse()
+    one_grid = len(xs) * len(ys)
+    for q in range (len(zs)):
+      results = []
+      for i in range (one_grid):
+        img = task_result.pop()
+        if isinstance(img, str) and os.path.exists(img):
+                img = cv2.imread(img)
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)        
+        results.append(img)
+      H, W, C = results[0].shape
+      for img in results:
+            Hn, Wn, Cn = img.shape
+      cols = len(xs)
+      rows = len (ys)
+      wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
+      for y in range(rows):
+            for x in range(cols):
+                if y * cols + x < len(results):
+                    img = results[y * cols + x]
+                    wall[y * H:y * H + H, x * W:x * W + W, :] = img
+      currentTask.results = currentTask.results + [wall]
+      log(wall, metadata=[('Grid1', 'Grid2', 'Grid3')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+
+#    cols = float(len(results)) ** 0.5
+#    cols = int(math.ceil(cols))
+#    rows = float(len(results)) / float(cols)
+#    rows = int(math.ceil(rows))
+    
+      
+      
+
+
+        # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
+   
     """
     if processed_result is None:
             # Use our first processed result object as a template container to hold our full results
@@ -337,7 +365,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     elif not any(processed_result.images):
         print("Unexpected error: draw_xyz_grid failed to return even a single processed image")
         return Processed(p, [])
-    """
+    
     processed_result=None
     z_count = len(zs)
 
@@ -364,7 +392,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     processed_result.infotexts.insert(0, processed_result.infotexts[0])
 
     return processed_result    
-
+    """
 #    processed_result = None
 
 #    state.job_count = list_size * p.n_iter
