@@ -14,14 +14,14 @@ import piexif
 import piexif.helper
 from PIL import Image, ImageFont, ImageDraw, ImageColor, PngImagePlugin, ImageOps
 # pillow_avif needs to be imported somewhere in code for it to work
-import pillow_avif # noqa: F401
+#import pillow_avif # noqa: F401
 import string
 import json
 import hashlib
 
-from modules import sd_samplers, shared, script_callbacks, errors
-from modules.paths_internal import roboto_ttf_file
-from modules.shared import opts
+#from modules import sd_samplers, shared, script_callbacks, errors
+#from modules.paths_internal import roboto_ttf_file
+#from modules.shared import opts
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
@@ -326,16 +326,16 @@ def resize_image(resize_mode, im, width, height, upscaler_name=None, force_RGBA=
     return res
 
 
-if not shared.cmd_opts.unix_filenames_sanitization:
-    invalid_filename_chars = '#<>:"/\\|?*\n\r\t'
-else:
-    invalid_filename_chars = '/'
+#if not shared.cmd_opts.unix_filenames_sanitization:
+#    invalid_filename_chars = '#<>:"/\\|?*\n\r\t'
+#else:
+#    invalid_filename_chars = '/'
 invalid_filename_prefix = ' '
 invalid_filename_postfix = ' .'
 re_nonletters = re.compile(r'[\s' + string.punctuation + ']+')
 re_pattern = re.compile(r"(.*?)(?:\[([^\[\]]+)\]|$)")
 re_pattern_arg = re.compile(r"(.*)<([^>]*)>$")
-max_filename_part_length = shared.cmd_opts.filenames_max_length
+##max_filename_part_length = shared.cmd_opts.filenames_max_length
 NOTHING_AND_SKIP_PREVIOUS_TEXT = object()
 
 
