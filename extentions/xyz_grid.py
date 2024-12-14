@@ -290,7 +290,8 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask.results):
+def draw_grid_1(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask):
+    
     hor_texts = [[images.GridAnnotation(x)] for x in x_labels]
     ver_texts = [[images.GridAnnotation(y)] for y in y_labels]
     title_texts = [[images.GridAnnotation(z)] for z in z_labels]
