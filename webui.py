@@ -98,7 +98,7 @@ def queue_xyz(*args):
     temp_var=[]
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var
-        print(f"[X/Y/Z Plot: Image Generation {i + 1}:")
+        print(f"[X/Y/Z Plot] Image Generation {i + 1}:")
         if not finished_batch:
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
