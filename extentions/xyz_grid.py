@@ -739,7 +739,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 #    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
     list_size = (len(xs) * len(ys) * len(zs))
  
-    def cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid):
+    def cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list):
         def index(ix, iy, iz):
             return ix + iy * len(xs) + iz * len(xs) * len(ys)
         pc = copy.deepcopy(p)
@@ -755,40 +755,43 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         xyz_grid.append(z)
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
+        xyz_list.extend([ix,iy,iz])
         return xyz_task,xyz_grid
     xyz_task=[]
     grid_infotext = [None] * (1 + len(zs))
     xyz_grid=[]
+    xyz_list=[]
     if first_axes_processed == 'x':
         for ix, x in enumerate(xs):
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
             else:
                 for iz, z in enumerate(zs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
     elif first_axes_processed == 'y':
         for iy, y in enumerate(ys):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
             else:
                 for iz, z in enumerate(zs):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
     elif first_axes_processed == 'z':
         for iz, z in enumerate(zs):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
             else:
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_grid,xyz_list)
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',xyz_list)
     return xyz_grid,xyz_task,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
     """
     if not processed.images:
