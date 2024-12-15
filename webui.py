@@ -94,9 +94,7 @@ def queue_xyz(*args):
     currentTask=get_task_batch(args)
     currentTask.generate_image_grid=False
     currentTask.image_number=1
-    xyz_grid,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
-    for i in range(0, len(xyz_grid), 6):
-      print(xyz_grid[i:i+6]) 
+    xyz_grid,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode) 
     temp_var=[]
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var
@@ -104,7 +102,6 @@ def queue_xyz(*args):
         if not finished_batch:
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
-    print(currentTask.results)
     xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid)  
     return
 
@@ -1958,29 +1955,6 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-        def xyz_test(x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
-          print('x_type',x_type)
-          print('x_values',x_values)
-          print('x_values_dropdown',x_values_dropdown)
-          print('y_type',y_type)
-          print('y_values',y_values)
-          print('y_values_dropdown',y_values_dropdown)
-          print('z_type',z_type)
-          print('z_values',z_values)
-          print('z_values_dropdown',z_values_dropdown)
-          print('draw_legend',draw_legend)
-          print('include_lone_images',include_lone_images)
-          print('include_sub_grids',include_sub_grids)
-          print('no_fixed_seeds',no_fixed_seeds)
-          print('vary_seeds_x',vary_seeds_x)
-          print('vary_seeds_y',vary_seeds_y)
-          print('vary_seeds_z',vary_seeds_z)
-          print('margin_size',margin_size)
-          print('csv_mode',csv_mode)
-          p='prompt'
-          xyz.run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode)
-
-          return
         ctrls_xyz=ctrls[:]
         xyz_ctrls=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
         ctrls_xyz.extend(xyz_ctrls)

@@ -504,9 +504,6 @@ def ui():
     fill_z_button.click(fn=fill, inputs=[z_type, csv_mode], outputs=[z_values, z_values_dropdown])
 
     def select_axis(axis_type, axis_values, axis_values_dropdown, csv_mode):
-        print ('axis_type',axis_type)
-        print ('axis_values',axis_values)
-        print ('axis_values_dropdown',axis_values_dropdown)
         axis_type = axis_type or 0  # if axle type is None set to 0
 
         choices = current_axis_options[axis_type].choices
@@ -522,9 +519,6 @@ def ui():
                 if axis_values:
                    axis_values_dropdown = list(filter(lambda x: x in choices, csv_string_to_list_strip(axis_values)))
                    axis_values = ""
-        print ('axis_type',axis_type)
-        print ('axis_values',axis_values)
-        print ('axis_values_dropdown',axis_values_dropdown)
         return (gr.Button.update(visible=has_choices), gr.Textbox.update(visible=not has_choices or csv_mode, value=axis_values),
                 gr.update(choices=choices if has_choices else None, visible=has_choices and not csv_mode, value=axis_values_dropdown))
 
@@ -649,8 +643,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
     if x_opt.choices is not None and not csv_mode:
         x_values = list_to_csv_string(x_values_dropdown)
     xs = process_axis(x_opt, x_values, x_values_dropdown)
-    print('------------------------------------')
-    print (x_opt,x_values)
+
 
     y_opt = current_axis_options[y_type]
     if y_opt.choices is not None and not csv_mode:
