@@ -292,27 +292,43 @@ axis_options = [
 ]
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask):
-    
-
-    
-    
-    img=currentTask.results(0)
-
-    for i in range(len(zs)):
+    results = []
+    for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
+            img = cv2.imread(img)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if not isinstance(img, np.ndarray):
+            return
+        if img.ndim != 3:
+            return
+        results.append(img)
 
-                img = cv2.imread(img)
-        H, W, C = img.shape
-        wall = np.zeros(shape=((H+margin_size) * len(xs), (W+margin_size) * len(ys), C), dtype=np.uint8)
-        for y in range(len(ys)):
-            for x in range (len(xs)):
-                index=ix + iy * len(xs) + iz * len(xs) * len(ys)
-                img=currentTask.result(index)
-                img = cv2.imread(img)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img        
-        currentTask.results = currentTask.results + [wall]
-        log(wall, metadata=[('Grid1', 'Grid2', 'Grid3')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+    H, W, C = results[0].shape
+
+    for img in results:
+        Hn, Wn, Cn = img.shape
+        if H != Hn:
+            return
+        if W != Wn:
+            return
+        if C != Cn:
+            return
+
+    cols = len(xs)
+    rows = len(ys)
+    z_count= len(zs)
+    for z in range(z_count):
+      wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
+
+      for y in range(rows):
+          for x in range(cols):
+              if y * cols + x < len(results):
+                  img = results[z * cols * rows + y * cols + x]
+                  wall[y * H:y * H + H, x * W:x * W + W, :] = img
+
+    # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
+      currentTask.results = currentTask.results + [wall]
+      log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
 
     """
     for q in range (len(zs)):
