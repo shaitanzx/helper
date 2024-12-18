@@ -291,8 +291,7 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results):
-    print('aaaaaaaaaaaaaaaaaaaaaaa',xyz_results)
+def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme):
     results = []
     for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
@@ -323,14 +322,36 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     
 
     for z in range(z_coord):
-        wall = np.zeros(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)
+        if grid_theme:
+            wall = np.ones(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)*255
+        else:
+            wall = np.zeros(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)
         for y in range(y_coord):
             for x in range(x_coord):
                 index_list=[x,y,z]
                 index = xyz_results.index(index_list)
                 img = results[index]
                 wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img
-        currentTask.results = currentTask.results + [wall]
+        
+
+# Определяем новые размеры изображения
+        new_width = wall.width + 200  # Добавляем 200 пикселей по ширине
+        new_height = wall.height + 100  # Добавляем 100 пикселей по высоте
+
+# Создаем новое изображение с белым фоном
+        wall2 = wall.new("RGB", (new_width, new_height), color="white")
+
+# Вставляем старое изображение в центр нового
+        wall2.paste(wall, (200, 100))  # Смещение по x и y
+        
+        
+        
+        
+        
+        
+        
+        
+        currentTask.results = currentTask.results + [wall2]
         log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
     """
     rows = len(xs)
@@ -524,7 +545,7 @@ def ui():
             csv_mode = gr.Checkbox(label='Use text inputs instead of dropdowns', value=False, elem_id="csv_mode")
         with gr.Column():
             margin_size = gr.Slider(label="Grid margins (px)", minimum=0, maximum=500, value=0, step=2, elem_id="margin_size")
-
+            grid_theme= gr.Checkbox(label='White theme of grid', value=False)
     with gr.Row(variant="compact", elem_id="swap_axes"):
         swap_xy_axes_button = gr.Button(value="Swap X/Y axes", elem_id="xy_grid_swap_axes_button")
         swap_yz_axes_button = gr.Button(value="Swap Y/Z axes", elem_id="yz_grid_swap_axes_button")
@@ -603,7 +624,7 @@ def ui():
         (z_values_dropdown, lambda params: get_dropdown_update_from_params("Z", params)),
     )
 
-    return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
+    return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
 
 def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
