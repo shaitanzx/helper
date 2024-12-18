@@ -333,16 +333,15 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
                 img = results[index]
                 wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img
         
+        
+        new_shape = (wall.shape[0] + 300, wall.shape[1]+400, wall.shape[2])
+        image_extended = np.full(new_shape, (255,255,255), dtype=wall.dtype)
 
-# Определяем новые размеры изображения
-        new_width = wall.width + 200  # Добавляем 200 пикселей по ширине
-        new_height = wall.height + 100  # Добавляем 100 пикселей по высоте
+    # Копируем исходное изображение в новый массив
+        image_extended[100:100+wall.shape[0],200:200+wall.shape[1], :] = wall
+        cv2.putText(image_extended, "text", (20,20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
 
-# Создаем новое изображение с белым фоном
-        wall2 = wall.new("RGB", (new_width, new_height), color="white")
 
-# Вставляем старое изображение в центр нового
-        wall2.paste(wall, (200, 100))  # Смещение по x и y
         
         
         
@@ -350,9 +349,8 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         
         
         
-        
-        currentTask.results = currentTask.results + [wall2]
-        log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+        currentTask.results = currentTask.results + [image_extended]
+        log(image_extended, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
     """
     rows = len(xs)
     cols = len(ys)

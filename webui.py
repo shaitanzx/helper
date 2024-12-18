@@ -73,6 +73,7 @@ def queue_xyz(*args):
     global finished_batch
     finished_batch=False 
     args = list(args)
+    grid_theme = args.pop()
     csv_mode = args.pop()
     margin_size = args.pop()
     vary_seeds_z = args.pop()
@@ -102,7 +103,7 @@ def queue_xyz(*args):
         if not finished_batch:
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
-    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results)  
+    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme)  
     return
 
 def queue_obp(*args):
@@ -1003,7 +1004,7 @@ with shared.gradio_root:
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
                     xyz_check=gr.Checkbox(label='Enable X/Y/Z plot', value=False, elem_classes='min_check')
-                    x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode = xyz.ui()
+                    x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme = xyz.ui()
                     xyz_start=gr.Button(value="Start xyz",visible=True)
                   with gr.TabItem(label='OBP') as obp_tab:
                         with gr.Tab("Main"):
@@ -1956,7 +1957,7 @@ with shared.gradio_root:
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
         ctrls_xyz=ctrls[:]
-        xyz_ctrls=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode]
+        xyz_ctrls=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
         ctrls_xyz.extend(xyz_ctrls)
         xyz_start.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
