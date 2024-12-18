@@ -314,8 +314,8 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         if C != Cn:
             return
 
-    cols = len(xs)
-    rows = len(ys)
+    rows = len(xs)
+    cols = len(ys)
     z_count= len(zs)
     for z in range(z_count):
       wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
@@ -323,7 +323,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
       for y in range(rows):
           for x in range(cols):
               if y * cols + x < len(results):
-                  img = results[z * cols * rows + y * cols + x]
+                  img = results[x + y*cols + z * cols * rows]
                   wall[y * H:y * H + H, x * W:x * W + W, :] = img
 
     # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
