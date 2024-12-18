@@ -12,7 +12,6 @@ import cv2
 
 ###import modules.scripts as scripts
 import gradio as gr
-from . import images
 ###from modules import images, sd_samplers, processing, sd_models, sd_vae, sd_schedulers, errors
 ###from modules.processing import process_images, Processed, StableDiffusionProcessingTxt2Img
 ###from modules.shared import opts, state
@@ -299,15 +298,17 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     task_result=currentTask.results
 
 
-    for i in renge(len(zs)):
+    for i in range(len(zs)):
         if isinstance(img, str) and os.path.exists(img):
+                img=currentTask.result(0)
                 img = cv2.imread(img)
         H, W, C = img.shape
         wall = np.zeros(shape=((H+margin_size) * len(xs), (W+margin_size) * len(ys), C), dtype=np.uint8)
-        for y in rande(len(ys)):
+        for y in range(len(ys)):
             for x in range (len(xs)):
                 index=ix + iy * len(xs) + iz * len(xs) * len(ys)
                 img=currentTask.result(index)
+                img = cv2.imread(img)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img        
         currentTask.results = currentTask.results + [wall]
@@ -766,7 +767,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         z_opt.apply(pc, z, zs)
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
-        return xyz_task,xyz_grid
+        return xyz_task
     xyz_task=[]
     grid_infotext = [None] * (1 + len(zs))
     if first_axes_processed == 'x':
