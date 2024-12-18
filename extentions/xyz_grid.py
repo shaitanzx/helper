@@ -291,7 +291,7 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask):
+def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results):
     results = []
     for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
@@ -314,6 +314,24 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         if C != Cn:
             return
 
+
+
+    x_coord=len(xs)
+    y_coord=len(ys)
+    z_coord=len(zs)
+    
+
+    for z in range(z_coord):
+        wall = np.zeros(shape=(H * y_coord, W * x_coord, C), dtype=np.uint8)
+        for y in range(y_coord):
+            for x in range(x_coord):
+                index_list=[x,y,z]
+                index = xyz_results.index(index_list)
+                img = results[index]
+                wall[y * H:y * H + H, x * W:x * W + W, :] = img
+        currentTask.results = currentTask.results + [wall]
+        log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+    """
     rows = len(xs)
     cols = len(ys)
     z_count= len(zs)
@@ -329,7 +347,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
       currentTask.results = currentTask.results + [wall]
       log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
-
+    """
     """
     for q in range (len(zs)):
       results = []
@@ -771,55 +789,55 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
 #    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
     list_size = (len(xs) * len(ys) * len(zs))
  
-    def cell(x, y, z, ix, iy, iz,xyz_task):
-        def index(ix, iy, iz):
-            return ix + iy * len(xs) + iz * len(xs) * len(ys)
+    def cell(x, y, z, ix, iy, iz,xyz_task,xyz_results):
+#        def index(ix, iy, iz):
+#            return ix + iy * len(xs) + iz * len(xs) * len(ys)
         pc = copy.deepcopy(p)
-
         x_opt.apply(pc, x, xs)
-
         y_opt.apply(pc, y, ys)
-
-        z_opt.apply(pc, z, zs)
+        z_opt.apply(pc, z, zs)        
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
-        return xyz_task
+        cell_list=[x,y,z]
+        xyz_results.append(cell_list)
+        return xyz_task,xyz_results
     xyz_task=[]
+    xyz_results=[]
     grid_infotext = [None] * (1 + len(zs))
     if first_axes_processed == 'x':
         for ix, x in enumerate(xs):
             if second_axes_processed == 'y':
                 for iy, y in enumerate(ys):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
             else:
                 for iz, z in enumerate(zs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
     elif first_axes_processed == 'y':
         for iy, y in enumerate(ys):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iz, z in enumerate(zs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
             else:
                 for iz, z in enumerate(zs):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
     elif first_axes_processed == 'z':
         for iz, z in enumerate(zs):
             if second_axes_processed == 'x':
                 for ix, x in enumerate(xs):
                     for iy, y in enumerate(ys):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
             else:
                 for iy, y in enumerate(ys):
                     for ix, x in enumerate(xs):
-                        cell(x, y, z, ix, iy, iz,xyz_task)
+                        cell(x, y, z, ix, iy, iz,xyz_task,xyz_results)
     x_labels=[x_opt.format_value(p, x_opt, x) for x in xs]
     y_labels=[y_opt.format_value(p, y_opt, y) for y in ys]
     z_labels=[z_opt.format_value(p, z_opt, z) for z in zs]
-    return xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
+    return xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
     """
     if not processed.images:
             # It broke, no further handling needed.
