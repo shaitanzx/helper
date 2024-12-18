@@ -102,7 +102,7 @@ def queue_xyz(*args):
         if not finished_batch:
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
-    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid)  
+    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask)  
     return
 
 def queue_obp(*args):

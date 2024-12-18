@@ -292,13 +292,28 @@ axis_options = [
 	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
-def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_grid):
+def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask):
     
 
     
     task_result=currentTask.results
-    task_result.reverse()
-    one_grid = len(xs) * len(ys)
+
+
+    for i in renge(len(zs)):
+        if isinstance(img, str) and os.path.exists(img):
+                img = cv2.imread(img)
+        H, W, C = img.shape
+        wall = np.zeros(shape=((H+margin_size) * len(xs), (W+margin_size) * len(ys), C), dtype=np.uint8)
+        for y in rande(len(ys)):
+            for x in range (len(xs)):
+                index=ix + iy * len(xs) + iz * len(xs) * len(ys)
+                img=currentTask.result(index)
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img        
+        currentTask.results = currentTask.results + [wall]
+        log(wall, metadata=[('Grid1', 'Grid2', 'Grid3')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+
+    """
     for q in range (len(zs)):
       results = []
       for i in range (one_grid):
@@ -320,7 +335,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
                     wall[y * H:y * H + H, x * W:x * W + W, :] = img
       currentTask.results = currentTask.results + [wall]
       log(wall, metadata=[('Grid1', 'Grid2', 'Grid3')], metadata_parser=None, output_format=None, task=None, persist_image=True)
-
+    """
 #    cols = float(len(results)) ** 0.5
 #    cols = int(math.ceil(cols))
 #    rows = float(len(results)) / float(cols)
