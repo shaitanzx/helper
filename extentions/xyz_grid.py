@@ -292,6 +292,7 @@ axis_options = [
 ]
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results):
+    print('aaaaaaaaaaaaaaaaaaaaaaa',xyz_results)
     results = []
     for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
@@ -322,13 +323,13 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     
 
     for z in range(z_coord):
-        wall = np.zeros(shape=(H * y_coord, W * x_coord, C), dtype=np.uint8)
+        wall = np.zeros(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)
         for y in range(y_coord):
             for x in range(x_coord):
                 index_list=[x,y,z]
                 index = xyz_results.index(index_list)
                 img = results[index]
-                wall[y * H:y * H + H, x * W:x * W + W, :] = img
+                wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img
         currentTask.results = currentTask.results + [wall]
         log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
     """
@@ -798,7 +799,7 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         z_opt.apply(pc, z, zs)        
         new_copy = copy.deepcopy(pc)
         xyz_task.append(new_copy)
-        cell_list=[x,y,z]
+        cell_list=[ix,iy,iz]
         xyz_results.append(cell_list)
         return xyz_task,xyz_results
     xyz_task=[]
