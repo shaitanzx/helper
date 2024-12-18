@@ -295,12 +295,12 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
     
 
     
-    task_result=currentTask.results
-
+    
+    img=currentTask.results(0)
 
     for i in range(len(zs)):
         if isinstance(img, str) and os.path.exists(img):
-                img=currentTask.result(0)
+
                 img = cv2.imread(img)
         H, W, C = img.shape
         wall = np.zeros(shape=((H+margin_size) * len(xs), (W+margin_size) * len(ys), C), dtype=np.uint8)
