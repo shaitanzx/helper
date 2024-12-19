@@ -292,6 +292,9 @@ axis_options = [
 ]
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme):
+    hor_text = [x for x in x_labels]
+    vert_text = [y for y in y_labels]
+    title_text = [z for z in z_labels]
     results = []
     for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
@@ -323,9 +326,13 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
 
     for z in range(z_coord):
         if grid_theme:
+            grid_color=(255,255,255)
             wall = np.ones(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)*255
+            text_color=(0,0,0)
         else:
+            grid_color=(0,0,0)
             wall = np.zeros(shape=((H+margin_size) * y_coord, (W+margin_size) * x_coord, C), dtype=np.uint8)
+            text_color=(255,255,255)
         for y in range(y_coord):
             for x in range(x_coord):
                 index_list=[x,y,z]
@@ -334,16 +341,22 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
                 wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img
         
         
-        new_shape = (wall.shape[0] + 300, wall.shape[1]+400, wall.shape[2])
-        image_extended = np.full(new_shape, (255,255,255), dtype=wall.dtype)
+        font=cv2.FONT_HERSHEY_COMPLEX
+        font_scale=4
+        thickness=5
+        z_text=title_text[0]
+        y_max = max(map(len, vert_text))
+        y_text_max = max(vert_text, key=len)
+        (y_text_width, y_text_height), _ = cv2.getTextSize(y_text_max, font, font_scale, thickness)
+        extend_width=wall.shape[1] + y_text_width + 100
+        image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
 
     # Копируем исходное изображение в новый массив
-        image_extended[100:100+wall.shape[0],200:200+wall.shape[1], :] = wall
-        cv2.putText(image_extended, "Text 1", (20,20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
-        cv2.putText(image_extended, "Text 2", (20,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0), 2)
-        cv2.putText(image_extended, "Text 3", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 3, (0,0,0), 2)
-        cv2.putText(image_extended, "Text 4", (20,150), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 2)
-        cv2.putText(image_extended, "Text 5", (20,200), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,0), 2)
+        image_extended[:, left_margin:] = wall
+        y_coord=W/2
+
+        for i in range(len(vert_text)):
+            cv2.putText(image_extended, vert_text[i], (50,y_coord*i+y_coord), font, 4, font_color, 5)
 
 
         
