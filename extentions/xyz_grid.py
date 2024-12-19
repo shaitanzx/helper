@@ -339,7 +339,11 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
 
     # Копируем исходное изображение в новый массив
         image_extended[100:100+wall.shape[0],200:200+wall.shape[1], :] = wall
-        cv2.putText(image_extended, "text", (20,20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
+        cv2.putText(image_extended, "Text 1", (20,20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
+        cv2.putText(image_extended, "Text 2", (20,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0), 2)
+        cv2.putText(image_extended, "Text 3", (20,100), cv2.FONT_HERSHEY_SIMPLEX, 3, (0,0,0), 2)
+        cv2.putText(image_extended, "Text 4", (20,150), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 2)
+        cv2.putText(image_extended, "Text 5", (20,200), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,0), 2)
 
 
         
