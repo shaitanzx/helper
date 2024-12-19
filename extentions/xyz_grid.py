@@ -357,7 +357,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
 #            pos=(50,int(H * i + (H/2)))
 #            text=vert_text[i]
 #            print(text,pos,font,text_color)
-            cv2.putText(image_extended, vert_text[i], (50,int(H * i + (H/2))), font, font_scale, text_color, thickness)
+            cv2.putText(image_extended, vert_text[i], (50,int((H+margin_size) * i + ((H+margin_size)/2))), font, font_scale, text_color, thickness)
 
 
         
