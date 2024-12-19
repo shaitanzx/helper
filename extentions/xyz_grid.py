@@ -342,21 +342,22 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         
         
         font=cv2.FONT_HERSHEY_COMPLEX
-        font_scale=4
+        font_scale=3
         thickness=5
         z_text=title_text[0]
-        y_max = max(map(len, vert_text))
         y_text_max = max(vert_text, key=len)
         (y_text_width, y_text_height), _ = cv2.getTextSize(y_text_max, font, font_scale, thickness)
         extend_width=wall.shape[1] + y_text_width + 100
+        new_shape = (wall.shape[0], extend_width, wall.shape[2])
         image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
-
-    # Копируем исходное изображение в новый массив
-        image_extended[:, left_margin:] = wall
-        y_coord=W/2
+        print ('ssssssssssssssssssssss',extend_width,wall.shape[1])
+        image_extended[:, y_text_width+100:] = wall
 
         for i in range(len(vert_text)):
-            cv2.putText(image_extended, vert_text[i], (50,y_coord*i+y_coord), font, 4, font_color, 5)
+#            pos=(50,int(H * i + (H/2)))
+#            text=vert_text[i]
+#            print(text,pos,font,text_color)
+            cv2.putText(image_extended, vert_text[i], (50,int(H * i + (H/2))), font, font_scale, text_color, thickness)
 
 
         
