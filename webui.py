@@ -73,26 +73,27 @@ def queue_xyz(*args):
     global finished_batch
     finished_batch=False 
     args = list(args)
-    grid_theme = args.pop()
-    csv_mode = args.pop()
-    margin_size = args.pop()
-    vary_seeds_z = args.pop()
-    vary_seeds_y = args.pop()
-    vary_seeds_x = args.pop()
-    no_fixed_seeds = args.pop()
-    include_sub_grids = args.pop()
-    include_lone_images = args.pop()
-    draw_legend = args.pop()
-    z_values_dropdown = args.pop()
-    z_values = args.pop()
-    z_type = args.pop()
-    y_values_dropdown = args.pop()
-    y_values = args.pop()
-    y_type = args.pop()
-    x_values_dropdown = args.pop()
-    x_values = args.pop()
-    x_type = args.pop()
-    currentTask=get_task_batch(args)
+    currentTask=get_task(args)
+    grid_theme = currentTask.grid_theme
+    csv_mode = currentTask.csv_mode
+    margin_size = currentTask.margin_size
+    vary_seeds_z = currentTask.vary_seeds_z
+    vary_seeds_y = currentTask.vary_seeds_y
+    vary_seeds_x = currentTask.vary_seeds_x
+    no_fixed_seeds = currentTask.no_fixed_seeds
+    include_sub_grids = currentTask.include_sub_grids
+    include_lone_images = currentTask.include_lone_images
+    draw_legend = currentTask.draw_legend
+    z_values_dropdown = currentTask.z_values_dropdown
+    z_values = currentTask.z_values
+    z_type = currentTask.z_type
+    y_values_dropdown = currentTask.y_values_dropdown
+    y_values = currentTask.y_values
+    y_type = currentTask.y_type
+    x_values_dropdown = currentTask.x_values_dropdown
+    x_values = currentTask.x_values
+    x_type = currentTask.x_type
+    
     currentTask.generate_image_grid=False
     currentTask.image_number=1
     xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode) 
@@ -1923,7 +1924,7 @@ with shared.gradio_root:
                   enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_processing_order,
                   enhance_uov_prompt_type]
         ctrls += enhance_ctrls
-        ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
+        
 		
 
         def parse_meta(raw_prompt_txt, is_generating):
@@ -1956,13 +1957,13 @@ with shared.gradio_root:
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
-        ctrls_xyz=ctrls[:]
-        xyz_ctrls=[x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
-        ctrls_xyz.extend(xyz_ctrls)
+        
+        ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
+        ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=queue_xyz, inputs=ctrls_xyz, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=queue_xyz, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
