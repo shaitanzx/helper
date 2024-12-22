@@ -409,7 +409,7 @@ def ui():
     with gr.Row(variant="compact", elem_id="axis_options"):
         with gr.Column():
             draw_legend = gr.Checkbox(label='Draw legend', value=True, elem_id="draw_legend")
-            no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id="no_fixed_seeds")
+            no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id="no_fixed_seeds", visible=False)
             with gr.Row(visible=False):
                 vary_seeds_x = gr.Checkbox(label='Vary seeds for X', value=False, min_width=80, elem_id="vary_seeds_x", info="Use different seeds for images along X axis.")
                 vary_seeds_y = gr.Checkbox(label='Vary seeds for Y', value=False, min_width=80, elem_id="vary_seeds_y", info="Use different seeds for images along Y axis.")
