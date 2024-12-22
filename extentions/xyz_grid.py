@@ -371,14 +371,14 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         meta_xyz=[('Prompt','prompt',currentTask.args[1])]
         if hor_text[0]:
             for i in range(len(hor_text)):
-              meta_xyz.append((f'X axis {i+1}:', 'X axis', hor_text[i]))
+              meta_xyz.append((f'X axis {i+1}:', f'X axis {i+1}:', hor_text[i]))
         if vert_text[0]:
             for i in range(len(vert_text)):
-              meta_xyz.append((f'Y axis {i+1}:', 'Y axis', vert_text[i]))
+              meta_xyz.append((f'Y axis {i+1}:', f'Y axis {i+1}:', vert_text[i]))
         if title_text[z]:
             meta_xyz.append((f'Z axis:', 'Z axis', title_text[z]))
 
-        log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+        log(wall, metadata=meta_xyz, metadata_parser=None, output_format=None, task=None, persist_image=True)
 
 re_range = re.compile(r"\s*([+-]?\s*\d+)\s*-\s*([+-]?\s*\d+)(?:\s*\(([+-]\d+)\s*\))?\s*")
 re_range_float = re.compile(r"\s*([+-]?\s*\d+(?:.\d*)?)\s*-\s*([+-]?\s*\d+(?:.\d*)?)(?:\s*\(([+-]\d+(?:.\d*)?)\s*\))?\s*")
