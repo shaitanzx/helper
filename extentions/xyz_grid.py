@@ -274,21 +274,21 @@ axis_options = [
     AxisOption("Nothing", str, do_nothing, format_value=format_nothing),
     AxisOption("Prompt S/R", str, apply_prompt, format_value=format_value),
     AxisOption("Prompt order", str_permutations, apply_order, format_value=format_value_join_list),	
-	  AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
-	  AxisOption("Steps", int, apply_field("steps")),
+	AxisOption("Styles", str, apply_styles, choices=lambda: list(legal_style_names)),
+	AxisOption("Steps", int, apply_field("steps")),
 #	AxisOption("Aspect Ratio", str, apply_size),
-	  AxisOption("Seed", int, apply_field("seed")),
-	  AxisOption("Sharpness", int, apply_field("sharpness")),
-	  AxisOption("CFG (Guidance) Scale", float, apply_field("cfg_scale")),
-	  AxisOption("Checkpoint name", str, apply_field('base_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
+	AxisOption("Seed", int, apply_field("seed")),
+	AxisOption("Sharpness", int, apply_field("sharpness")),
+	AxisOption("CFG (Guidance) Scale", float, apply_field("cfg_scale")),
+	AxisOption("Checkpoint name", str, apply_field('base_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: sorted(modules.config.model_filenames, key=str.casefold)),
 #	  AxisOption("Refiner checkpoint", str, apply_field('refiner_model_name'), format_value=format_remove_path, confirm=None, cost=1.0, choices=lambda: ['None'] + sorted(modules.config.model_filenames, key=str.casefold)),
 #	  AxisOption("Refiner switch at", float, apply_field('refiner_switch_at')),
-	  AxisOption("Clip skip", int, apply_field('clip_skip')),
-	  AxisOption("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: sorted(modules.flags.sampler_list, key=str.casefold)),
-	  AxisOption("Scheduler", str, apply_field("scheduler_name"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
-	  AxisOption("VAE", str, apply_field("vae_name"), cost=0.7, choices=lambda: ['Default (model)'] + list(modules.config.vae_filenames)),
+	AxisOption("Clip skip", int, apply_field('clip_skip')),
+	AxisOption("Sampler", str, apply_field("sampler_name"), format_value=format_value, confirm=confirm_samplers, choices=lambda: sorted(modules.flags.sampler_list, key=str.casefold)),
+	AxisOption("Scheduler", str, apply_field("scheduler_name"), choices=lambda: sorted(modules.flags.scheduler_list, key=str.casefold)),
+	AxisOption("VAE", str, apply_field("vae_name"), cost=0.7, choices=lambda: ['Default (model)'] + list(modules.config.vae_filenames)),
 #	  AxisOption("Refiner swap method", str, apply_field("refiner_swap_method"), format_value=format_value, choices=lambda: sorted(['joint', 'separate', 'vae'], key=str.casefold))
-	  AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
+	AxisOption("Softness of ControlNet", float, apply_field("controlnet_softness"))
 ]
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme):
@@ -314,14 +314,9 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
             return
         if C != Cn:
             return
-
-
-
     x_coord=len(xs)
     y_coord=len(ys)
     z_coord=len(zs)
-    
-
     for z in range(z_coord):
         if grid_theme:
             grid_color=(255,255,255)
@@ -340,183 +335,42 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
         hor_text = [x.replace(".safetensor", "") for x in x_labels]
         vert_text = [y.replace(".safetensor", "") for y in y_labels]
         title_text = [z.replace(".safetensor", "") for z in z_labels]
-        font=cv2.FONT_HERSHEY_COMPLEX
-        font_scale=2
-        thickness=5
+        
+        if draw_legend:
+                font=cv2.FONT_HERSHEY_COMPLEX
+                font_scale=2
+                thickness=5
 
-        if hor_text[0]:
-          extend_h=wall.shape[0] + 100
-          new_shape = (extend_h, wall.shape[1], wall.shape[2])
-          image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
-          image_extended[:wall.shape[0], :] = wall
-          for i in range(len(hor_text)):
-              cv2.putText(image_extended, hor_text[i], (i*(W+margin_size),wall.shape[0]+50), font,  font_scale, text_color, thickness)
-          wall=image_extended
-        if vert_text[0]:
-          y_text_max = max(vert_text, key=len)
-          (y_text_width, y_text_height), _ = cv2.getTextSize(y_text_max, font, font_scale, thickness)
-          extend_width=wall.shape[1] + y_text_width + 100
-          new_shape = (wall.shape[0], extend_width, wall.shape[2])
-          image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
-          image_extended[:, y_text_width+100:] = wall
-          for i in range(len(vert_text)):
-            cv2.putText(image_extended, vert_text[i], (50,int((H+margin_size) * i + ((H+margin_size)/2))), font, font_scale, text_color, thickness)
-          wall=image_extended
+                if hor_text[0]:
+                  extend_h=wall.shape[0] + 100
+                  new_shape = (extend_h, wall.shape[1], wall.shape[2])
+                  image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
+                  image_extended[:wall.shape[0], :] = wall
+                  for i in range(len(hor_text)):
+                      cv2.putText(image_extended, hor_text[i], (i*(W+margin_size),wall.shape[0]+50), font,  font_scale, text_color, thickness)
+                  wall=image_extended
+                if vert_text[0]:
+                  y_text_max = max(vert_text, key=len)
+                  (y_text_width, y_text_height), _ = cv2.getTextSize(y_text_max, font, font_scale, thickness)
+                  extend_width=wall.shape[1] + y_text_width + 100
+                  new_shape = (wall.shape[0], extend_width, wall.shape[2])
+                  image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
+                  image_extended[:, y_text_width+100:] = wall
+                  for i in range(len(vert_text)):
+                    cv2.putText(image_extended, vert_text[i], (50,int((H+margin_size) * i + ((H+margin_size)/2))), font, font_scale, text_color, thickness)
+                  wall=image_extended
 
-        if title_text[z]:
-          extend_h=wall.shape[0] + 100
-          new_shape = (extend_h, wall.shape[1], wall.shape[2])
-          image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
-          image_extended[100:, :] = wall
-          (title_text_width, title_text_height), _ = cv2.getTextSize(title_text[z], font, font_scale, thickness)
-          cv2.putText(image_extended, title_text[z], (int((image_extended.shape[1]-title_text_width)/2),20+title_text_height), font, font_scale, text_color, thickness)
-          wall=image_extended
+                if title_text[z]:
+                  extend_h=wall.shape[0] + 100
+                  new_shape = (extend_h, wall.shape[1], wall.shape[2])
+                  image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
+                  image_extended[100:, :] = wall
+                  (title_text_width, title_text_height), _ = cv2.getTextSize(title_text[z], font, font_scale, thickness)
+                  cv2.putText(image_extended, title_text[z], (int((image_extended.shape[1]-title_text_width)/2),20+title_text_height), font, font_scale, text_color, thickness)
+                  wall=image_extended
           
 
         log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
-    """
-    rows = len(xs)
-    cols = len(ys)
-    z_count= len(zs)
-    for z in range(z_count):
-      wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
-
-      for y in range(rows):
-          for x in range(cols):
-              if y * cols + x < len(results):
-                  img = results[x + y*cols + z * cols * rows]
-                  wall[y * H:y * H + H, x * W:x * W + W, :] = img
-
-    # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
-      currentTask.results = currentTask.results + [wall]
-      log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
-    """
-    """
-    for q in range (len(zs)):
-      results = []
-      for i in range (one_grid):
-        img = task_result.pop()
-        if isinstance(img, str) and os.path.exists(img):
-                img = cv2.imread(img)
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)        
-        results.append(img)
-      H, W, C = results[0].shape
-      for img in results:
-            Hn, Wn, Cn = img.shape
-      cols = len(xs)
-      rows = len (ys)
-      wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
-      for y in range(rows):
-            for x in range(cols):
-                if y * cols + x < len(results):
-                    img = results[y * cols + x]
-                    wall[y * H:y * H + H, x * W:x * W + W, :] = img
-      currentTask.results = currentTask.results + [wall]
-      log(wall, metadata=[('Grid1', 'Grid2', 'Grid3')], metadata_parser=None, output_format=None, task=None, persist_image=True)
-    """
-#    cols = float(len(results)) ** 0.5
-#    cols = int(math.ceil(cols))
-#    rows = float(len(results)) / float(cols)
-#    rows = int(math.ceil(rows))
-    
-      
-      
-
-
-        # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
-   
-    """
-    if processed_result is None:
-            # Use our first processed result object as a template container to hold our full results
-            processed_result = copy(processed)
-            processed_result.images = [None] * list_size
-            processed_result.all_prompts = [None] * list_size
-            processed_result.all_seeds = [None] * list_size
-            processed_result.infotexts = [None] * list_size
-            processed_result.index_of_first_image = 1
-    
-    idx = index(ix, iy, iz)
-    if processed.images:
-            # Non-empty list indicates some degree of success.
-            processed_result.images[idx] = processed.images[0]
-            processed_result.all_prompts[idx] = processed.prompt
-            processed_result.all_seeds[idx] = processed.seed
-            processed_result.infotexts[idx] = processed.infotexts[0]
-    else:
-            cell_mode = "P"
-            cell_size = (processed_result.width, processed_result.height)
-            if processed_result.images[0] is not None:
-                cell_mode = processed_result.images[0].mode
-                # This corrects size in case of batches:
-                cell_size = processed_result.images[0].size
-            processed_result.images[idx] = Image.new(cell_mode, cell_size)
- 
-    if not processed_result:
-        # Should never happen, I've only seen it on one of four open tabs and it needed to refresh.
-        print("Unexpected error: Processing could not begin, you may need to refresh the tab or restart the service.")
-        return Processed(p, [])
-    elif not any(processed_result.images):
-        print("Unexpected error: draw_xyz_grid failed to return even a single processed image")
-        return Processed(p, [])
-    
-    processed_result=None
-    z_count = len(zs)
-
-    for i in range(z_count):
-        start_index = (i * len(xs) * len(ys)) + i
-        end_index = start_index + len(xs) * len(ys)
-        grid = images.image_grid(processed_result.images[start_index:end_index], rows=len(ys))
-        if draw_legend:
-            grid_max_w, grid_max_h = map(max, zip(*(img.size for img in processed_result.images[start_index:end_index])))
-            grid = images.draw_grid_annotations(grid, grid_max_w, grid_max_h, hor_texts, ver_texts, margin_size)
-        processed_result.images.insert(i, grid)
-        processed_result.all_prompts.insert(i, processed_result.all_prompts[start_index])
-        processed_result.all_seeds.insert(i, processed_result.all_seeds[start_index])
-        processed_result.infotexts.insert(i, processed_result.infotexts[start_index])
-
-    z_grid = images.image_grid(processed_result.images[:z_count], rows=1)
-    z_sub_grid_max_w, z_sub_grid_max_h = map(max, zip(*(img.size for img in processed_result.images[:z_count])))
-    if draw_legend:
-        z_grid = images.draw_grid_annotations(z_grid, z_sub_grid_max_w, z_sub_grid_max_h, title_texts, [[images.GridAnnotation()]])
-    processed_result.images.insert(0, z_grid)
-    # TODO: Deeper aspects of the program rely on grid info being misaligned between metadata arrays, which is not ideal.
-    # processed_result.all_prompts.insert(0, processed_result.all_prompts[0])
-    # processed_result.all_seeds.insert(0, processed_result.all_seeds[0])
-    processed_result.infotexts.insert(0, processed_result.infotexts[0])
-
-    return processed_result    
-    """
-#    processed_result = None
-
-#    state.job_count = list_size * p.n_iter
-
-
-
-def draw_xyz_grid(p, xs, ys, zs, x_labels, y_labels, z_labels, cell, draw_legend, include_lone_images, include_sub_grids, first_axes_processed, second_axes_processed, margin_size):
-
-
-
-
-
-
-
-    def process_cell(x, y, z, ix, iy, iz):
-#        nonlocal processed_result
-
-        """
-        processed: Processed = cell(x, y, z, ix, iy, iz)
-
-
-    """
-
-class SharedSettingsStackHelper(object):
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_value, tb):
-        modules.sd_models.reload_model_weights()
-        modules.sd_vae.reload_vae_weights()
-
 
 re_range = re.compile(r"\s*([+-]?\s*\d+)\s*-\s*([+-]?\s*\d+)(?:\s*\(([+-]\d+)\s*\))?\s*")
 re_range_float = re.compile(r"\s*([+-]?\s*\d+(?:.\d*)?)\s*-\s*([+-]?\s*\d+(?:.\d*)?)(?:\s*\(([+-]\d+(?:.\d*)?)\s*\))?\s*")
@@ -556,11 +410,11 @@ def ui():
         with gr.Column():
             draw_legend = gr.Checkbox(label='Draw legend', value=True, elem_id="draw_legend")
             no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id="no_fixed_seeds")
-            with gr.Row():
+            with gr.Row(visible=False):
                 vary_seeds_x = gr.Checkbox(label='Vary seeds for X', value=False, min_width=80, elem_id="vary_seeds_x", info="Use different seeds for images along X axis.")
                 vary_seeds_y = gr.Checkbox(label='Vary seeds for Y', value=False, min_width=80, elem_id="vary_seeds_y", info="Use different seeds for images along Y axis.")
                 vary_seeds_z = gr.Checkbox(label='Vary seeds for Z', value=False, min_width=80, elem_id="vary_seeds_z", info="Use different seeds for images along Z axis.")
-        with gr.Column():
+        with gr.Column(visible=False):
             include_lone_images = gr.Checkbox(label='Include Sub Images', value=False, elem_id="include_lone_images")
             include_sub_grids = gr.Checkbox(label='Include Sub Grids', value=False, elem_id="include_sub_grids")
             csv_mode = gr.Checkbox(label='Use text inputs instead of dropdowns', value=False, elem_id="csv_mode")
@@ -649,23 +503,10 @@ def ui():
 
 def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
-
-
-
     current_axis_options = [x for x in axis_options if type(x) == AxisOption]
-#    if not no_fixed_seeds:
-#        modules.processing.fix_seed(p)
-
-#    if not opts.return_grid:
-#        p.batch_size = 1
-
-
-	
-
     def process_axis(opt, vals, vals_dropdown):
         if opt.label == 'Nothing':
             return [0]
-
         if opt.choices is not None and not csv_mode:
             valslist = vals_dropdown
         elif opt.prepare is not None:
@@ -748,21 +589,11 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
         z_values = list_to_csv_string(z_values_dropdown)
     zs = process_axis(z_opt, z_values, z_values_dropdown)
 
-        # this could be moved to common code, but unlikely to be ever triggered anywhere else
-#    Image.MAX_IMAGE_PIXELS = None  # disable check in Pillow and rely on check below to allow large custom image sizes
-#    grid_mp = round(len(xs) * len(ys) * len(zs) * p.width * p.height / 1000000)
-#    assert grid_mp < opts.img_max_size_mp, f'Error: Resulting grid would be too large ({grid_mp} MPixels) (max configured size is {opts.img_max_size_mp} MPixels)'
-
     def fix_axis_seeds(axis_opt, axis_list):
         if axis_opt.label in ['Seed', 'Var. seed']:
             return [int(random.randrange(4294967294)) if val is None or val == '' or val == -1 else val for val in axis_list]
         else:
             return axis_list
-
-#    if not no_fixed_seeds:
-#        xs = fix_axis_seeds(x_opt, xs)
-#        ys = fix_axis_seeds(y_opt, ys)
-#        zs = fix_axis_seeds(z_opt, zs)
 
     if x_opt.label == 'Steps':
         total_steps = sum(xs) * len(ys) * len(zs)
@@ -773,34 +604,17 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
     else:
         total_steps = p.steps * len(xs) * len(ys) * len(zs)
 
-#    if isinstance(p, StableDiffusionProcessingTxt2Img) and p.enable_hr:
-#        if x_opt.label == "Hires steps":
-#            total_steps += sum(xs) * len(ys) * len(zs)
-#        elif y_opt.label == "Hires steps":
-#            total_steps += sum(ys) * len(xs) * len(zs)
-#        elif z_opt.label == "Hires steps":
-#            total_steps += sum(zs) * len(xs) * len(ys)
-#        elif p.hr_second_pass_steps:
-#            total_steps += p.hr_second_pass_steps * len(xs) * len(ys) * len(zs)
-#        else:
-#            total_steps *= 2
-
-#    total_steps *= p.n_iter
-
-#    image_cell_count = p.n_iter * p.batch_size
     image_cell_count = 1
 	
     cell_console_text = f"; {image_cell_count} images per cell" if image_cell_count > 1 else ""
     plural_s = 's' if len(zs) > 1 else ''
     print(f"X/Y/Z plot will create {len(xs) * len(ys) * len(zs) * image_cell_count} images on {len(zs)} {len(xs)}x{len(ys)} grid{plural_s}{cell_console_text}. (Total steps to process: {total_steps})")
 
-#    shared.total_tqdm.updateTotal(total_steps)
 
-#    state.xyz_plot_x = AxisInfo(x_opt, xs)
     xyz_plot_x = AxisInfo(x_opt, xs)
-#    state.xyz_plot_y = AxisInfo(y_opt, ys)
+
     xyz_plot_y = AxisInfo(y_opt, ys)
-#    state.xyz_plot_z = AxisInfo(z_opt, zs)
+
     xyz_plot_z = AxisInfo(z_opt, zs)
 
         # If one of the axes is very slow to change between (like SD model
@@ -826,15 +640,10 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
             second_axes_processed = 'x'
         else:
             second_axes_processed = 'y'
-
-
-    
-#    return xs,ys,zs,[x_opt.format_value(p, x_opt, x) for x in xs],[y_opt.format_value(p, y_opt, y) for y in ys],[z_opt.format_value(p, z_opt, z) for z in zs],first_axes_processed,second_axes_processed,x_opt,y_opt,z_opt
     list_size = (len(xs) * len(ys) * len(zs))
  
     def cell(x, y, z, ix, iy, iz,xyz_task,xyz_results):
-#        def index(ix, iy, iz):
-#            return ix + iy * len(xs) + iz * len(xs) * len(ys)
+
         pc = copy.deepcopy(p)
         x_opt.apply(pc, x, xs)
         y_opt.apply(pc, y, ys)
@@ -881,37 +690,3 @@ def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropd
     y_labels=[y_opt.format_value(p, y_opt, y) for y in ys]
     z_labels=[z_opt.format_value(p, z_opt, z) for z in zs]
     return xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size
-    """
-    if not processed.images:
-            # It broke, no further handling needed.
-        return processed
-
-    z_count = len(zs)
-
-        # Set the grid infotexts to the real ones with extra_generation_params (1 main grid + z_count sub-grids)
-    processed.infotexts[:1 + z_count] = grid_infotext[:1 + z_count]
-
-    if not include_lone_images:
-            # Don't need sub-images anymore, drop from list:
-        processed.images = processed.images[:z_count + 1]
-
-    if opts.grid_save:
-            # Auto-save main and sub-grids:
-        grid_count = z_count + 1 if z_count > 1 else 1
-        for g in range(grid_count):
-                # TODO: See previous comment about intentional data misalignment.
-            adj_g = g - 1 if g > 0 else g
-            images.save_image(processed.images[g], p.outpath_grids, "xyz_grid", info=processed.infotexts[g], extension=opts.grid_format, prompt=processed.all_prompts[adj_g], seed=processed.all_seeds[adj_g], grid=True, p=processed)
-            if not include_sub_grids:  # if not include_sub_grids then skip saving after the first grid
-                break
-
-    if not include_sub_grids:
-            # Done with sub-grids, drop all related information:
-        for _ in range(z_count):
-            del processed.images[1]
-            del processed.all_prompts[1]
-            del processed.all_seeds[1]
-            del processed.infotexts[1]
-
-    return processed
-    """
