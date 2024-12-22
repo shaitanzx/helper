@@ -69,11 +69,9 @@ cell_index='0'
     
 
 
-def queue_xyz(*args):
+def queue_xyz(currentTask):
     global finished_batch
     finished_batch=False 
-    args = list(args)
-    currentTask=get_task(args)
     grid_theme = currentTask.grid_theme
     csv_mode = currentTask.csv_mode
     margin_size = currentTask.margin_size
@@ -242,7 +240,6 @@ def get_task(*args):
     srT = argsList.pop() 
     trans_automate = argsList.pop() 
     trans_enable = argsList.pop() 
-
     if trans_enable:      
         if trans_automate:
             positive, negative = translate(argsList[2], argsList[3], srT, toT)            
@@ -252,8 +249,8 @@ def get_task(*args):
     args = tuple(argsList)
     args = list(args)
     args.pop(0)
-
     return worker.AsyncTask(args=args)
+
 finished_batch=False
 batch_path='./batch_images'
 
@@ -1963,7 +1960,8 @@ with shared.gradio_root:
         xyz_start.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(fn=queue_xyz, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+            .then(fn=queue_xyz, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
