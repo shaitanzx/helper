@@ -292,9 +292,7 @@ axis_options = [
 ]
 
 def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme):
-    hor_text = [x.replace(".safetensor", "") for x in x_labels]
-    vert_text = [y.replace(".safetensor", "") for y in y_labels]
-    title_text = [z.replace(".safetensor", "") for z in z_labels]
+    
     results = []
     for img in currentTask.results:
         if isinstance(img, str) and os.path.exists(img):
@@ -339,7 +337,9 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
                 index = xyz_results.index(index_list)
                 img = results[index]
                 wall[y * (H + margin_size):y * (H + margin_size) + H, x * (W + margin_size):x * (W + margin_size) + W, :] = img
-        
+        hor_text = [x.replace(".safetensor", "") for x in x_labels]
+        vert_text = [y.replace(".safetensor", "") for y in y_labels]
+        title_text = [z.replace(".safetensor", "") for z in z_labels]
         font=cv2.FONT_HERSHEY_COMPLEX
         font_scale=2
         thickness=5
@@ -352,9 +352,6 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
           for i in range(len(hor_text)):
               cv2.putText(image_extended, hor_text[i], (i*(W+margin_size),wall.shape[0]+50), font,  font_scale, text_color, thickness)
           wall=image_extended
-
-        
- #       z_text=title_text[0]
         if vert_text[0]:
           y_text_max = max(vert_text, key=len)
           (y_text_width, y_text_height), _ = cv2.getTextSize(y_text_max, font, font_scale, thickness)
@@ -362,20 +359,18 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
           new_shape = (wall.shape[0], extend_width, wall.shape[2])
           image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
           image_extended[:, y_text_width+100:] = wall
-
           for i in range(len(vert_text)):
             cv2.putText(image_extended, vert_text[i], (50,int((H+margin_size) * i + ((H+margin_size)/2))), font, font_scale, text_color, thickness)
           wall=image_extended
 
-          if title_text[0]:
-            extend_h=wall.shape[0] + 100
-            new_shape = (extend_h, wall.shape[1], wall.shape[2])
-            image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
-            image_extended[100:, :] = wall
-            for i in range(len(title_text)):
-              (title_text_width, title_text_height), _ = cv2.getTextSize(title_text[i], font, font_scale, thickness)
-              cv2.putText(image_extended, title_text[i], (image_extended.shape[0]-title_text_width)/2,50-title_text_height, font, font_scale, text_color, thickness)
-            wall=image_extended
+        if title_text[z]:
+          extend_h=wall.shape[0] + 100
+          new_shape = (extend_h, wall.shape[1], wall.shape[2])
+          image_extended = np.full(new_shape, grid_color, dtype=wall.dtype)
+          image_extended[100:, :] = wall
+          (title_text_width, title_text_height), _ = cv2.getTextSize(title_text[z], font, font_scale, thickness)
+          cv2.putText(image_extended, title_text[z], (int((image_extended.shape[1]-title_text_width)/2),20+title_text_height), font, font_scale, text_color, thickness)
+          wall=image_extended
           
 
         log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
