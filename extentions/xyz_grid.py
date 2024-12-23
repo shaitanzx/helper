@@ -368,7 +368,7 @@ def draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs
                   (title_text_width, title_text_height), _ = cv2.getTextSize(title_text[z], font, font_scale, thickness)
                   cv2.putText(image_extended, title_text[z], (int((image_extended.shape[1]-title_text_width)/2),20+title_text_height), font, font_scale, text_color, thickness)
                   wall=image_extended
-        meta_xyz=[('Prompt','prompt',currentTask.args[1])]
+        meta_xyz=[('Base prompt','prompt',currentTask.args[1])]
         if hor_text[0]:
             for i in range(len(hor_text)):
               meta_xyz.append((f'X axis {i+1}:', f'X axis {i+1}:', hor_text[i]))
@@ -509,7 +509,27 @@ def ui():
 
     return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
 
-def run(p, x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode):
+def run(p):
+    grid_theme = p.grid_theme
+    csv_mode = p.csv_mode
+    margin_size = p.margin_size
+    vary_seeds_z = p.vary_seeds_z
+    vary_seeds_y = p.vary_seeds_y
+    vary_seeds_x = p.vary_seeds_x
+    no_fixed_seeds = p.no_fixed_seeds
+    include_sub_grids = p.include_sub_grids
+    include_lone_images = p.include_lone_images
+    draw_legend = p.draw_legend
+    z_values_dropdown = p.z_values_dropdown
+    z_values = p.z_values
+    z_type = p.z_type
+    y_values_dropdown = p.y_values_dropdown
+    y_values = p.y_values
+    y_type = p.y_type
+    x_values_dropdown = p.x_values_dropdown
+    x_values = p.x_values
+    x_type = p.x_type
+    
     x_type, y_type, z_type = x_type or 0, y_type or 0, z_type or 0  # if axle type is None set to 0
     current_axis_options = [x for x in axis_options if type(x) == AxisOption]
     def process_axis(opt, vals, vals_dropdown):

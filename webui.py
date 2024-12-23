@@ -69,32 +69,16 @@ cell_index='0'
     
 
 
-def queue_xyz(currentTask):
+def xyz_plot(currentTask):
     global finished_batch
     finished_batch=False 
-    grid_theme = currentTask.grid_theme
-    csv_mode = currentTask.csv_mode
-    margin_size = currentTask.margin_size
-    vary_seeds_z = currentTask.vary_seeds_z
-    vary_seeds_y = currentTask.vary_seeds_y
-    vary_seeds_x = currentTask.vary_seeds_x
-    no_fixed_seeds = currentTask.no_fixed_seeds
-    include_sub_grids = currentTask.include_sub_grids
-    include_lone_images = currentTask.include_lone_images
-    draw_legend = currentTask.draw_legend
-    z_values_dropdown = currentTask.z_values_dropdown
-    z_values = currentTask.z_values
-    z_type = currentTask.z_type
-    y_values_dropdown = currentTask.y_values_dropdown
-    y_values = currentTask.y_values
-    y_type = currentTask.y_type
-    x_values_dropdown = currentTask.x_values_dropdown
-    x_values = currentTask.x_values
-    x_type = currentTask.x_type
+    
     
     currentTask.generate_image_grid=False
     currentTask.image_number=1
-    xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask,x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode) 
+    currentTask.prompt=currentTask.args[1]
+    currentTask.negative_prompt=currentTask.args[2]
+    xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask) 
     temp_var=[]
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var
