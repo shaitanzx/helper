@@ -69,24 +69,27 @@ cell_index='0'
     
 
 
-def xyz_plot(currentTask):
+def xyz_plot_ext(currentTask):
     global finished_batch
-    finished_batch=False 
-    
-    
+    finished_batch=False    
     currentTask.generate_image_grid=False
     currentTask.image_number=1
-    currentTask.prompt=currentTask.args[1]
-    currentTask.negative_prompt=currentTask.args[2]
-    xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size=xyz.run(currentTask) 
+    currentTask.prompt=currentTask.original_prompt
+    currentTask.negative_prompt=currentTask.original_negative
+    xyz_results,xyz_task,x_labels,y_labels,z_labels,list_size,ix,iy,iz,xs,ys,zs=xyz.run(currentTask) 
     temp_var=[]
     for i, currentTask in enumerate(xyz_task):
         currentTask.results+=temp_var
         print(f"[X/Y/Z Plot] Image Generation {i + 1}:")
         if not finished_batch:
+            if currentTask.translate_enabled:      
+              if currentTask.translate_automate:
+                  positive, negative = translate(currentTask.prompt, currentTask.negative_prompt, currentTask.srcTrans, currentTask.toTrans)            
+                  currentTask.prompt = positive
+                  currentTask.negative_prompt = negative
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
-    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,draw_legend,xs,ys,zs,margin_size,currentTask,xyz_results,grid_theme)  
+    xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,xs,ys,zs,currentTask,xyz_results)  
     return
 
 def queue_obp(*args):
@@ -985,7 +988,6 @@ with shared.gradio_root:
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
-                    xyz_check=gr.Checkbox(label='Enable X/Y/Z plot', value=False, elem_classes='min_check')
                     x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme = xyz.ui()
                     xyz_start=gr.Button(value="Start xyz",visible=True)
                   with gr.TabItem(label='OBP') as obp_tab:
@@ -1940,15 +1942,16 @@ with shared.gradio_root:
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
         
         ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
+        ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
-        xyz_start.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+        xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+                              outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-            .then(fn=queue_xyz, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=xyz_plot_ext, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
-            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+            .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+                  outputs=[xyz_start,generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 

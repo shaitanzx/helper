@@ -176,6 +176,12 @@ class AsyncTask:
         self.margin_size = args.pop()
         self.csv_mode = args.pop()
         self.grid_theme = args.pop()
+        self.translate_enabled = args.pop()
+        self.translate_automate = args.pop()
+        self.srcTrans = args.pop()
+        self.toTrans = args.pop()
+        self.original_prompt = args.pop()
+        self.original_negative = args.pop()
 
 async_tasks = []
 
