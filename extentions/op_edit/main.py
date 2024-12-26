@@ -23,18 +23,18 @@ class Script(scripts.Script):
   def __init__(self) -> None:
     super().__init__()
 
-  def title(self):
+def title(self):
     return "OpenPose Editor"
 
-  def show(self, is_img2img):
-    return scripts.AlwaysVisible
+#  def show(self, is_img2img):
+#    return scripts.AlwaysVisible
 
-  def ui(self, is_img2img):
-    return ()
+#  def ui(self, is_img2img):
+#    return ()
 
-def on_ui_tabs():
-  with gr.Blocks(analytics_enabled=False) as openpose_editor:
+#def on_ui_tabs():
+#  with gr.Blocks(analytics_enabled=False) as openpose_editor:
 
-  return [(openpose_editor, "OpenPose Editor", "openpose_editor")]
+#  return [(openpose_editor, "OpenPose Editor", "openpose_editor")]
 
-script_callbacks.on_ui_tabs(on_ui_tabs)
+#script_callbacks.on_ui_tabs(on_ui_tabs)

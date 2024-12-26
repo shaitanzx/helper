@@ -44,7 +44,8 @@ from extentions import wildcards
 
 from extentions.obp.scripts import onebuttonprompt as ob_prompt
 
-from extentions.op_edit.body import Body
+#from extentions.op_edit.body import Body
+from extentions.op_edit.script import main as op_editor
 from pathlib import Path
 import io
 import cv2
@@ -1228,7 +1229,8 @@ with shared.gradio_root:
                             with gr.Row():            
                                 p_n_tr = gr.Textbox(label='Negative Translate', show_label=False, value='', lines=2, placeholder='Translated negative text prompt')             
                     gr.HTML('* \"Prompt Translate\" is powered by AlekPet. <a href="https://github.com/AlekPet/Fooocus_Extensions_AlekPet" target="_blank">\U0001F4D4 Document</a>')
-                  with gr.TabItem(label='OpenPoseEditor', elem_id='op_edit_tab') as op_edit_tab:
+                  with gr.TabItem(label=op_editor.title(), elem_id='op_edit_tab') as op_edit_tab:
+                  
                     body_estimation = None
                     presets_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extentions", "op_edit","presets.json")
                     presets = {}
