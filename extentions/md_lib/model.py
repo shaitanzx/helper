@@ -37,7 +37,8 @@ folders = {
     "ti": md_config.path_emb,
 ##    "hyper": os.path.join(ROOT_PATH, "models", "hypernetworks"),
     "ckp": md_config.path_ckp,
-    "lora": md_config.path_lora
+    "lora": md_config.path_lora,
+    "vae": md_config.path_vae
 ##    "lycoris": os.path.join(ROOT_PATH, "models", "LyCORIS"),
 }
 
