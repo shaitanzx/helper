@@ -1955,9 +1955,9 @@ with shared.gradio_root:
                   outputs=[xyz_start,generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-        ctrls_obp = ctrls[:]
-        obp_ctrl=[model,base_model,size,aspect_ratios_selection,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,negative_prompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
-        ctrls_obp.extend(obp_ctrl)
+#        ctrls_obp = ctrls[:]
+#        obp_ctrl=[model,base_model,size,aspect_ratios_selection,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,negative_prompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
+#        ctrls_obp.extend(obp_ctrl)
         start_obp.click(lambda: (gr.update(visible=False),gr.update(interactive=False)),
                               outputs=[generate_button,start_obp]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
