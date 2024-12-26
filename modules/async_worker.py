@@ -201,7 +201,7 @@ class AsyncTask:
         self.smartsubject = args.pop()
         self.giventypeofimage = args.pop()
         self.imagemodechance = args.pop()
-        self.chosengender = args.pop()
+        self.gender = args.pop()
         self.chosensubjectsubtypeobject = args.pop()
         self.chosensubjectsubtypehumanoid = args.pop()
         self.chosensubjectsubtypeconcept = args.pop()

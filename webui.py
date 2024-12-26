@@ -211,9 +211,9 @@ def obp_start(p):
               p.base_model_name=name_model
               p.aspect_ratios_selection=name_ratio
 #              currentTask=get_task_batch(args)
-              yield from generate_clicked(currentTask)
+              yield from generate_clicked(p)
               if p.seed_random:
-                  args[9]=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
+                  p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
 
 
 
@@ -1162,7 +1162,7 @@ with shared.gradio_root:
                             with gr.Row(variant="compact"):
                                     with gr.Column(variant="compact"):
                                         start_obp = gr.Button("Start generating")
-                                        stop_obp = gr.Button("Stop generating")
+                                        
                         gr.HTML('* \"OneButtonPrompt\" is powered by AIrjen. <a href="https://github.com/AIrjen/OneButtonPrompt" target="_blank">\U0001F4D4 Document</a>')
                         gr.HTML('* Adaptation for Fooocus is powered by Shahmatist^RMDA')   
                         OBP_preset.change(ob_prompt.obppreset_changed,inputs=[OBP_preset],
@@ -1943,7 +1943,7 @@ with shared.gradio_root:
         
         ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
-        ctrtl += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
+        ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
@@ -1955,19 +1955,16 @@ with shared.gradio_root:
                   outputs=[xyz_start,generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-#        ctrls_obp = ctrls[:]
-#        obp_ctrl=[model,base_model,size,aspect_ratios_selection,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,negative_prompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
-#        ctrls_obp.extend(obp_ctrl)
-        start_obp.click(lambda: (gr.update(visible=False),gr.update(interactive=False)),
-                              outputs=[generate_button,start_obp]) \
+        start_obp.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+                              outputs=[start_obp, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
               .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-              .then(fn=obp_start,inputs=currentTaskctrls_obp, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-              .then(lambda: (gr.update(visible=True),gr.update(interactive=True),gr.update(interactive=True)),
-                          outputs=[generate_button,start_obp,stop_obp]) \
+              .then(fn=obp_start,inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+              .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+                  outputs=[start_obp,generate_button, stop_button, skip_button, state_is_generating]) \
               .then(fn=update_history_link, outputs=history_link) \
               .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-        stop_obp.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
+ 
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
