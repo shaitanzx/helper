@@ -265,11 +265,11 @@ def im_batch_run(p):
               p.uov_input_image=np.array(img)
             if p.current_tab == 'ip':
                   width, height = img.size
-                  if scale=="to ORIGINAL":
+                  if p.ratio=="to ORIGINAL":
                       aspect = math.gcd(width, height)
                       p.aspect_ratios_selection = f'{width}×{height} <span style="color: grey;"> ∣ {width // aspect}:{height // aspect}</span>'
-                  if scale=="to OUTPUT":
-                      new_width, new_height = args[6].replace('×', ' ').split(' ')[:2]
+                  if p.ratio=="to OUTPUT":
+                      new_width, new_height = p.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
                       new_width = int(new_width)
                       new_height = int(new_height)
                       ratio = min(float(new_width) / width, float(new_height) / height)
@@ -277,16 +277,17 @@ def im_batch_run(p):
                       h = int(height * ratio)
                       img = img.resize((w, h), Image.LANCZOS)
                   image_keys = []
+                  print ('aaaaaaaaaaaaaa',p.cn_tasks.items())
                   for key, tasks in p.cn_tasks.items():
                     if tasks:
                         image_keys.append(key)
-                    if len(added_keys) >= cell_index:
-                        main_key = image_keys[cell_index]
+                    if len(image_keys) >= int(cell_index):
+                        main_key = image_keys[int(cell_index)]
                     p.cn_tasks[main_key][0][0] = np.array(img)
         print (f"[Images QUEUE] {passed} / {batch_all}. Filename: {f_name}")
         passed+=1
 
-        yield from generate_clicked(currentTask)
+        yield from generate_clicked(p)
         p = copy.deepcopy(pc)
         if p.seed_random:
           p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
@@ -874,7 +875,7 @@ with shared.gradio_root:
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox,
                                         outputs=image_input_panel, queue=False, show_progress=False, _js=switch_js)
             with gr.Row(elem_classes='advanced_check_row'):
-                batch_checkbox = gr.Checkbox(label='Images Batch', value=False, container=False, elem_classes='min_check')
+                
                 prompt_checkbox = gr.Checkbox(label='Prompts Batch', value=False, container=False, elem_classes='min_check')
 
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
@@ -961,14 +962,15 @@ with shared.gradio_root:
                         
                         
                         with gr.Row():
-                          file_in=gr.File(label="Upload a ZIP file",file_count='single',file_types=['.zip'])                 
                           with gr.Column():
+                            file_in=gr.File(label="Upload a ZIP file",file_count='single',file_types=['.zip'])
                             def update_radio(value):
                               return gr.update(value=value)
                             ratio = gr.Radio(label='Scale method:', choices=['NOT scale','to ORIGINAL','to OUTPUT'], value='NOT scale', interactive=True)
                             gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
-                        with gr.Row():
+
                           with gr.Column():
+                          
                             def cell_index_change(index):
                               global cell_index
                               cell_index = index
@@ -979,12 +981,15 @@ with shared.gradio_root:
                             select_target_batch = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Use cell", value=cell_index, interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
                             status_batch = gr.Textbox(show_label=False, value = '', container=False, visible=False, interactive=False)
                             select_target_batch.change(cell_index_change,inputs=select_target_batch)
-
-                        with gr.Row():
                           with gr.Column():
+                        
                             file_out=gr.File(label="Download a ZIP file", file_count='single')
                             save_output = gr.Button(value='Output --> ZIP')
                             clear_output = gr.Button(value='Clear Output')
+                        
+                            
+                        
+                        
                         add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
                                     outputs=[add_to_queue, status_batch]) \
                                     .then(fn=unzip_file,inputs=file_in) \
@@ -1861,7 +1866,7 @@ with shared.gradio_root:
         ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
-        ctrls += [ratio,scale]
+        ctrls += [ratio]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
@@ -1897,6 +1902,7 @@ with shared.gradio_root:
         batch_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True,gr.update(visible=True,value='Queue in progress')),
                               outputs=[batch_start,stop_button, skip_button, generate_button, gallery, state_is_generating,status_batch]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+              .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
               .then(fn=im_batch_run, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
               .then(fn=clearer) \
               .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False,gr.update(visible=False)),
@@ -1915,7 +1921,6 @@ with shared.gradio_root:
                           outputs=[batch_prompt,prompt_delete,prompt_clear,generate_button,prompt_stop, prompt_start]) \
               .then(fn=update_history_link, outputs=history_link) \
               .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-        prompt_stop.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
 
 
         reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
