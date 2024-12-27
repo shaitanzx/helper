@@ -217,6 +217,7 @@ class AsyncTask:
         self.presetprefix = args.pop()
         self.presetsuffix = args.pop()
         self.seed_random = args.pop()
+        self.ratio = args.pop()
         
 
 async_tasks = []

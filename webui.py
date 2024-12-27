@@ -63,7 +63,8 @@ modules.config.default_aspect_ratio=modules.config.default_aspect_ratio.replace(
 ar_def=[1,1]
 swap_def=False
 cell_index='0'
-
+finished_batch=False
+batch_path='./batch_images'
 
 
 
@@ -239,81 +240,34 @@ def get_task(*args):
     args.pop(0)
     return worker.AsyncTask(args=args)
 
-finished_batch=False
-batch_path='./batch_images'
 
-def unzip_file(zip_file_obj):
-    extract_folder = "./batch_images"
-    if not os.path.exists(extract_folder):
-      os.makedirs(extract_folder)    
-    zip_ref=zipfile.ZipFile(zip_file_obj.name, 'r')
-    zip_ref.extractall(extract_folder)
-    zip_ref.close()
-    return
-def output_zip():
-  directory=modules.config.path_outputs
-  zip_file='outputs.zip'
-  with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(directory):
-            for file in files:
-                file_path = os.path.join(root, file)
-                zipf.write(file_path, arcname=os.path.relpath(file_path, directory))
-  zipf.close()
-  current_dir = os.getcwd()
-  file_path = os.path.join(current_dir, "outputs.zip")
-  return file_path
 
-def stop_clicked_batch():
-    global finished_batch
-    finished_batch=True
-    return
+
+
+
  
-def delete_out(directory):
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.remove(file_path)
-            elif os.path.isdir(file_path):
-                delete_out(file_path)
-                os.rmdir(file_path)
-        except Exception as e:
-                print(f'Failed to delete {file_path}. Reason: {e}')
-    return
-def clear_outputs():
-  directory=modules.config.path_outputs
-  delete_out(directory)
-  return 
-def clearer():
-  directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'batch_images')
-  delete_out(directory)
-  return      
-def queue_new(*args):
+
+     
+def im_batch_run(p):
     global finished_batch
     global cell_index
-    index = int(cell_index)*4
-    finished_batch=False 
-    args = list(args)
-    seed_random = args.pop()
-    scale=args.pop()    
-    lora_args=3*(int(modules.config.default_max_lora_number))
-    ip_cell=66+lora_args+index
+    finished_batch=False
     
     batch_files=sorted([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])
     batch_all=len(batch_files)
     passed=1
     for f_name in batch_files:
       if not finished_batch:  
-        copy = args[:]
+        pc = copy.deepcopy(p)
         img = Image.open('./batch_images/'+f_name)
-        if args[(16+lora_args)]:
-            if (args[(17+lora_args)] == 'uov'): 
-              args[(19+lora_args)]=np.array(img)
-            if (args[(17+lora_args)] == 'ip'):
+        if p.input_image_checkbox:
+            if p.current_tab == 'uov': 
+              p.uov_input_image=np.array(img)
+            if p.current_tab == 'ip':
                   width, height = img.size
                   if scale=="to ORIGINAL":
                       aspect = math.gcd(width, height)
-                      args[6]=f'{width}×{height} <span style="color: grey;"> ∣ {width // aspect}:{height // aspect}</span>'
+                      p.aspect_ratios_selection = f'{width}×{height} <span style="color: grey;"> ∣ {width // aspect}:{height // aspect}</span>'
                   if scale=="to OUTPUT":
                       new_width, new_height = args[6].replace('×', ' ').split(' ')[:2]
                       new_width = int(new_width)
@@ -322,15 +276,20 @@ def queue_new(*args):
                       w = int(width * ratio)
                       h = int(height * ratio)
                       img = img.resize((w, h), Image.LANCZOS)
-                  args[ip_cell]=np.array(img)
+                  image_keys = []
+                  for key, tasks in p.cn_tasks.items():
+                    if tasks:
+                        image_keys.append(key)
+                    if len(added_keys) >= cell_index:
+                        main_key = image_keys[cell_index]
+                    p.cn_tasks[main_key][0][0] = np.array(img)
         print (f"[Images QUEUE] {passed} / {batch_all}. Filename: {f_name}")
         passed+=1
-        currentTask=get_task_batch(args)
+
         yield from generate_clicked(currentTask)
-        args=copy[:]
-        if seed_random:
-          args[9]=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
-    clearer()
+        p = copy.deepcopy(pc)
+        if p.seed_random:
+          p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
     return
 def queue_new_prompt(*args):
   global finished_batch
@@ -918,37 +877,7 @@ with shared.gradio_root:
                 batch_checkbox = gr.Checkbox(label='Images Batch', value=False, container=False, elem_classes='min_check')
                 prompt_checkbox = gr.Checkbox(label='Prompts Batch', value=False, container=False, elem_classes='min_check')
 
-            with gr.Row(visible=False) as batch_panel:
-
-                with gr.Row():
-                  file_in=gr.File(label="Upload a ZIP file",file_count='single',file_types=['.zip'])                 
-                  with gr.Column():
-                    def update_radio(value):
-                      return gr.update(value=value)
-                    ratio = gr.Radio(label='Scale method:', choices=['NOT scale','to ORIGINAL','to OUTPUT'], value='NOT scale', interactive=True)
-                    gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
-                with gr.Row():
-                  with gr.Column():
-                    def cell_index_change(index):
-                      global cell_index
-                      cell_index = index
-                      return
-                    add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
-                    batch_start = gr.Button(value='Start queue', visible=True)
-                    batch_stop = gr.Button(value='Stop queue', visible=False)
-                    batch_clear = gr.Button(value='Clear queue')
-                    select_target_batch = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Use cell", value=cell_index, interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
-                    status_batch = gr.Textbox(show_label=False, value = '', container=False, visible=False, interactive=False)
-                    select_target_batch.change(cell_index_change,inputs=select_target_batch)
-
-                with gr.Row():
-                  with gr.Column():
-                    file_out=gr.File(label="Download a ZIP file", file_count='single')
-                    save_output = gr.Button(value='Output --> ZIP')
-                    clear_output = gr.Button(value='Clear Output')
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
-            batch_checkbox.change(lambda x: gr.update(visible=x), inputs=batch_checkbox,
-                                        outputs=batch_panel, queue=False, show_progress=False, _js=switch_js)
             with gr.Row(visible=False) as prompt_panel:
 
 
@@ -988,6 +917,96 @@ with shared.gradio_root:
 			
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
+                  with gr.TabItem(label='Image Batch') as xyz_plot:
+                        def unzip_file(zip_file_obj):
+                            extract_folder = "./batch_images"
+                            if not os.path.exists(extract_folder):
+                                os.makedirs(extract_folder)
+                            zip_ref=zipfile.ZipFile(zip_file_obj.name, 'r')
+                            zip_ref.extractall(extract_folder)
+                            zip_ref.close()
+                            return
+                        def delete_out(directory):
+                            for filename in os.listdir(directory):
+                                file_path = os.path.join(directory, filename)
+                                try:
+                                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                                        os.remove(file_path)
+                                    elif os.path.isdir(file_path):
+                                            delete_out(file_path)
+                                            os.rmdir(file_path)
+                                except Exception as e:
+                                    print(f'Failed to delete {file_path}. Reason: {e}')
+                            return
+                        def clear_outputs():
+                            directory=modules.config.path_outputs
+                            delete_out(directory)
+                            return 
+                        def output_zip():
+                            directory=modules.config.path_outputs
+                            zip_file='outputs.zip'
+                            with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                                for root, dirs, files in os.walk(directory):
+                                    for file in files:
+                                        file_path = os.path.join(root, file)
+                                        zipf.write(file_path, arcname=os.path.relpath(file_path, directory))
+                            zipf.close()
+                            current_dir = os.getcwd()
+                            file_path = os.path.join(current_dir, "outputs.zip")
+                            return file_path
+                        def clearer():
+                            directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'batch_images')
+                            delete_out(directory)
+                            return 
+                        
+                        
+                        with gr.Row():
+                          file_in=gr.File(label="Upload a ZIP file",file_count='single',file_types=['.zip'])                 
+                          with gr.Column():
+                            def update_radio(value):
+                              return gr.update(value=value)
+                            ratio = gr.Radio(label='Scale method:', choices=['NOT scale','to ORIGINAL','to OUTPUT'], value='NOT scale', interactive=True)
+                            gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
+                        with gr.Row():
+                          with gr.Column():
+                            def cell_index_change(index):
+                              global cell_index
+                              cell_index = index
+                              return
+                            add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
+                            batch_start = gr.Button(value='Start queue', visible=True)
+                            batch_clear = gr.Button(value='Clear queue')
+                            select_target_batch = gr.Dropdown([str(i) for i in range(modules.config.default_controlnet_image_count)], label="Use cell", value=cell_index, interactive=True, visible=(modules.config.default_controlnet_image_count > 1))
+                            status_batch = gr.Textbox(show_label=False, value = '', container=False, visible=False, interactive=False)
+                            select_target_batch.change(cell_index_change,inputs=select_target_batch)
+
+                        with gr.Row():
+                          with gr.Column():
+                            file_out=gr.File(label="Download a ZIP file", file_count='single')
+                            save_output = gr.Button(value='Output --> ZIP')
+                            clear_output = gr.Button(value='Clear Output')
+                        add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
+                                    outputs=[add_to_queue, status_batch]) \
+                                    .then(fn=unzip_file,inputs=file_in) \
+                                    .then(lambda: (gr.update(visible=False)),outputs=[status_batch]) \
+                                    .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
+                                    .then(lambda: (gr.update(interactive=True)),outputs=[add_to_queue])
+                        clear_output.click(lambda: (gr.update(interactive=False)),outputs=[clear_output]) \
+                                    .then(clear_outputs) \
+                                    .then(lambda: (gr.update(interactive=True)),outputs=[clear_output])
+                        save_output.click(lambda: (gr.update(interactive=False)),outputs=[save_output]) \
+                                    .then(fn=output_zip, outputs=file_out) \
+                                    .then(lambda: (gr.update(interactive=True)),outputs=[save_output])
+                        batch_clear.click(lambda: (gr.update(interactive=False),  gr.update(visible=True,value='Queue is clearing')),
+                                    outputs=[batch_clear,status_batch]) \
+                                    .then(fn=clearer) \
+                                    .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
+                                    .then(lambda: (gr.update(interactive=True),gr.update(visible=False)),outputs=[batch_clear,status_batch])
+
+                    
+
+
+
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
                     x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme = xyz.ui()
                     xyz_start=gr.Button(value="Start xyz",visible=True)
@@ -1842,6 +1861,7 @@ with shared.gradio_root:
         ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
+        ctrls += [ratio,scale]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
@@ -1873,34 +1893,15 @@ with shared.gradio_root:
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-        ctrls_batch = ctrls[:]
-        ctrls_batch.append(ratio)
-        ctrls_batch.append(seed_random)
-        add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
-                                    outputs=[add_to_queue, status_batch]) \
-              .then(fn=unzip_file,inputs=file_in) \
-              .then(lambda: (gr.update(visible=False)),outputs=[status_batch]) \
-              .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
-              .then(lambda: (gr.update(interactive=True)),outputs=[add_to_queue])
-        clear_output.click(lambda: (gr.update(interactive=False)),outputs=[clear_output]) \
-              .then(clear_outputs) \
-              .then(lambda: (gr.update(interactive=True)),outputs=[clear_output])
-        save_output.click(lambda: (gr.update(interactive=False)),outputs=[save_output]) \
-            .then(fn=output_zip, outputs=file_out) \
-            .then(lambda: (gr.update(interactive=True)),outputs=[save_output])
-        batch_clear.click(lambda: (gr.update(interactive=False),  gr.update(visible=True,value='Queue is clearing')),
-                        outputs=[batch_clear,status_batch]) \
-              .then(fn=clearer) \
-              .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
-              .then(lambda: (gr.update(interactive=True),gr.update(visible=False)),outputs=[batch_clear,status_batch])
-        batch_start.click(lambda: (gr.update(visible=False),gr.update(visible=False), gr.update(visible=True, interactive=True),gr.update(visible=True,value='Queue in progress')),
-                          outputs=[generate_button,batch_start, batch_stop, status_batch]) \
+
+        batch_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True,gr.update(visible=True,value='Queue in progress')),
+                              outputs=[batch_start,stop_button, skip_button, generate_button, gallery, state_is_generating,status_batch]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-              .then(fn=queue_new, inputs=ctrls_batch, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-              .then(lambda: (gr.update(visible=True),gr.update(visible=False), gr.update(visible=True),gr.update(visible=False)),
-                          outputs=[generate_button,batch_stop, batch_start,status_batch]) \
+              .then(fn=im_batch_run, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+              .then(fn=clearer) \
+              .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False,gr.update(visible=False)),
+                  outputs=[batch_start,generate_button, stop_button, skip_button, state_is_generating,status_batch]) \
               .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue])
-        batch_stop.click(stop_clicked_batch, queue=False, show_progress=False, _js='cancelGenerateForever')
         ctrls_prompt = ctrls[:]
         ctrls_prompt.append(batch_prompt)
         ctrls_prompt.append(seed_random)
