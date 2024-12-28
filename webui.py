@@ -977,7 +977,7 @@ with shared.gradio_root:
                               return
                             image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action',interactive=True)
                             image_mode = gr.Dropdown(choices=flags.ip_list, value=flags.ip_list[0], label='Method',interactive=True)
-                            ip_stop_batch = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=flags.default_parameters[ip_list.index(image_mode.value).strip("()").split(",")[0]],interactive=True)
+                            ip_stop_batch = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=flags.default_parameters[image_mode.value][0],interactive=True)
                             ip_weight_batch = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=modules.config.default_ip_weights[image_count],interactive=True)
                             upscale_mode = gr.Dropdown(choices=flags.uov_list, value=flags.uov_list[0], label='Method',interactive=True,visible=False)
                             add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
