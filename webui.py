@@ -975,6 +975,9 @@ with shared.gradio_root:
                               global cell_index
                               cell_index = index
                               return
+                            image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action')
+                            image_mode = gr.Dropdown(choices=flags.ip_list, value=flags.ip_list[0], label='Method')
+                            upscale_mode = gr.Dropdown(choices=flags.uov_list, value=flags.uov_list[0], label='Method')
                             add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
                             batch_start = gr.Button(value='Start queue', visible=True)
                             batch_clear = gr.Button(value='Clear queue')
