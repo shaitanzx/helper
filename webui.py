@@ -975,9 +975,11 @@ with shared.gradio_root:
                               global cell_index
                               cell_index = index
                               return
-                            image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action')
-                            image_mode = gr.Dropdown(choices=flags.ip_list, value=flags.ip_list[0], label='Method')
-                            upscale_mode = gr.Dropdown(choices=flags.uov_list, value=flags.uov_list[0], label='Method')
+                            image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action',interactive=True)
+                            image_mode = gr.Dropdown(choices=flags.ip_list, value=flags.ip_list[0], label='Method',interactive=True)
+                            ip_stop_batch = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=modules.config.default_ip_stop_ats[image_count],interactive=True)
+                            ip_weight_batch = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=modules.config.default_ip_weights[image_count],interactive=True)
+                            upscale_mode = gr.Dropdown(choices=flags.uov_list, value=flags.uov_list[0], label='Method',interactive=True,visible=False)
                             add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
                             batch_start = gr.Button(value='Start queue', visible=True)
                             batch_clear = gr.Button(value='Clear queue')
@@ -989,7 +991,14 @@ with shared.gradio_root:
                             file_out=gr.File(label="Download a ZIP file", file_count='single')
                             save_output = gr.Button(value='Output --> ZIP')
                             clear_output = gr.Button(value='Clear Output')
-                        
+                        def image_mode_change(image_action):
+                            if image_action=='Image Prompt':
+                              return gr.update(visible=True),gr.update(visible=True),gr.update(visible=True),gr.update(visible=False)
+                            else:
+                              return gr.update(visible=False),gr.update(visible=False),gr.update(visible=False),gr.update(visible=True)
+
+
+                        image_action.change(image_mode_change, inputs=[image_action], outputs=[image_mode,ip_stop_batch,ip_weight_batch,upscale_mode])
                             
                         
                         
