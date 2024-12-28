@@ -218,6 +218,11 @@ class AsyncTask:
         self.presetsuffix = args.pop()
         self.seed_random = args.pop()
         self.ratio = args.pop()
+        self.image_action = args.pop()
+        self.image_mode = args.pop()
+        self.ip_stop_batch = args.pop()
+        self.ip_weight_batch = args.pop()
+        self.upscale_mode = args.pop()
         
 
 async_tasks = []

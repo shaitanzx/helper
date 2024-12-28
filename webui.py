@@ -260,30 +260,27 @@ def im_batch_run(p):
       if not finished_batch:  
         pc = copy.deepcopy(p)
         img = Image.open('./batch_images/'+f_name)
-        if p.input_image_checkbox:
-            if p.current_tab == 'uov': 
+        if not p.input_image_checkbox:
+            p.cn_tasks = {x: [] for x in flags.ip_list}
+        if p.image_action == 'Upscale': 
               p.uov_input_image=np.array(img)
-            if p.current_tab == 'ip':
-                  width, height = img.size
-                  if p.ratio=="to ORIGINAL":
-                      aspect = math.gcd(width, height)
-                      p.aspect_ratios_selection = f'{width}×{height} <span style="color: grey;"> ∣ {width // aspect}:{height // aspect}</span>'
-                  if p.ratio=="to OUTPUT":
-                      new_width, new_height = p.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
-                      new_width = int(new_width)
-                      new_height = int(new_height)
-                      ratio = min(float(new_width) / width, float(new_height) / height)
-                      w = int(width * ratio)
-                      h = int(height * ratio)
-                      img = img.resize((w, h), Image.LANCZOS)
-                  image_keys = []
-                  print ('aaaaaaaaaaaaaa',p.cn_tasks.items())
-                  for key, tasks in p.cn_tasks.items():
-                    if tasks:
-                        image_keys.append(key)
-                    if len(image_keys) >= int(cell_index):
-                        main_key = image_keys[int(cell_index)]
-                    p.cn_tasks[main_key][0][0] = np.array(img)
+              p.uov_method = p.upscale_mode
+              p.current_tab = 'uov'
+        else:
+              p.current_tab == 'ip':
+              width, height = img.size
+              if p.ratio=="to ORIGINAL":
+                  aspect = math.gcd(width, height)
+                  p.aspect_ratios_selection = f'{width}×{height} <span style="color: grey;"> ∣ {width // aspect}:{height // aspect}</span>'
+              if p.ratio=="to OUTPUT":
+                  new_width, new_height = p.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
+                  new_width = int(new_width)
+                  new_height = int(new_height)
+                  ratio = min(float(new_width) / width, float(new_height) / height)
+                  w = int(width * ratio)
+                  h = int(height * ratio)
+                  img = img.resize((w, h), Image.LANCZOS)
+              p.cn_tasks[p.image_mode].append([np.array(img), p.ip_stop_batch, p.ip_weight_batch])
         print (f"[Images QUEUE] {passed} / {batch_all}. Filename: {f_name}")
         passed+=1
 
@@ -1878,7 +1875,7 @@ with shared.gradio_root:
         ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
-        ctrls += [ratio]
+        ctrls += [ratio,image_action,image_mode,ip_stop_batch,ip_weight_batch,upscale_mode]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
@@ -1917,6 +1914,7 @@ with shared.gradio_root:
               .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
               .then(fn=im_batch_run, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
               .then(fn=clearer) \
+              .then(fn=seeTranlateAfterClick, inputs=[adv_trans, prompt, negative_prompt, srcTrans, toTrans], outputs=[p_tr, p_n_tr]) \
               .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False,gr.update(visible=False)),
                   outputs=[batch_start,generate_button, stop_button, skip_button, state_is_generating,status_batch]) \
               .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue])
