@@ -238,14 +238,6 @@ def get_task(*args):
     args = list(args)
     args.pop(0)
     return worker.AsyncTask(args=args)
-
-
-
-
-
-
- 
-
      
 def im_batch_run(p):
     global finished_batch
