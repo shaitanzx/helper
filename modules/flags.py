@@ -84,6 +84,9 @@ default_ip = cn_ip
 default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0), cn_pose: (0.5, 1.0), cn_recolor: (1.0, 1.0), cn_scribble: (1.0, 1.0)
 }  # stop, weight
+im_batch_default = {
+    cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0), cn_pose: (0.5, 1.0), cn_recolor: (1.0, 1.0), cn_scribble: (1.0, 1.0)
+}
 
 output_formats = ['png', 'jpeg', 'webp']
 

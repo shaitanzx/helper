@@ -914,10 +914,6 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             describe_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
-            print('aaaaaaaaaaaa',modules.config.default_ip_images)
-            print(modules.config.default_ip_stop_ats)
-            print(modules.config.default_ip_weights)
-            print(modules.config.default_ip_types)
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='Image Batch') as xyz_plot:
@@ -979,8 +975,8 @@ with shared.gradio_root:
                               return
                             image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action',interactive=True)
                             image_mode = gr.Dropdown(choices=flags.ip_list, value=flags.ip_list[0], label='Method',interactive=True)
-                            ip_stop_batch = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=flags.default_parameters[image_mode.value][0],interactive=True)
-                            ip_weight_batch = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=modules.config.default_ip_weights[image_count],interactive=True)
+                            ip_stop_batch = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=flags.im_batch_default[image_mode.value][0],interactive=True)
+                            ip_weight_batch = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=flags.im_batch_default[image_mode.value][1],interactive=True)
                             upscale_mode = gr.Dropdown(choices=flags.uov_list, value=flags.uov_list[0], label='Method',interactive=True,visible=False)
                             add_to_queue = gr.Button(label="Add to queue", value='Add to queue ({}'.format(len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))]))+')', elem_id='add_to_queue', visible=True)
                             batch_start = gr.Button(value='Start queue', visible=True)
@@ -1000,8 +996,8 @@ with shared.gradio_root:
                               return gr.update(visible=False),gr.update(visible=False),gr.update(visible=False),gr.update(visible=True)
                         def image_mode_change(image_mode):
                             key = next((k for k, v in modules.config.default_ip_types.items() if v == 'image_mode'), None)
-                            ip_stop_batch=flags.default_parameters[image_mode][0]
-                            ip_weight_batch=flags.default_parameters[image_mode][1]
+                            ip_stop_batch=flags.im_batch_default[image_mode][0]
+                            ip_weight_batch=flags.im_batch_default[image_mode][1]
                             return gr.update(value=ip_stop_batch), gr.update(value=ip_weight_batch)
 
 
