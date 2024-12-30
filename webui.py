@@ -255,6 +255,7 @@ def im_batch_run(p):
     
     batch_files=sorted([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])
     batch_all=len(batch_files)
+    check=p.input_image_checkbox
     passed=1
     for f_name in batch_files:
       if not finished_batch:  
@@ -267,7 +268,7 @@ def im_batch_run(p):
               p.uov_method = p.upscale_mode
               p.current_tab = 'uov'
         else:
-              p.current_tab == 'ip':
+              p.current_tab == 'ip'
               width, height = img.size
               if p.ratio=="to ORIGINAL":
                   aspect = math.gcd(width, height)
@@ -288,6 +289,7 @@ def im_batch_run(p):
         p = copy.deepcopy(pc)
         if p.seed_random:
           p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
+    p.input_image_checkbox=check
     return
 def queue_new_prompt(*args):
   global finished_batch
@@ -988,15 +990,19 @@ with shared.gradio_root:
                             file_out=gr.File(label="Download a ZIP file", file_count='single')
                             save_output = gr.Button(value='Output --> ZIP')
                             clear_output = gr.Button(value='Clear Output')
-                        def image_mode_change(image_action):
+                        def image_action_change(image_action):
                             if image_action=='Image Prompt':
                               return gr.update(visible=True),gr.update(visible=True),gr.update(visible=True),gr.update(visible=False)
                             else:
                               return gr.update(visible=False),gr.update(visible=False),gr.update(visible=False),gr.update(visible=True)
+                        def image_mode_change(image_mode):
+                            ip_stop_batch=flags.default_parameters[image_mode][0]
+                            ip_weight_batch=flags.default_parameters[image_mode][1]
+                            return gr.update(value=ip_stop_batch), gr.update(value=ip_weight_batch)
 
 
-                        image_action.change(image_mode_change, inputs=[image_action], outputs=[image_mode,ip_stop_batch,ip_weight_batch,upscale_mode])
-                            
+                        image_action.change(image_action_change, inputs=[image_action], outputs=[image_mode,ip_stop_batch,ip_weight_batch,upscale_mode])
+                        image_mode.change(image_mode_change,inputs=[image_mode],outputs=[ip_stop_batch,ip_weight_batch])    
                         
                         
                         add_to_queue.click(lambda: (gr.update(interactive=False), gr.update(visible=True,value='File unZipping')),
