@@ -914,7 +914,10 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             describe_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
-			
+            print('aaaaaaaaaaaa',modules.config.default_ip_images)
+            print(modules.config.default_ip_stop_ats)
+            print(modules.config.default_ip_weights)
+            print(modules.config.default_ip_types)
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
                   with gr.TabItem(label='Image Batch') as xyz_plot:
@@ -996,6 +999,7 @@ with shared.gradio_root:
                             else:
                               return gr.update(visible=False),gr.update(visible=False),gr.update(visible=False),gr.update(visible=True)
                         def image_mode_change(image_mode):
+                            key = next((k for k, v in modules.config.default_ip_types.items() if v == 'image_mode'), None)
                             ip_stop_batch=flags.default_parameters[image_mode][0]
                             ip_weight_batch=flags.default_parameters[image_mode][1]
                             return gr.update(value=ip_stop_batch), gr.update(value=ip_weight_batch)
