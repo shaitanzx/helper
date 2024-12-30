@@ -281,58 +281,56 @@ def im_batch_run(p):
           p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
     p.input_image_checkbox=check
     return
-def queue_new_prompt(*args):
+def pr_batch_start(p):
   global finished_batch
   finished_batch=False
-  args = list(args)
-  base_neg_token = args.pop()
-  base_pos_token = args.pop()
-  seed_random = args.pop()
-  batch_args = args.pop()
-  batch_args.reverse()
-  copy = args[:]
+
+  base_neg_token = negative_batch 
+  base_pos_token = positive_batch
+ # seed_random = args.pop()
+  batch_args = batch_prompt
+ # batch_args.reverse()
+  pc = copy.deepcopy(p)
   passed=1
-  while batch_args and not finished_batch:
+  while p.batch_prompt and not finished_batch:
       print (f"[Prompts QUEUE] Element #{passed}")
-      one_batch_args=batch_args.pop()
-      if base_pos_token=='Prefix':
-        args[2]= args[2] + one_batch_args[0]
-      elif base_pos_token=='Suffix':
-        args[2]= one_batch_args[0] + args[2]
+      one_batch_args=p.batch_prompt.pop()
+      if p.positive_batch=='Prefix':
+        p.prompt= p.prompt + one_batch_args[0]
+      elif p.positive_batch=='Suffix':
+        p.prompt= one_batch_args[0] + p.prompt
       else:
-        args[2]=one_batch_args[0]
-      if base_neg_token=='Prefix':
-        args[3]= args[3] + one_batch_args[1]
-      elif base_neg_token=='Suffix':
-        args[3]= one_batch_args[1] + args[3]
+        p.prompt=one_batch_args[0]
+      if p.negative_batch=='Prefix':
+        p.negative_prompt= p.negative_prompt + one_batch_args[1]
+      elif negative_batch=='Suffix':
+        p.negative_prompt= one_batch_args[1] + p.negative_prompt
       else:
-        args[3]=one_batch_args[1]
-      currentTask=get_task_batch(args)
-      yield from generate_clicked(currentTask)
-      args=copy[:]
-      if seed_random:
-        args[9]=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
+        p.negative_prompt=one_batch_args[1]
+      
+      yield from generate_clicked(p)
+      p = copy.deepcopy(pc)
+      if p.seed_random:
+        seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
       passed+=1
   return 
-def prompt_clearer(batch_prompt):
-  batch_prompt=[{'prompt': '', 'negative prompt': ''}]
-  return batch_prompt
 
-def get_task_batch(*args):
-    argsList = list(args[0])
-    toT = argsList.pop() 
-    srT = argsList.pop() 
-    trans_automate = argsList.pop() 
-    trans_enable = argsList.pop() 
-    if trans_enable:      
-        if trans_automate:
-            positive, negative = translate(argsList[2], argsList[3], srT, toT)            
-            argsList[2] = positive
-            argsList[3] = negative            
-    args = tuple(argsList)
-    args = list(args)
-    args.pop(0)
-    return worker.AsyncTask(args=args)
+
+#def get_task_batch(*args):
+#    argsList = list(args[0])
+#    toT = argsList.pop() 
+#    srT = argsList.pop() 
+#    trans_automate = argsList.pop() 
+#    trans_enable = argsList.pop() 
+#    if trans_enable:      
+#        if trans_automate:
+#            positive, negative = translate(argsList[2], argsList[3], srT, toT)            
+#            argsList[2] = positive
+#            argsList[3] = negative            
+#    args = tuple(argsList)
+#    args = list(args)
+#    args.pop(0)
+#    return worker.AsyncTask(args=args)
 
 def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
@@ -863,42 +861,8 @@ with shared.gradio_root:
 
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox,
                                         outputs=image_input_panel, queue=False, show_progress=False, _js=switch_js)
-            with gr.Row(elem_classes='advanced_check_row'):
-                
-                prompt_checkbox = gr.Checkbox(label='Prompts Batch', value=False, container=False, elem_classes='min_check')
 
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
-            with gr.Row(visible=False) as prompt_panel:
-
-
-                def prompts_delete(batch_prompt):
-                  if len(batch_prompt) > 1:
-                      removed=batch_prompt.pop()
-                  return batch_prompt
-
-
-                with gr.Column():
-                    batch_prompt=gr.Dataframe(
-                      headers=["prompt", "negative prompt"],
-                      datatype=["str", "str"],
-                      row_count=1, wrap=True,
-                      col_count=(2, "fixed"), type="array", interactive=True)
-                    with gr.Row():
-                      positive_batch = gr.Radio(label='Base positive prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
-                      negative_batch = gr.Radio(label='Base negative prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
-                    with gr.Row():
-                      prompt_delete=gr.Button(value="Delete last row")
-                      prompt_clear=gr.Button(value="Clear Batch")
-                      prompt_start=gr.Button(value="Start batch", visible=True)
-                      prompt_stop=gr.Button(value="Stop batch", visible=False)
-                    with gr.Row():
-                      gr.HTML('* "Prompt Batch Mode" is powered by Shahmatist^RMDA')
-                
-                prompt_delete.click(prompts_delete,inputs=batch_prompt,outputs=batch_prompt)
-                prompt_clear.click(prompt_clearer,inputs=batch_prompt,outputs=batch_prompt)
-            prompt_checkbox.change(lambda x: gr.update(visible=x), inputs=prompt_checkbox,
-                                        outputs=prompt_panel, queue=False, show_progress=False, _js=switch_js)
-
             current_tab = gr.Textbox(value='uov', visible=False)
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
@@ -906,7 +870,41 @@ with shared.gradio_root:
             describe_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             with gr.Row(elem_classes='extend_row'):
                 with gr.Accordion('Extention', open=False):
-                  with gr.TabItem(label='Image Batch') as xyz_plot:
+                  with gr.TabItem(label='Prompt Batch') as pr_batch:
+                        def prompt_clearer(batch_prompt):
+                            batch_prompt=[{'prompt': '', 'negative prompt': ''}]
+                            return batch_prompt
+                        def prompts_delete(batch_prompt):
+                            if len(batch_prompt) > 1:
+                                removed=batch_prompt.pop()
+                            return batch_prompt
+                        with gr.Row():
+#                            with gr.Column():
+                                batch_prompt=gr.Dataframe(
+                                    headers=["prompt", "negative prompt"],
+                                    datatype=["str", "str"],
+                                    row_count=1, wrap=True,
+                                    col_count=(2, "fixed"), type="array", interactive=True)
+                        with gr.Row():
+                                positive_batch = gr.Radio(label='Base positive prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
+                                negative_batch = gr.Radio(label='Base negative prompt:', choices=['None','Prefix','Suffix'], value='None', interactive=True)
+                        with gr.Row():
+                                prompt_delete=gr.Button(value="Delete last row")
+                                prompt_clear=gr.Button(value="Clear Batch")
+                                prompt_start=gr.Button(value="Start batch", visible=True)
+                        with gr.Row():
+                                gr.HTML('* "Prompt Batch Mode" is powered by Shahmatist^RMDA')
+                
+                        prompt_delete.click(prompts_delete,inputs=batch_prompt,outputs=batch_prompt)
+                        prompt_clear.click(prompt_clearer,inputs=batch_prompt,outputs=batch_prompt)
+                        prompt_checkbox.change(lambda x: gr.update(visible=x), inputs=prompt_checkbox,
+                                        outputs=prompt_panel, queue=False, show_progress=False, _js=switch_js)
+
+
+
+
+
+                  with gr.TabItem(label='Image Batch') as im_batch:
                         def unzip_file(zip_file_obj):
                             extract_folder = "./batch_images"
                             if not os.path.exists(extract_folder):
@@ -1867,6 +1865,7 @@ with shared.gradio_root:
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
         ctrls += [ratio,image_action,image_mode,ip_stop_batch,ip_weight_batch,upscale_mode]
+        ctrls += [batch_prompt,positive_batch,negative_batch]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans]
         xyz_start.click(lambda: (gr.update(visible=True, interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[xyz_start, stop_button, skip_button, generate_button, gallery, state_is_generating]) \
@@ -1909,17 +1908,14 @@ with shared.gradio_root:
               .then(lambda: (gr.update(visible=True, interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False,gr.update(visible=False)),
                   outputs=[batch_start,generate_button, stop_button, skip_button, state_is_generating,status_batch]) \
               .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue])
-        ctrls_prompt = ctrls[:]
-        ctrls_prompt.append(batch_prompt)
-        ctrls_prompt.append(seed_random)
-        ctrls_prompt.append(positive_batch)
-        ctrls_prompt.append(negative_batch)
-        prompt_start.click(lambda: (gr.update(interactive=False),gr.update(interactive=False),gr.update(interactive=False),gr.update(visible=False),gr.update(visible=False), gr.update(visible=True, interactive=True)),
-                              outputs=[batch_prompt,prompt_delete,prompt_clear,generate_button,prompt_start, prompt_stop]) \
+
+        prompt_start.click(lambda: (gr.update(interactive=False),gr.update(interactive=False),gr.update(interactive=False),gr.update(interactive=False),gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
+                              outputs=[prompt_start,prompt_delete,prompt_clear,batch_promptstop_button, skip_button, generate_button, gallery, state_is_generating]) \
               .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-              .then(fn=queue_new_prompt,inputs=ctrls_prompt, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-              .then(lambda: (gr.update(interactive=True),gr.update(interactive=True),gr.update(interactive=True),gr.update(visible=True),gr.update(visible=False), gr.update(visible=True)),
-                          outputs=[batch_prompt,prompt_delete,prompt_clear,generate_button,prompt_stop, prompt_start]) \
+              .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+              .then(fn=pr_batch_start,inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+              .then(lambda: (gr.update(visible=True),gr.update(interactive=True),gr.update(interactive=True),gr.update(interactive=True),gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
+                  outputs=[prompt_start,batch_prompt,prompt_delete,prompt_clear,generate_button, stop_button, skip_button, state_is_generating]) \
               .then(fn=update_history_link, outputs=history_link) \
               .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 

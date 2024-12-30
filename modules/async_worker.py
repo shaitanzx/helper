@@ -223,6 +223,9 @@ class AsyncTask:
         self.ip_stop_batch = args.pop()
         self.ip_weight_batch = args.pop()
         self.upscale_mode = args.pop()
+        self.batch_prompt = args.pop()
+        self.positive_batch = args.pop()
+        self.negative_batch = args.pop()
         
 
 async_tasks = []
