@@ -935,7 +935,7 @@ with shared.gradio_root:
                             def update_radio(value):
                               return gr.update(value=value)
                             ratio = gr.Radio(label='Scale method:', choices=['NOT scale','to ORIGINAL','to OUTPUT'], value='NOT scale', interactive=True)
-                            gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
+                            
 
                           with gr.Column():
                             image_action = gr.Dropdown(choices=['Image Prompt','Upscale'], value='Image Prompt', label='Action',interactive=True)
@@ -947,12 +947,12 @@ with shared.gradio_root:
                             batch_start = gr.Button(value='Start queue', visible=True)
                             batch_clear = gr.Button(value='Clear queue')
                             status_batch = gr.Textbox(show_label=False, value = '', container=False, visible=False, interactive=False)
-
                           with gr.Column():
-                        
                             file_out=gr.File(label="Download a ZIP file", file_count='single')
                             save_output = gr.Button(value='Output --> ZIP')
                             clear_output = gr.Button(value='Clear Output')
+                        with gr.Row():
+                          gr.HTML('* "Images Batch Mode" is powered by Shahmatist^RMDA')
                         def image_action_change(image_action):
                             if image_action=='Image Prompt':
                               return gr.update(visible=True),gr.update(visible=True),gr.update(visible=True),gr.update(visible=False)
@@ -985,14 +985,11 @@ with shared.gradio_root:
                                     .then(fn=clearer) \
                                     .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
                                     .then(lambda: (gr.update(interactive=True),gr.update(visible=False)),outputs=[batch_clear,status_batch])
-
-                    
-
-
-
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
                     x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme = xyz.ui()
                     xyz_start=gr.Button(value="Start xyz",visible=True)
+                    gr.HTML('* \"X/Y/Z Plot\" is powered by zer0TF. <a href="https://github.com/zer0TF/xyz_plot_script" target="_blank">\U0001F4D4 Document</a>')
+                    gr.HTML('* Modification and adaptation for Fooocus is powered by Shahmatist^RMDA')
                   with gr.TabItem(label='OBP') as obp_tab:
                         with gr.Tab("Main"):
                             with gr.Row(variant="compact"):

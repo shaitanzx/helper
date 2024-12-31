@@ -69,6 +69,10 @@ def ui():
         # gradioooooo...
           canvas_ope = gr.HTML('<canvas id="openpose_editor_canvas" width="512" height="512" style="margin: 0.25rem; border-radius: 0.25rem; border: 0.5px solid"></canvas>')
           jsonbox_ope = gr.Text(label="json", elem_id="jsonbox", visible=False)
+      with gr.Row():
+            gr.HTML('* \"OpenPose Editor\" is powered by fkunn1326. <a href="https://github.com/fkunn1326/openpose-editor" target="_blank">\U0001F4D4 Document</a>')
+      with gr.Row():
+            gr.HTML('* Modification and adaptation for Fooocus is powered by Shahmatist^RMDA')
       def estimate(file):
         global body_estimation
 
