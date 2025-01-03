@@ -1,6 +1,7 @@
 readme.md
 webui
 asinc_worker
+fooocus_version
 md_lib--------model
                 civitai
                 sections
