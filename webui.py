@@ -882,10 +882,6 @@ with shared.gradio_root:
                         prompt_delete.click(prompts_delete,inputs=batch_prompt,outputs=batch_prompt)
                         prompt_clear.click(prompt_clearer,inputs=batch_prompt,outputs=batch_prompt)
 
-
-
-
-
                   with gr.TabItem(label='Image Batch') as im_batch:
                         def unzip_file(zip_file_obj):
                             extract_folder = "./batch_images"
