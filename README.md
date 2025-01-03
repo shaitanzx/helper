@@ -164,7 +164,7 @@ V8 (current local version)
 4. Images Batch has become easier to manage while retaining its functionality
 5. Images Batch is now in the extensions panel
 
-V7 (current local version)
+V7
 1. Add OpenPoseEditor
 2. Fix bug in Image Batch Mode
 3. Added cell selection in Image Batch Mode
