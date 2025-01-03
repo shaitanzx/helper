@@ -356,8 +356,8 @@ def worker():
                  ('Guidance Scale', 'guidance_scale', async_task.cfg_scale),
                  ('Sharpness', 'sharpness', async_task.sharpness),
                  ('ADM Guidance', 'adm_guidance', str((
-                     async_task.positive_adm_scale,
-                     async_task.negative_adm_scale,
+                     async_task.adm_scaler_positive,
+                     async_task.adm_scaler_negative,
                      async_task.adm_scaler_end))),
                  ('Base Model', 'base_model', async_task.base_model_name),
                  ('VAE', 'vae', async_task.vae_name),
