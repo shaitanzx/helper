@@ -417,6 +417,7 @@ def ui():
     with gr.Row(variant="compact", elem_id="axis_options"):
         with gr.Column():
             draw_legend = gr.Checkbox(label='Draw legend', value=True, elem_id="draw_legend")
+            always_random = gr.Checkbox(label='Always random seed', value=False, elem_id="always_random")
             no_fixed_seeds = gr.Checkbox(label='Keep -1 for seeds', value=False, elem_id="no_fixed_seeds", visible=False)
             with gr.Row(visible=False):
                 vary_seeds_x = gr.Checkbox(label='Vary seeds for X', value=False, min_width=80, elem_id="vary_seeds_x", info="Use different seeds for images along X axis.")
@@ -507,7 +508,7 @@ def ui():
         (z_values_dropdown, lambda params: get_dropdown_update_from_params("Z", params)),
     )
 
-    return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
+    return [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme,always_random]
 
 def run(p):
     grid_theme = p.grid_theme

@@ -176,6 +176,7 @@ class AsyncTask:
         self.margin_size = args.pop()
         self.csv_mode = args.pop()
         self.grid_theme = args.pop()
+        self.always_random = args.pop()
         self.translate_enabled = args.pop()
         self.translate_automate = args.pop()
         self.srcTrans = args.pop()
@@ -345,7 +346,45 @@ def worker():
 
         # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
         async_task.results = async_task.results + [wall]
-        log(wall, metadata=[('Grid', 'Grid', 'Grid')], metadata_parser=None, output_format=None, task=None, persist_image=True)
+        d = [('', 'grid', 'GRID'),
+                 ('Prompt', 'prompt', async_task.prompt),
+                 ('Negative Prompt', 'negative_prompt', async_task.negative_prompt),
+                 ('Styles', 'styles',async_task.style_selections),
+                 ('Performance', 'performance', async_task.performance_selection.value),
+                 ('Steps', 'steps', async_task.steps),
+                 ('Resolution', 'resolution', async_task.aspect_ratios_selection),
+                 ('Guidance Scale', 'guidance_scale', async_task.cfg_scale),
+                 ('Sharpness', 'sharpness', async_task.sharpness),
+                 ('ADM Guidance', 'adm_guidance', str((
+                     async_task.positive_adm_scale,
+                     async_task.negative_adm_scale,
+                     async_task.adm_scaler_end))),
+                 ('Base Model', 'base_model', async_task.base_model_name),
+                 ('VAE', 'vae', async_task.vae_name),
+                 ('Refiner Model', 'refiner_model', async_task.refiner_model_name),
+                 ('Refiner Switch', 'refiner_switch', async_task.refiner_switch)]
+
+        if async_task.refiner_model_name != 'None':
+                if async_task.overwrite_switch > 0:
+                    d.append(('Overwrite Switch', 'overwrite_switch', async_task.overwrite_switch))
+                if async_task.refiner_swap_method != flags.refiner_swap_method:
+                    d.append(('Refiner Swap Method', 'refiner_swap_method', async_task.refiner_swap_method))
+        if async_task.clip_skip > 1:
+            d.append(('CLIP Skip', 'clip_skip', async_task.clip_skip))
+            d.append(('Sampler', 'sampler', async_task.sampler_name))
+            d.append(('Scheduler', 'scheduler', async_task.scheduler_name))
+            d.append(('VAE', 'vae', async_task.vae_name))
+
+        if async_task.freeu_enabled:
+                d.append(('FreeU', 'freeu',
+                          str((async_task.freeu_b1, async_task.freeu_b2, async_task.freeu_s1, async_task.freeu_s2))))
+
+        for li, (n, w) in enumerate(async_task.loras):
+                if n != 'None':
+                    d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
+
+        
+        log(wall, metadata=d, metadata_parser=None, output_format=None, task=None, persist_image=True)
         return
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path,

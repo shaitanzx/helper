@@ -88,6 +88,8 @@ def xyz_plot_ext(currentTask):
                   positive, negative = translate(currentTask.prompt, currentTask.negative_prompt, currentTask.srcTrans, currentTask.toTrans)            
                   currentTask.prompt = positive
                   currentTask.negative_prompt = negative
+            if p.always_random:
+                  p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
     xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,xs,ys,zs,currentTask,xyz_results)  
@@ -959,8 +961,8 @@ with shared.gradio_root:
                             else:
                               return gr.update(visible=False),gr.update(visible=False),gr.update(visible=False),gr.update(visible=True)
                         def image_mode_change(image_mode):
-                            ip_stop_batch=flags.im_batch_default[image_mode][0]
-                            ip_weight_batch=flags.im_batch_default[image_mode][1]
+                            ip_stop_batch=flags.default_parameters[image_mode][0]
+                            ip_weight_batch=flags.default_parameters[image_mode][1]
                             return gr.update(value=ip_stop_batch), gr.update(value=ip_weight_batch)
 
 
@@ -986,7 +988,7 @@ with shared.gradio_root:
                                     .then(lambda: (gr.update(value=f'Add to queue ({len([name for name in os.listdir(batch_path) if os.path.isfile(os.path.join(batch_path, name))])})')), outputs=[add_to_queue]) \
                                     .then(lambda: (gr.update(interactive=True),gr.update(visible=False)),outputs=[batch_clear,status_batch])
                   with gr.TabItem(label=xyz.title()) as xyz_plot:
-                    x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme = xyz.ui()
+                    x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme,always_random = xyz.ui()
                     xyz_start=gr.Button(value="Start xyz",visible=True)
                     gr.HTML('* \"X/Y/Z Plot\" is powered by zer0TF. <a href="https://github.com/zer0TF/xyz_plot_script" target="_blank">\U0001F4D4 Document</a>')
                     gr.HTML('* Modification and adaptation for Fooocus is powered by Shahmatist^RMDA')
@@ -1838,7 +1840,7 @@ with shared.gradio_root:
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
         
-        ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme]
+        ctrls += [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown, draw_legend, include_lone_images, include_sub_grids, no_fixed_seeds, vary_seeds_x, vary_seeds_y, vary_seeds_z, margin_size, csv_mode,grid_theme,always_random]
         ctrls += [translate_enabled, translate_automate, srcTrans, toTrans, prompt, negative_prompt]
         ctrls += [model,base_model,size,amountofimages,insanitylevel,subject, artist, imagetype, silentmode, workprompt, antistring, prefixprompt, suffixprompt,promptcompounderlevel, seperator, givensubject,smartsubject,giventypeofimage,imagemodechance, chosengender, chosensubjectsubtypeobject, chosensubjectsubtypehumanoid, chosensubjectsubtypeconcept, promptvariantinsanitylevel, givenoutfit, autonegativeprompt, autonegativepromptstrength, autonegativepromptenhance, base_model_obp, OBP_preset, amountoffluff, promptenhancer, presetprefix, presetsuffix,seed_random]
         ctrls += [ratio,image_action,image_mode,ip_stop_batch,ip_weight_batch,upscale_mode]
