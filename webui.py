@@ -88,8 +88,8 @@ def xyz_plot_ext(currentTask):
                   positive, negative = translate(currentTask.prompt, currentTask.negative_prompt, currentTask.srcTrans, currentTask.toTrans)            
                   currentTask.prompt = positive
                   currentTask.negative_prompt = negative
-            if p.always_random:
-                  p.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
+            if currentTask.always_random:
+                  currentTask.seed=int (random.randint(constants.MIN_SEED, constants.MAX_SEED))
             yield from generate_clicked(currentTask)
             temp_var=currentTask.results
     xyz.draw_grid(x_labels,y_labels,z_labels,list_size,ix,iy,iz,xs,ys,zs,currentTask,xyz_results)  
